@@ -1,7 +1,7 @@
 # Neurobridge — Progress Tracker
 
 > **Last Updated:** 2026-07-05  
-> **Current Phase:** Phase 1 (MVP Launch) — Week 3 started
+> **Current Phase:** Phase 1 (MVP Launch) — Complete
 
 ---
 
@@ -88,7 +88,7 @@
 | Phase | Features                                                                                                                        | Est. Weeks | Status     |
 | ----- | ------------------------------------------------------------------------------------------------------------------------------- | ---------- | ---------- |
 | 0     | Profile management, rate limiting, CORS lockdown, JWT secrets, test framework, register+OTP integration                         | Week 2     | ✅ Complete |
-| 1     | Child CRUD, parent/therapist dashboards, session notes, intake forms, goal tracking, behaviour tracking, admin panel, messaging | Week 3–7   | 🟡 In Progress |
+| 1     | Child CRUD, parent/therapist dashboards, session notes, intake forms, goal tracking, behaviour tracking, admin panel, messaging | Week 3–7   | ✅ Complete |
 | 2     | Progress charts, file uploads, notifications, resource library, therapist profiles                                              | Week 8–10  | 🔴 Pending |
 | 3     | Booking system, payments (Paystack), subscriptions, reports generator                                                           | Week 11–13 | 🔴 Pending |
 | 4     | School dashboard, AI features, teletherapy, multi-language, mobile app                                                          | Week 14–18 | 🔴 Pending |
@@ -134,3 +134,17 @@
 | 2026-07-05 | Frontend: Child Detail Page                  | `/children/[id]` — profile, parents, therapists, goals, sessions, behaviours sections         |
 | 2026-07-05 | Frontend: Edit Child Page                    | `/children/[id]/edit` — pre-filled form                                                       |
 | 2026-07-05 | Frontend: Dashboard Widgets                  | Quick stats (child count), My Children list widget, role-aware navigation                     |
+| 2026-07-05 | Backend: Session Notes CRUD                  | Session create/update/delete with upsertable session notes                                    |
+| 2026-07-05 | Backend: Intake Forms                        | Get/upsert intake form per child                                                              |
+| 2026-07-05 | Backend: Goal Tracking CRUD                  | Create/update/delete goals per child with status enum                                         |
+| 2026-07-05 | Backend: Behaviour + Behaviour Log CRUD      | Behaviours with name/description, logs with frequency + date tracking                         |
+| 2026-07-05 | Backend: Admin Panel                         | List users (with filters), approve therapists, platform stats                                 |
+| 2026-07-05 | Backend: Messaging API                       | Conversations (create/list), messages (send/list) with participant verification               |
+| 2026-07-05 | Frontend: Sessions Pages                     | `/children/[id]/sessions` list with notes, `/sessions/new` with combined session+notes form   |
+| 2026-07-05 | Frontend: Intake Form Page                   | `/children/[id]/intake` — form with auto-load existing data                                   |
+| 2026-07-05 | Frontend: Admin Panel Page                   | `/admin` — stats cards, users table with role filter, approve therapists                      |
+| 2026-07-05 | Frontend: Messaging Pages                    | `/messages` conversation list, `/messages/[id]` chat UI with send                             |
+| 2026-07-05 | Frontend: Child Detail Nav                   | Tab navigation to Sessions, Intake, Goals, Behaviours                                         |
+| 2026-07-05 | Frontend: Dashboard Nav Update               | Links to Children, Messages, Admin (role-aware)                                               |
+
+> Phase 1 complete. Ready to start Phase 2 (Progress charts, file uploads, notifications, resource library, therapist profiles).

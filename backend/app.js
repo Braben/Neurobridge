@@ -9,6 +9,12 @@ const rateLimit = require("express-rate-limit"); // Rate limiting
 const authRoutes = require("./src/routes/auth.route");
 const userRoutes = require("./src/routes/user.route");
 const childRoutes = require("./src/routes/child.route");
+const sessionRoutes = require("./src/routes/session.route");
+const intakeRoutes = require("./src/routes/intake.route");
+const goalRoutes = require("./src/routes/goal.route");
+const behaviourRoutes = require("./src/routes/behaviour.route");
+const adminRoutes = require("./src/routes/admin.route");
+const messageRoutes = require("./src/routes/message.route");
 
 const app = express();
 
@@ -46,6 +52,12 @@ app.get("/api/v1/", (req, res) => {
 app.use("/api/v1/auth", authRoutes);
 app.use("/api/v1/users", userRoutes);
 app.use("/api/v1/children", childRoutes);
+app.use("/api/v1/sessions", sessionRoutes);
+app.use("/api/v1/intake", intakeRoutes);
+app.use("/api/v1/goals", goalRoutes);
+app.use("/api/v1/behaviours", behaviourRoutes);
+app.use("/api/v1/admin", adminRoutes);
+app.use("/api/v1/messages", messageRoutes);
 
 // --- 404 Catch-All ---
 app.use((req, res, next) => {

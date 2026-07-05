@@ -45,6 +45,13 @@ export default function ChildDetailPage() {
     );
   }
 
+  const navLinks = [
+    { href: `/children/${id}/sessions`, label: "Sessions", count: child.sessions.length },
+    { href: `/children/${id}/intake`, label: "Intake Form", active: !!child.intakeForm },
+    { href: `/children/${id}#goals`, label: "Goals", count: child.goals.length },
+    { href: `/children/${id}#behaviours`, label: "Behaviours", count: child.behaviours.length },
+  ];
+
   return (
     <div className="min-h-screen bg-gray-50">
       <header className="bg-white shadow">
@@ -54,18 +61,29 @@ export default function ChildDetailPage() {
             <h1 className="text-xl font-bold text-gray-900">{child.firstName} {child.lastName}</h1>
           </div>
           <div className="flex gap-2">
-            <Link
-              href={`/children/${child.id}/edit`}
-              className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700"
-            >
-              Edit
-            </Link>
-            <button
-              onClick={handleDelete}
-              className="rounded-lg bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700"
-            >
-              Delete
-            </button>
+            <Link href={`/children/${child.id}/edit`} className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700">Edit</Link>
+            <button onClick={handleDelete} className="rounded-lg bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700">Delete</button>
+          </div>
+        </div>
+        {/* Feature Navigation */}
+        <div className="border-t border-gray-200">
+          <div className="mx-auto flex max-w-7xl gap-1 px-4">
+            {navLinks.map((link) => (
+              <Link key={link.href} href={link.href}
+                className={`flex items-center gap-1.5 border-b-2 px-4 py-3 text-sm font-medium transition-colors ${
+                  typeof link.active === "boolean" && link.active
+                    ? "border-blue-600 text-blue-600"
+                    : "border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700"
+                }`}>
+                {link.label}
+                {"count" in link && link.count !== undefined && (
+                  <span className="rounded-full bg-gray-100 px-1.5 py-0.5 text-xs text-gray-600">{link.count}</span>
+                )}
+                {typeof link.active === "boolean" && (
+                  <span className={`h-2 w-2 rounded-full ${link.active ? "bg-green-500" : "bg-gray-300"}`} />
+                )}
+              </Link>
+            ))}
           </div>
         </div>
       </header>
@@ -110,9 +128,7 @@ export default function ChildDetailPage() {
                 <div key={t.id} className="flex items-center justify-between rounded-lg bg-gray-50 p-3">
                   <div>
                     <p className="text-sm font-medium text-gray-900">{t.therapist.firstName} {t.therapist.lastName}</p>
-                    {t.therapist.areaofexpertise && (
-                      <p className="text-xs text-gray-500">{t.therapist.areaofexpertise}</p>
-                    )}
+                    {t.therapist.areaofexpertise && <p className="text-xs text-gray-500">{t.therapist.areaofexpertise}</p>}
                   </div>
                   <span className="text-xs text-gray-400">Assigned {new Date(t.assignedAt).toLocaleDateString()}</span>
                 </div>
@@ -121,10 +137,15 @@ export default function ChildDetailPage() {
           </div>
         )}
 
-        {/* Goals */}
-        {child.goals.length > 0 && (
-          <div className="rounded-xl bg-white p-6 shadow">
-            <h2 className="mb-4 text-lg font-semibold text-gray-900">Goals</h2>
+        {/* Goals Section */}
+        <div id="goals" className="rounded-xl bg-white p-6 shadow">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-lg font-semibold text-gray-900">Goals</h2>
+            <span className="text-xs text-gray-500">{child.goals.filter((g) => g.status === "ACHIEVED").length}/{child.goals.length} achieved</span>
+          </div>
+          {child.goals.length === 0 ? (
+            <p className="text-sm text-gray-400 italic">No goals set yet.</p>
+          ) : (
             <div className="space-y-2">
               {child.goals.map((g) => (
                 <div key={g.id} className="rounded-lg border border-gray-200 p-3">
@@ -141,13 +162,18 @@ export default function ChildDetailPage() {
                 </div>
               ))}
             </div>
-          </div>
-        )}
+          )}
+        </div>
 
         {/* Recent Sessions */}
-        {child.sessions.length > 0 && (
-          <div className="rounded-xl bg-white p-6 shadow">
-            <h2 className="mb-4 text-lg font-semibold text-gray-900">Recent Sessions</h2>
+        <div className="rounded-xl bg-white p-6 shadow">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-lg font-semibold text-gray-900">Recent Sessions</h2>
+            <Link href={`/children/${id}/sessions`} className="text-sm text-blue-600 hover:text-blue-500">View all &rarr;</Link>
+          </div>
+          {child.sessions.length === 0 ? (
+            <p className="text-sm text-gray-400 italic">No sessions recorded yet.</p>
+          ) : (
             <div className="space-y-2">
               {child.sessions.map((s) => (
                 <div key={s.id} className="flex items-center justify-between rounded-lg bg-gray-50 p-3">
@@ -156,13 +182,17 @@ export default function ChildDetailPage() {
                 </div>
               ))}
             </div>
-          </div>
-        )}
+          )}
+        </div>
 
-        {/* Behaviours */}
-        {child.behaviours.length > 0 && (
-          <div className="rounded-xl bg-white p-6 shadow">
-            <h2 className="mb-4 text-lg font-semibold text-gray-900">Behaviours</h2>
+        {/* Behaviours Section */}
+        <div id="behaviours" className="rounded-xl bg-white p-6 shadow">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-lg font-semibold text-gray-900">Behaviours</h2>
+          </div>
+          {child.behaviours.length === 0 ? (
+            <p className="text-sm text-gray-400 italic">No behaviours tracked yet.</p>
+          ) : (
             <div className="flex flex-wrap gap-2">
               {child.behaviours.map((b) => (
                 <span key={b.id} className="rounded-full bg-purple-100 px-3 py-1 text-xs font-medium text-purple-700">
@@ -170,8 +200,8 @@ export default function ChildDetailPage() {
                 </span>
               ))}
             </div>
-          </div>
-        )}
+          )}
+        </div>
       </main>
     </div>
   );

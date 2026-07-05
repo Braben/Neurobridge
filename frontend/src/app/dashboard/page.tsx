@@ -43,8 +43,12 @@ export default function Dashboard() {
             <span className="rounded-full bg-blue-100 px-2 py-0.5 text-xs font-medium text-blue-700">
               {user.role}
             </span>
-            <nav className="flex items-center gap-2">
-              <Link href="/children" className="text-sm text-blue-600 hover:text-blue-500">My Children</Link>
+            <nav className="flex items-center gap-3">
+              <Link href="/children" className="text-sm text-blue-600 hover:text-blue-500">Children</Link>
+              <Link href="/messages" className="text-sm text-blue-600 hover:text-blue-500">Messages</Link>
+              {user.role === "ADMIN" && (
+                <Link href="/admin" className="text-sm text-purple-600 hover:text-purple-500">Admin</Link>
+              )}
             </nav>
             <button
               onClick={handleLogout}
