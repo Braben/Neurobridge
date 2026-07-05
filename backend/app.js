@@ -15,6 +15,7 @@ const goalRoutes = require("./src/routes/goal.route");
 const behaviourRoutes = require("./src/routes/behaviour.route");
 const adminRoutes = require("./src/routes/admin.route");
 const messageRoutes = require("./src/routes/message.route");
+const notificationRoutes = require("./src/routes/notification.route");
 
 const app = express();
 
@@ -58,6 +59,7 @@ app.use("/api/v1/goals", goalRoutes);
 app.use("/api/v1/behaviours", behaviourRoutes);
 app.use("/api/v1/admin", adminRoutes);
 app.use("/api/v1/messages", messageRoutes);
+app.use("/api/v1/notifications", notificationRoutes);
 
 // --- 404 Catch-All ---
 app.use((req, res, next) => {

@@ -1,14 +1,17 @@
 "use client";
 
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, useCallback } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
-import { useAppSelector } from "../../hooks/useRedux";
+import { useAppSelector, useAppDispatch } from "../../hooks/useRedux";
 import { messagesApi, Message } from "../../services/messages";
+import { getSocket } from "../../services/socket";
+import { clearLiveMessages } from "../../store/slices/messageSlice";
 
 export default function ConversationPage() {
   const { id } = useParams<{ id: string }>();
   const router = useRouter();
+  const dispatch = useAppDispatch();
   const { isAuthenticated, user } = useAppSelector((state) => state.auth);
   const [messages, setMessages] = useState<Message[]>([]);
   const [content, setContent] = useState("");
@@ -18,8 +21,23 @@ export default function ConversationPage() {
 
   useEffect(() => {
     if (!isAuthenticated) { router.push("/login"); return; }
-    messagesApi.getMessages(id).then((d) => setMessages(d.messages)).finally(() => setLoading(false));
-  }, [isAuthenticated, id, router]);
+    messagesApi.getMessages(id).then((d) => {
+      setMessages(d.messages);
+      dispatch(clearLiveMessages(id));
+    }).finally(() => setLoading(false));
+  }, [isAuthenticated, id, router, dispatch]);
+
+  useEffect(() => {
+    const socket = getSocket();
+    if (!socket) return;
+    const handler = (data: { conversationId: string; message: Message }) => {
+      if (data.conversationId === id) {
+        setMessages((prev) => prev.some((m) => m.id === data.message.id) ? prev : [...prev, data.message]);
+      }
+    };
+    socket.on("message:new", handler);
+    return () => { socket.off("message:new", handler); };
+  }, [id]);
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });

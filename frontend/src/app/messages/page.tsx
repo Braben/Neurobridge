@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useAppSelector } from "../hooks/useRedux";
 import { messagesApi, Conversation } from "../services/messages";
+import { getSocket } from "../services/socket";
 
 export default function MessagesPage() {
   const router = useRouter();
@@ -16,6 +17,16 @@ export default function MessagesPage() {
     if (!isAuthenticated) { router.push("/login"); return; }
     messagesApi.listConversations().then((d) => setConversations(d.conversations)).finally(() => setLoading(false));
   }, [isAuthenticated, router]);
+
+  useEffect(() => {
+    const socket = getSocket();
+    if (!socket) return;
+    const handler = (data: { conversation: Conversation }) => {
+      setConversations((prev) => prev.some((c) => c.id === data.conversation.id) ? prev : [data.conversation, ...prev]);
+    };
+    socket.on("conversation:new", handler);
+    return () => { socket.off("conversation:new", handler); };
+  }, []);
 
   const getOtherParticipants = (conv: Conversation) =>
     conv.participants.filter((p) => p.user.id !== user?.id).map((p) => p.user);

@@ -1,4 +1,6 @@
 const prisma = require("../../config/prisma");
+const { emitToUser, getIO } = require("../../sockets");
+const { notifyConversationParticipants } = require("../../services/notification.service");
 
 exports.listConversations = async (req, res, next) => {
   try {
@@ -33,6 +35,14 @@ exports.createConversation = async (req, res, next) => {
         participants: { include: { user: { select: { id: true, firstName: true, lastName: true, role: true, avatar: true } } } },
       },
     });
+
+    // Real-time: notify all new participants (except creator) so their
+    // conversation list updates instantly without polling.
+    for (const p of allIds) {
+      if (p !== req.user.id) {
+        emitToUser(p, "conversation:new", { conversation });
+      }
+    }
 
     return res.status(201).json({ message: "Conversation created", conversation });
   } catch (error) {
@@ -75,6 +85,19 @@ exports.sendMessage = async (req, res, next) => {
       data: { conversationId: id, senderId: req.user.id, content },
       include: { sender: { select: { id: true, firstName: true, lastName: true, avatar: true } } },
     });
+
+    // Real-time: push the new message to all conversation participants
+    // (except the sender). The frontend's SocketManager catches this event
+    // globally and the conversation page's local listener adds it to state.
+    const participants = await prisma.conversationParticipant.findMany({
+      where: { conversationId: id },
+      select: { userId: true },
+    });
+    for (const p of participants) {
+      if (p.userId !== req.user.id) {
+        emitToUser(p.userId, "message:new", { conversationId: id, message });
+      }
+    }
 
     return res.status(201).json({ message: "Message sent", msg: message });
   } catch (error) {

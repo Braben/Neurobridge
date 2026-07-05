@@ -4,16 +4,13 @@ import { useEffect } from "react";
 import { useAppDispatch, useAppSelector } from "../hooks/useRedux";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { logoutUser } from "../store/slices/authSlice";
 import { fetchChildren } from "../store/slices/childSlice";
-import { useState } from "react";
 
 export default function Dashboard() {
   const router = useRouter();
   const dispatch = useAppDispatch();
   const { isAuthenticated, user } = useAppSelector((state) => state.auth);
   const { children, isLoading: childrenLoading } = useAppSelector((state) => state.child);
-  const [isLoggingOut, setIsLoggingOut] = useState(false);
 
   useEffect(() => {
     if (!isAuthenticated) {
@@ -23,45 +20,13 @@ export default function Dashboard() {
     dispatch(fetchChildren());
   }, [isAuthenticated, router, dispatch]);
 
-  const handleLogout = async () => {
-    setIsLoggingOut(true);
-    await dispatch(logoutUser());
-    router.push("/login");
-  };
-
   if (!user) return null;
 
   const unapprovedCount = children.filter((c) => !c.diagnosis).length;
 
   return (
     <div className="flex min-h-screen flex-col bg-gray-50">
-      <header className="bg-white shadow">
-        <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-4">
-          <h1 className="text-xl font-bold text-gray-900">Neurobridge</h1>
-          <div className="flex items-center gap-3">
-            <span className="hidden text-sm text-gray-500 sm:inline">{user.email}</span>
-            <span className="rounded-full bg-blue-100 px-2 py-0.5 text-xs font-medium text-blue-700">
-              {user.role}
-            </span>
-            <nav className="flex items-center gap-3">
-              <Link href="/children" className="text-sm text-blue-600 hover:text-blue-500">Children</Link>
-              <Link href="/messages" className="text-sm text-blue-600 hover:text-blue-500">Messages</Link>
-              {user.role === "ADMIN" && (
-                <Link href="/admin" className="text-sm text-purple-600 hover:text-purple-500">Admin</Link>
-              )}
-            </nav>
-            <button
-              onClick={handleLogout}
-              disabled={isLoggingOut}
-              className="rounded-lg bg-red-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-red-700 disabled:cursor-not-allowed disabled:opacity-50"
-            >
-              {isLoggingOut ? "Logging out..." : "Logout"}
-            </button>
-          </div>
-        </div>
-      </header>
-
-      <main className="mx-auto w-full max-w-7xl flex-1 space-y-6 p-4">
+      <main className="mx-auto w-full max-w-7xl flex-1 space-y-6 p-4 pt-6">
         {/* Welcome Banner */}
         <div className="rounded-xl bg-white p-6 shadow">
           <h2 className="text-lg font-semibold text-gray-900">

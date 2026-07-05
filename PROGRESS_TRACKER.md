@@ -1,7 +1,7 @@
 # Neurobridge — Progress Tracker
 
 > **Last Updated:** 2026-07-05  
-> **Current Phase:** Phase 1 (MVP Launch) — Complete
+> **Current Phase:** Phase 2 (Product Improvement) — In Progress
 
 ---
 
@@ -147,4 +147,23 @@
 | 2026-07-05 | Frontend: Child Detail Nav                   | Tab navigation to Sessions, Intake, Goals, Behaviours                                         |
 | 2026-07-05 | Frontend: Dashboard Nav Update               | Links to Children, Messages, Admin (role-aware)                                               |
 
-> Phase 1 complete. Ready to start Phase 2 (Progress charts, file uploads, notifications, resource library, therapist profiles).
+## Changelog (continued)
+
+| Date       | Feature                                      | Description                                                                                   |
+| ---------- | -------------------------------------------- | --------------------------------------------------------------------------------------------- |
+| 2026-07-05 | Real-time Socket.io Backend                  | Socket.io server with JWT auth middleware, `emitToUser`/`emitToUsers` helpers, user room joining |
+| 2026-07-05 | Real-time Message Delivery                   | `message:new` + `conversation:new` socket events emitted to conversation participants         |
+| 2026-07-05 | Real-time Session Updates                    | `session:created` + `session:updated` socket events; parents notified on session log/update   |
+| 2026-07-05 | Real-time Therapist Assignment               | `assignment:new` socket event + notifications to parents and therapist                        |
+| 2026-07-05 | Notification Service                         | `createNotification` persists + emits real-time; helpers for participants/parents/therapists   |
+| 2026-07-05 | Notification API                             | `GET /notifications`, `GET /unread-count`, `PATCH /:id/read`, `PATCH /read-all`               |
+| 2026-07-05 | SocketManager Component                      | Global socket listener → Redux dispatch + toast for notifications and messages                 |
+| 2026-07-05 | Notification Redux Slice                     | In-memory list + unread count for Navbar badge                                                |
+| 2026-07-05 | Message Redux Slice                          | Live message buffer per conversation (capped at 100)                                          |
+| 2026-07-05 | Notification Bell Dropdown                   | Navbar bell icon with unread badge, dropdown with 10 recent notifications, "Mark all read"    |
+| 2026-07-05 | Notifications Page                           | `/notifications` — full list with single/mark-all read, unread indicators                     |
+| 2026-07-05 | Navbar Refactor                              | Extracted to `components/Navbar.tsx` with role-aware links, mobile menu, hydration-safe       |
+| 2026-07-05 | Comprehensive E2E Tests                      | 8 notification integration tests covering API + real-time socket events                       |
+| 2026-07-05 | Database Seed Overhaul                       | Full seed script: 3 parents, 3 therapists, 4 children, intake forms, goals, behaviours, sessions, conversations, notifications |
+
+> Phase 1 complete. Phase 2 started — real-time infrastructure, notifications, and notification UI done. Next: progress charts, file uploads, resource library, therapist profiles.

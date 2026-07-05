@@ -1,4 +1,6 @@
 const prisma = require("../../config/prisma");
+const { emitToUser } = require("../../sockets");
+const { notifyChildParents } = require("../../services/notification.service");
 
 const sessionFields = {
   id: true, childId: true, therapistId: true, sessionDate: true, duration: true, createdAt: true,
@@ -35,8 +37,8 @@ exports.createSession = async (req, res, next) => {
   try {
     const { childId, sessionDate, duration } = req.body;
 
-    const child = await prisma.child.findUnique({ where: { id: childId }, select: { id: true, deletedAt: true } });
-    if (!child || child.deletedAt) {
+    const childRecord = await prisma.child.findUnique({ where: { id: childId }, select: { id: true, firstName: true, lastName: true, deletedAt: true } });
+    if (!childRecord || childRecord.deletedAt) {
       return res.status(404).json({ message: "Child not found" });
     }
 
@@ -44,6 +46,19 @@ exports.createSession = async (req, res, next) => {
       data: { childId, therapistId: req.user.id, sessionDate: new Date(sessionDate), duration: duration || null },
       select: sessionFields,
     });
+
+    // Real-time: notify the child's parents that a session was logged, and
+    // emit session:created back to the therapist so their session list updates.
+    const therapist = await prisma.user.findUnique({
+      where: { id: req.user.id },
+      select: { firstName: true, lastName: true },
+    });
+    await notifyChildParents(
+      childId,
+      "New Session Logged",
+      `${therapist.firstName} ${therapist.lastName} logged a session for ${childRecord.firstName} ${childRecord.lastName}`,
+    );
+    emitToUser(req.user.id, "session:created", { session });
 
     return res.status(201).json({ message: "Session created successfully", session });
   } catch (error) {
@@ -95,6 +110,10 @@ exports.updateSession = async (req, res, next) => {
       select: sessionFields,
     });
 
+    // Real-time: notify the therapist and the child's parents of the update.
+    emitToUser(req.user.id, "session:updated", { session });
+    await notifyChildParents(session.childId, "Session Updated", `A session for ${session.child.firstName} ${session.child.lastName} has been updated.`);
+
     return res.status(200).json({ message: "Session updated", session });
   } catch (error) {
     next(error);
@@ -124,16 +143,27 @@ exports.upsertSessionNote = async (req, res, next) => {
     const { id } = req.params;
     const { goalsWorkedOn, observations, recommendations } = req.body;
 
-    const session = await prisma.session.findFirst({
+    const existingSession = await prisma.session.findFirst({
       where: { id, therapistId: req.user.id },
     });
-    if (!session) return res.status(404).json({ message: "Session not found or not yours" });
+    if (!existingSession) return res.status(404).json({ message: "Session not found or not yours" });
 
     const note = await prisma.sessionNote.upsert({
       where: { sessionId: id },
       create: { sessionId: id, goalsWorkedOn, observations, recommendations },
       update: { goalsWorkedOn, observations, recommendations },
     });
+
+    // Real-time: tell the therapist the note was saved, and notify parents
+    // that new therapy notes are available for review.
+    const childInfo = await prisma.session.findUnique({
+      where: { id },
+      select: { childId: true, child: { select: { firstName: true, lastName: true } } },
+    });
+    emitToUser(req.user.id, "session:updated", { session: { id, note } });
+    if (childInfo) {
+      await notifyChildParents(childInfo.childId, "Session Note Added", `New therapy notes available for ${childInfo.child.firstName} ${childInfo.child.lastName}.`);
+    }
 
     return res.status(200).json({ message: "Session note saved", note });
   } catch (error) {

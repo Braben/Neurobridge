@@ -1,5 +1,7 @@
 // Child controller — CRUD for children linked to authenticated parent
 const prisma = require("../../config/prisma");
+const { emitToUser } = require("../../sockets");
+const { createNotification } = require("../../services/notification.service");
 
 // Child response fields
 const childResponseFields = {
@@ -212,6 +214,20 @@ exports.assignTherapist = async (req, res, next) => {
       update: {},
       select: { id: true, childId: true, therapistId: true, assignedAt: true },
     });
+
+    // Real-time: notify parents that a therapist was assigned and the
+    // therapist of their new assignment. Both get a persisted notification
+    // (via createNotification) and the therapist also gets a live socket
+    // event so their dashboard can update immediately.
+    const childName = await prisma.child.findUnique({ where: { id }, select: { firstName: true, lastName: true } });
+    const therapistUser = await prisma.user.findUnique({ where: { id: therapistId }, select: { firstName: true, lastName: true } });
+    const parentLinks = await prisma.childParent.findMany({ where: { childId: id }, select: { parentId: true } });
+
+    for (const p of parentLinks) {
+      await createNotification({ userId: p.parentId, title: "Therapist Assigned", body: `${therapistUser.firstName} ${therapistUser.lastName} has been assigned to ${childName.firstName} ${childName.lastName}.` });
+    }
+    await createNotification({ userId: therapistId, title: "New Child Assignment", body: `You have been assigned to ${childName.firstName} ${childName.lastName}.` });
+    emitToUser(therapistId, "assignment:new", { childId: id, child: childName });
 
     return res.status(200).json({ message: "Therapist assigned successfully", assignment });
   } catch (error) {
