@@ -1,0 +1,81 @@
+PHASE 0: FOUNDATION
+Goal: Get something usable internally (not public yet) These are non-negotiable backend basics.
+Core Features
+ User registration (Parent, Therapist, Admin)  Login / Logout  Basic profile setup  Role-based access (very important) 
+PHASE 1: MVP LAUNCH
+1. Parent Dashboard (HIGH PRIORITY)
+ Add child profile  View child details  Basic progress tracking (simple, not complex charts yet)
+2. Therapist Dashboard (HIGH PRIORITY)
+
+ View assigned children  Add session notes  Basic goal tracking
+3. Session Notes System (CRITICAL)
+ Date  Goals worked on  Observations  Recommendations
+4. Intake Form (CRITICAL)
+ Developmental history  Behaviour concerns  Parent goals
+ . Basic Behaviour Tracking (HIGH PRIORITY)
+ Select behaviour  Frequency count  Notes
+Keep it SIMPLE for MVP.
+
+6. Admin Panel (BASIC VERSION)
+ View users  Approve therapists  Assign therapist to child
+7. Messaging (SIMPLE VERSION)
+ Parent  Therapist chat (text only)
+8. Simple Dashboard View
+ List of sessions  Basic progress (no heavy analytics yet)
+At the end of Phase 1:
+You can:  onboard clients  run therapy digitally
+
+ track sessions  communicate
+PHASE 2: PRODUCT IMPROVEMENT
+Goal: Make the platform more powerful and professional
+1. Advanced Progress Tracking
+ Graphs (behaviour trends)  Skill mastery percentages
+2. Intervention Plan Builder
+ Behaviour Intervention Plan (BIP)  Goal setting templates
+3. File Upload System
+ Upload reports  Upload videos
+
+ Upload assessments
+4. Notifications System
+ Session reminders  New message alerts  Report updates
+5. Therapist Profiles
+ Public profile  Specialization  Experience
+6. Resource Library (Parent Support)
+ Articles  Videos  PDFs
+
+ PHASE 3: BUSINESS FEATURES
+Goal: Start generating revenue + scale
+1. Booking System
+ View therapist availability  Schedule sessions
+2. Payments Integration
+  Mobile Money (VERY important in Ghana )
+ Card payments
+3. Subscription Plans
+ Monthly therapy plans  Pay-per-session
+4. Reports Generator
+
+ Auto-generate:  Progress reports  Therapy summaries
+PHASE 4: SCALE & DIFFERENTIATION (Month 4+)
+Goal: Become a leading platform in Africa
+1. School Dashboard
+ Teacher input  Classroom tracking  Collaboration tools
+2. AI Features (Your Competitive Advantage)
+ Auto session notes suggestions  Behaviour insights  Goal recommendations
+
+3. Teletherapy (Video Sessions)
+ Built-in video calls
+4. Multi-language Support
+ English  Local languages (Twi, etc.)
+. Mobile App
+ For parents and therapists
+PRIORITY SUMMARY (VERY IMPORTANT)
+MUST HAVE (Build First)
+ User accounts  Child profile  Session notes  Intake form
+
+ Behaviour tracking  Messaging  Admin panel
+SHOULD HAVE (Next)
+ Progress charts  Notifications  File uploads  Resource library    
+NICE TO HAVE (Later)
+ Payments  AI  Schools  Video
+
+

@@ -1,8 +1,8 @@
-import dotenv from "dotenv";
+const dotenv = require("dotenv");
 dotenv.config();
 
 // server.js
-import app from "./app.js";
+const app = require("./app");
 
 // Fallback to port 5000 if no environment variable is provided
 const PORT = process.env.PORT || 5000;

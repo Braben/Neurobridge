@@ -38,6 +38,9 @@ yarn-error.log*
 /frontend/.env*
 
 
+# Windows reserved names
+nul
+
 # vercel
 .vercel
 

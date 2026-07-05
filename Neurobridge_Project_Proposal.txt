@@ -1,0 +1,269 @@
+NEUROBRIDGE DIGITAL THERAPY PLATFORM
+
+Project Proposal
+
+Target Completion: End of Quarter 2 (Jun e)
+
+
+
+1. Executive Summary
+
+Neurobridge is a hybrid digital therapy platform designed to support children with special needs through structured in-person and virtual therapy services.
+The platform enables parents to book sessions, access therapy resources, schedule follow-ups, and make secure payments. Therapists will manage appointments, track progress, and provide digital content.
+Initial launch will focus on Ghana with scalability for international expansion.
+
+
+
+2. Core Features - Client Portal
+
+? Account registration and profile management
+? Book therapy sessions (physical or virtual)
+? Calendar view of therapist availability
+? Secure online payments
+? Access to therapy video library
+? Add follow-up sessions
+? View session history
+? Notifications and reminders
+
+
+3. Core Features - Therapist Dashboard
+
+? Manage availability calendar
+? View booked sessions
+? Upload session notes
+? Track child progress
+? Assign video resources
+? Recommend follow-up sessions
+
+4. Core Features - Admin Panel
+
+
+? Manage therapists
+? Manage therapy services
+? Monitor appointments
+? Revenue dashboard
+? Platform analytics
+? Content management
+
+
+
+5. Payment Integration (Paystack)
+
+
+? Online payment processing
+? Session-based billing
+? Follow-up session payments
+? Transaction history tracking
+
+
+
+MVP Feature List (Version 1 ? Web App)
+
+1. User Accounts & Roles
+
+Basic login system with different user types.
+
+User roles
+? Admin (you / Live Well team)
+? Therapist
+? Teacher
+? Parent
+
+Functions
+? Sign up / login
+? Create profile
+? Assign role
+? Secure password
+
+Why important:
+Different users need different access.
+
+?
+
+2. Child Profile Management
+
+Each child has a digital record.
+
+Profile fields
+? Name
+? Age
+? Gender
+? Diagnosis (if available)
+? School
+? Parent contact
+? Therapist assigned
+? Notes section
+
+Why important:
+Everything revolves around the child?s profile.
+
+?
+
+3. Digital Assessment Checklist
+
+Simple structured screening tool.
+
+Examples:
+? Communication skills checklist
+? Social interaction checklist
+? Behavior checklist
+? Learning difficulty indicators
+
+Output:
+System generates a summary report showing areas of need.
+
+Why important:
+Helps identify support needs early.
+
+
+4. Individual Therapy / Education Plan (IEP Builder)
+
+A simple tool to create support plans.
+
+Fields:
+? Skill area (communication, behavior, academics)
+? Goals
+? intervention strategy
+? responsible person
+? review date
+
+Example goal:
+?Child will respond to name within 5 seconds in 4/5 trials.?
+
+Why important:
+Schools and therapists need structured plans.
+
+
+5. Progress Tracking
+
+Simple data collection tool.
+
+Track:
+? skill progress
+? behavior frequency
+? therapy sessions completed
+? notes from therapist or teacher
+
+Display:
+? simple charts
+? progress summary
+
+Why important:
+Shows improvement over time.
+
+?
+
+6. Session Notes
+
+Therapists and teachers can record session updates.
+
+Example:
+
+Date:
+Activity:
+Child response:
+Next step:
+
+Why important:
+Helps continuity between school and therapy.
+
+?
+
+7. Basic Report Generator
+
+Automatically generates simple reports.
+
+Reports include:
+? child progress summary
+? therapy goals
+? teacher observations
+? recommendations
+
+Format:
+PDF or downloadable document.
+
+Why important:
+Parents and schools need formal reports.
+
+?
+
+8. Parent Access Portal
+
+Parents can log in to:
+? view child progress
+? view therapy goals
+? read therapist notes
+? receive simple home strategies
+
+Why important:
+Parents are key partners in therapy.
+
+9. Resource Library (Starter Version)
+
+Small collection of support materials.
+
+Examples:
+? behavior strategies
+? communication support tips
+? classroom accommodation ideas
+? parent guidance materials
+
+Format:
+PDF or simple text guides.
+
+Why important:
+Adds immediate value even before advanced features.
+
+?
+
+Features in MVP (Build Later)
+
+
+? AI recommendations
+? video therapy sessions
+? mobile app
+? payment integration
+? complex analytics
+? messaging system
+? large content library.
+
+These can come in Version 2.
+
+
+Simple MVP Structure
+
+Dashboard
+
+Overview of:
+? number of children
+? recent session notes
+? upcoming reviews
+
+Main Menu
+1. Children
+2. Assessments
+3. Therapy Plans (IEP)
+4. Progress Tracking
+5. Reports
+6. Resources
+7. Users
+
+Estimated Development Complexity
+
+Your developer will likely need:
+? Frontend developer
+? Backend developer
+? Database
+? basic UI design.
+
+?
+
+What This MVP Proves
+
+If schools and therapists use the MVP, it proves:
+? the problem is real
+? people are willing to adopt digital tools
+? the idea can scale
+? investors may support it.
+
+
