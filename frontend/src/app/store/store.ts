@@ -1,12 +1,12 @@
 // Redux store configuration
 import { configureStore } from "@reduxjs/toolkit";
 import authReducer from "./slices/authSlice";
+import childReducer from "./slices/childSlice";
 
 export const store = configureStore({
   reducer: {
     auth: authReducer,
-    // Future slices will be added here as features are implemented:
-    // child: childReducer,
+    child: childReducer,
     // session: sessionReducer,
     // message: messageReducer,
   },

@@ -1,7 +1,7 @@
 # Neurobridge — Progress Tracker
 
-> **Last Updated:** 2026-07-04  
-> **Current Phase:** Phase 0 (Foundation) — Week 2 complete
+> **Last Updated:** 2026-07-05  
+> **Current Phase:** Phase 1 (MVP Launch) — Week 3 started
 
 ---
 
@@ -83,12 +83,12 @@
 
 ---
 
-## Feature Roadmap (Not Yet Started)
+## Feature Roadmap
 
 | Phase | Features                                                                                                                        | Est. Weeks | Status     |
 | ----- | ------------------------------------------------------------------------------------------------------------------------------- | ---------- | ---------- |
-| 0     | Profile management, rate limiting, CORS lockdown, JWT secrets, test framework, register+OTP integration                         | Week 2     | 🔴 Pending |
-| 1     | Parent/therapist dashboards, child CRUD, session notes, intake forms, goal tracking, behaviour tracking, admin panel, messaging | Week 3–7   | 🔴 Pending |
+| 0     | Profile management, rate limiting, CORS lockdown, JWT secrets, test framework, register+OTP integration                         | Week 2     | ✅ Complete |
+| 1     | Child CRUD, parent/therapist dashboards, session notes, intake forms, goal tracking, behaviour tracking, admin panel, messaging | Week 3–7   | 🟡 In Progress |
 | 2     | Progress charts, file uploads, notifications, resource library, therapist profiles                                              | Week 8–10  | 🔴 Pending |
 | 3     | Booking system, payments (Paystack), subscriptions, reports generator                                                           | Week 11–13 | 🔴 Pending |
 | 4     | School dashboard, AI features, teletherapy, multi-language, mobile app                                                          | Week 14–18 | 🔴 Pending |
@@ -121,4 +121,16 @@
 | 2026-07-04 | Frontend: OTP Verification Page    | 6-digit code input with auto-advance, resend with countdown timer                                 |
 | 2026-07-04 | Frontend: Dashboard Shell          | Basic role-aware dashboard with approval status banner                                            |
 
-> Continue Neurobridge. Phase 0 complete. Ready to start Phase 1 MVP Launch (Week 3 — Child CRUD and Parent Dashboard).
+## Changelog (continued)
+
+| Date       | Feature                                      | Description                                                                                   |
+| ---------- | -------------------------------------------- | --------------------------------------------------------------------------------------------- |
+| 2026-07-05 | Child CRUD Backend (Role-aware)              | Updated `listChildren`/`getChild` to support PARENT, THERAPIST, ADMIN roles                   |
+| 2026-07-05 | Therapist Assignment Endpoint                | `POST /children/:id/assign` (admin only) with validation                                     |
+| 2026-07-05 | Frontend: Children API Service               | Full CRUD service layer for children with TypeScript types                                    |
+| 2026-07-05 | Frontend: Child Redux Slice                  | Async thunks + reducer for children CRUD state management                                     |
+| 2026-07-05 | Frontend: Children List Page                 | `/children` — grid view with View/Edit/Delete, role-aware (parent vs therapist)               |
+| 2026-07-05 | Frontend: Add Child Page                     | `/children/add` — form with validation                                                        |
+| 2026-07-05 | Frontend: Child Detail Page                  | `/children/[id]` — profile, parents, therapists, goals, sessions, behaviours sections         |
+| 2026-07-05 | Frontend: Edit Child Page                    | `/children/[id]/edit` — pre-filled form                                                       |
+| 2026-07-05 | Frontend: Dashboard Widgets                  | Quick stats (child count), My Children list widget, role-aware navigation                     |

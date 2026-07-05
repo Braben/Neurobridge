@@ -51,16 +51,20 @@ exports.createChild = async (req, res, next) => {
   }
 };
 
-// List all children linked to the authenticated parent
+// List children — parents see their own, therapists see assigned, admins see all
 exports.listChildren = async (req, res, next) => {
   try {
+    let where = { deletedAt: null };
+
+    if (req.user.role === "PARENT") {
+      where.parents = { some: { parentId: req.user.id } };
+    } else if (req.user.role === "THERAPIST") {
+      where.therapists = { some: { therapistId: req.user.id } };
+    }
+    // ADMIN sees all non-deleted children
+
     const children = await prisma.child.findMany({
-      where: {
-        parents: {
-          some: { parentId: req.user.id },
-        },
-        deletedAt: null,
-      },
+      where,
       select: childResponseFields,
       orderBy: { createdAt: "desc" },
     });
@@ -71,19 +75,21 @@ exports.listChildren = async (req, res, next) => {
   }
 };
 
-// Get a single child by ID (must belong to the parent)
+// Get a single child by ID (must belong to parent / be assigned to therapist / be admin)
 exports.getChild = async (req, res, next) => {
   try {
     const { id } = req.params;
 
+    let where = { id, deletedAt: null };
+    if (req.user.role === "PARENT") {
+      where.parents = { some: { parentId: req.user.id } };
+    } else if (req.user.role === "THERAPIST") {
+      where.therapists = { some: { therapistId: req.user.id } };
+    }
+    // ADMIN has no extra filter
+
     const child = await prisma.child.findFirst({
-      where: {
-        id,
-        deletedAt: null,
-        parents: {
-          some: { parentId: req.user.id },
-        },
-      },
+      where,
       select: {
         ...childResponseFields,
         parents: {
@@ -115,13 +121,17 @@ exports.updateChild = async (req, res, next) => {
     const { id } = req.params;
     const { firstName, lastName, dateOfBirth, gender, diagnosis, school, notes } = req.body;
 
-    // Verify ownership
     const existing = await prisma.child.findFirst({
-      where: { id, deletedAt: null, parents: { some: { parentId: req.user.id } } },
+      where: { id, deletedAt: null },
+      select: { id: true, parents: { where: { parentId: req.user.id } } },
     });
 
     if (!existing) {
       return res.status(404).json({ message: "Child not found" });
+    }
+    // Only parents who own the child or admins can update
+    if (req.user.role !== "ADMIN" && existing.parents.length === 0) {
+      return res.status(403).json({ message: "You do not have permission to update this child" });
     }
 
     const updateData = {};
@@ -155,11 +165,15 @@ exports.deleteChild = async (req, res, next) => {
     const { id } = req.params;
 
     const existing = await prisma.child.findFirst({
-      where: { id, deletedAt: null, parents: { some: { parentId: req.user.id } } },
+      where: { id, deletedAt: null },
+      select: { id: true, parents: { where: { parentId: req.user.id } } },
     });
 
     if (!existing) {
       return res.status(404).json({ message: "Child not found" });
+    }
+    if (req.user.role !== "ADMIN" && existing.parents.length === 0) {
+      return res.status(403).json({ message: "You do not have permission to delete this child" });
     }
 
     await prisma.child.update({
@@ -169,6 +183,41 @@ exports.deleteChild = async (req, res, next) => {
 
     return res.status(200).json({ message: "Child deleted successfully" });
   } catch (error) {
+    next(error);
+  }
+};
+
+// Assign a therapist to a child (admin only)
+exports.assignTherapist = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const { therapistId } = req.body;
+
+    const child = await prisma.child.findUnique({ where: { id } });
+    if (!child || child.deletedAt) {
+      return res.status(404).json({ message: "Child not found" });
+    }
+
+    const therapist = await prisma.user.findUnique({
+      where: { id: therapistId },
+      select: { id: true, role: true },
+    });
+    if (!therapist || therapist.role !== "THERAPIST") {
+      return res.status(400).json({ message: "Invalid therapist ID" });
+    }
+
+    const assignment = await prisma.therapistAssignment.upsert({
+      where: { childId_therapistId: { childId: id, therapistId } },
+      create: { childId: id, therapistId },
+      update: {},
+      select: { id: true, childId: true, therapistId: true, assignedAt: true },
+    });
+
+    return res.status(200).json({ message: "Therapist assigned successfully", assignment });
+  } catch (error) {
+    if (error.code === "P2002") {
+      return res.status(409).json({ message: "Therapist is already assigned to this child" });
+    }
     next(error);
   }
 };

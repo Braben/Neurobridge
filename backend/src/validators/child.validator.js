@@ -55,3 +55,13 @@ exports.childIdParamSchema = z.object({
     id: z.string().uuid("Invalid child ID format"),
   }),
 });
+
+// Assign therapist schema
+exports.assignTherapistSchema = z.object({
+  params: z.object({
+    id: z.string().uuid("Invalid child ID format"),
+  }),
+  body: z.object({
+    therapistId: z.string().uuid("Invalid therapist ID format"),
+  }),
+});
