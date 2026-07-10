@@ -161,11 +161,11 @@ Goal: Revenue generation — booking, payments, subscription plans, reports.
 
 | # | Task | Backend | Frontend | PRD Ref |
 |---|------|---------|----------|---------|
-| 3.4 | Paystack integration — initialize transaction, verify | ✅ | ❌ | Phase 3.2 |
-| 3.5 | Subscription plans model + endpoints | ✅ | ❌ | Phase 3.3 |
+| 3.4 | Paystack integration — initialize transaction, verify | ✅ | ✅ | Phase 3.2 |
+| 3.5 | Subscription plans model + endpoints | ✅ | ✅ | Phase 3.3 |
 | 3.6 | Webhook handler for payment confirmations | ✅ | ❌ | Phase 3.2 |
-| 3.7 | Checkout/payment UI (mobile money + card) | ❌ | ✅ | Phase 3.2 |
-| 3.8 | Subscription plan selection UI | ❌ | ✅ | Phase 3.3 |
+| 3.7 | Checkout/payment UI (mobile money + card) | ✅ | ✅ | Phase 3.2 |
+| 3.8 | Subscription plan selection UI | ✅ | ✅ | Phase 3.3 |
 
 ### Week 13 — Reports Generator
 

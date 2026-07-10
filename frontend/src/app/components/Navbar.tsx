@@ -60,6 +60,7 @@ export default function Navbar() {
     // Phase 3 links — booking system
     ...(user.role === "PARENT" ? [{ href: "/bookings", label: "Bookings" }] : []),
     ...(user.role === "THERAPIST" ? [{ href: "/bookings", label: "Bookings" }, { href: "/availability", label: "Availability" }] : []),
+    { href: "/subscriptions", label: "Plans" },
     { href: "/notifications", label: "Notifications" },
     ...(user.role === "ADMIN" ? [{ href: "/admin", label: "Admin" }] : []),
   ];

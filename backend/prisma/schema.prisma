@@ -82,6 +82,10 @@ model User {
   bookingsAsParent  Booking[] @relation("BookingParent")
   bookingsAsTherapist Booking[] @relation("BookingTherapist")
 
+  // Phase 3: Payments & Subscriptions
+  transactions      Transaction[]
+  userSubscriptions UserSubscription[]
+
   @@index([email])
   @@index([role])
 }
@@ -441,5 +445,71 @@ model Booking {
   @@index([childId])
   @@index([therapistId])
   @@index([parentId])
+  @@index([status])
+}
+
+//////////////////////////////////////////////////
+// PAYMENTS & SUBSCRIPTIONS (Phase 3)
+//////////////////////////////////////////////////
+
+enum PaymentStatus {
+  PENDING
+  SUCCESS
+  FAILED
+}
+
+model Transaction {
+  id            String        @id @default(uuid())
+  userId        String
+  email         String
+  amount        Int           // Amount in pesewas (GHS smallest unit)
+  currency      String        @default("GHS")
+  reference     String        @unique
+  status        PaymentStatus @default(PENDING)
+  metadata      Json?
+  bookingId     String?
+  subscriptionId String?
+  paidAt        DateTime?
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+
+  user          User          @relation(fields: [userId], references: [id])
+
+  @@index([userId])
+  @@index([reference])
+  @@index([status])
+  @@index([bookingId])
+}
+
+model SubscriptionPlan {
+  id          String   @id @default(uuid())
+  name        String
+  description String?
+  price       Int      // Price in pesewas (GHS)
+  duration    Int      // Duration in days
+  features    Json?
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  userSubscriptions UserSubscription[]
+}
+
+model UserSubscription {
+  id               String   @id @default(uuid())
+  userId           String
+  planId           String
+  startDate        DateTime @default(now())
+  endDate          DateTime
+  status           String   @default("ACTIVE") // ACTIVE, EXPIRED, CANCELLED
+  transactionId    String?
+  autoRenew        Boolean  @default(false)
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  user             User               @relation(fields: [userId], references: [id])
+  plan             SubscriptionPlan   @relation(fields: [planId], references: [id])
+
+  @@index([userId])
   @@index([status])
 }

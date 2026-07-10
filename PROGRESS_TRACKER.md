@@ -185,4 +185,13 @@
 | 2026-07-10 | Frontend: Navbar Booking Links                   | Added role-aware Bookings link (parent) and Bookings + Availability links (therapist)         |
 | 2026-07-10 | Hydration Fix: Booking Pages                     | Fixed hydration mismatch in 3 pages: changed `if (loading) return <spinner>` → `if (!user) return null` |
 
-> Phase 3 — Booking System complete (backend + frontend + hydration fix). Next: Phase 3 — Payments (Paystack integration).
+| 2026-07-10 | Backend: Paystack Service + Payment Controller | Paystack API wrapper (initialize/verify/webhook), transaction CRUD, booking payment flow |
+| 2026-07-10 | Backend: Subscription Controller               | Subscription plans CRUD, subscribe flow, active subscription check |
+| 2026-07-10 | Backend: Payment + Subscription Routes          | Route files + wired in app.js |
+| 2026-07-10 | Backend: Seed Subscription Plans                | 3 plans seeded (Basic GHS 50, Premium GHS 120, Family GHS 250) |
+| 2026-07-10 | Frontend: Payment/Subscription API Services     | payments.ts + subscriptions.ts service layer |
+| 2026-07-10 | Frontend: Booking Payment Page                  | `/bookings/[id]/payment` — Paystack checkout flow with verify + redirect |
+| 2026-07-10 | Frontend: Subscription Plans Page               | `/subscriptions` — plan grid, subscribe button, Paystack redirect |
+| 2026-07-10 | Frontend: Navbar Updates                        | Added Plans link; added Pay Now button on PENDING bookings |
+
+> Phase 3 — Booking System + Payments/Subscriptions complete. Next: Phase 3 — Reports Generator + Revenue Dashboard.

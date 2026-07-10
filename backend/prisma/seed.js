@@ -396,6 +396,34 @@ const run = async () => {
   console.log("  Notifications added.");
 
   // ─────────────────────────────────────────────
+  // 12. SUBSCRIPTION PLANS
+  // ─────────────────────────────────────────────
+  console.log("\n--- Subscription Plans ---");
+  const plans = [
+    { name: "Basic", description: "Access to standard therapy sessions and progress tracking", price: 5000, duration: 30, features: ["2 sessions per week", "Progress tracking", "Basic reports"] },
+    { name: "Premium", description: "Priority booking, advanced reports, and unlimited messaging", price: 12000, duration: 30, features: ["4 sessions per week", "Priority booking", "Advanced reports", "Unlimited messaging", "Resource library access"] },
+    { name: "Family", description: "Full access for up to 3 children with family discount", price: 25000, duration: 30, features: ["6 sessions per week", "Up to 3 children", "Priority support", "All Premium features", "Family therapy sessions"] },
+  ];
+
+  for (const plan of plans) {
+    const existing = await prisma.subscriptionPlan.findFirst({ where: { name: plan.name } });
+    if (existing) {
+      console.log(`  SKIP: plan ${plan.name} already exists`);
+    } else {
+      await prisma.subscriptionPlan.create({
+        data: {
+          name: plan.name,
+          description: plan.description,
+          price: plan.price,
+          duration: plan.duration,
+          features: plan.features,
+        },
+      });
+      console.log(`  Created plan: ${plan.name} — GHS ${plan.price / 100}`);
+    }
+  }
+
+  // ─────────────────────────────────────────────
   // SUMMARY
   // ─────────────────────────────────────────────
   console.log("\n═══════════════════════════════════════");

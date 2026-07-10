@@ -24,6 +24,9 @@ const therapistRoutes = require("./src/routes/therapist.route");
 // Phase 3: Booking system
 const availabilityRoutes = require("./src/routes/availability.route");
 const bookingRoutes = require("./src/routes/booking.route");
+// Phase 3: Payments & Subscriptions
+const paymentRoutes = require("./src/routes/payment.route");
+const subscriptionRoutes = require("./src/routes/subscription.route");
 
 const app = express();
 
@@ -76,6 +79,9 @@ app.use("/api/v1/therapists", therapistRoutes);
 // Phase 3: Booking system
 app.use("/api/v1/availability", availabilityRoutes);
 app.use("/api/v1/bookings", bookingRoutes);
+// Phase 3: Payments & Subscriptions
+app.use("/api/v1/payments", paymentRoutes);
+app.use("/api/v1/subscriptions", subscriptionRoutes);
 
 // --- 404 Catch-All ---
 app.use((req, res, next) => {

@@ -1,0 +1,154 @@
+const prisma = require("../../config/prisma");
+const paystack = require("../../services/paystack.service");
+const { createNotification } = require("../../services/notification.service");
+
+exports.initializePayment = async (req, res, next) => {
+  try {
+    const { amount, bookingId } = req.body;
+    if (!amount || amount < 100) {
+      return res.status(400).json({ message: "Amount must be at least 100 pesewas (GHS 1)" });
+    }
+
+    const reference = `NB-${Date.now()}-${Math.random().toString(36).substring(2, 8).toUpperCase()}`;
+
+    const metadata = { userId: req.user.id };
+    if (bookingId) metadata.bookingId = bookingId;
+
+    const response = await paystack.initializeTransaction({
+      email: req.user.email,
+      amount,
+      reference,
+      metadata,
+    });
+
+    await prisma.transaction.create({
+      data: {
+        userId: req.user.id,
+        email: req.user.email,
+        amount,
+        reference,
+        status: "PENDING",
+        metadata,
+        bookingId: bookingId || null,
+      },
+    });
+
+    return res.status(200).json({
+      authorizationUrl: response.data.authorization_url,
+      reference,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+exports.verifyPayment = async (req, res, next) => {
+  try {
+    const { reference } = req.params;
+    const response = await paystack.verifyTransaction(reference);
+
+    if (response.data.status === "success") {
+      await prisma.transaction.update({
+        where: { reference },
+        data: { status: "SUCCESS", paidAt: new Date() },
+      });
+
+      const tx = await prisma.transaction.findUnique({ where: { reference } });
+
+      if (tx.bookingId) {
+        await prisma.booking.update({
+          where: { id: tx.bookingId },
+          data: { status: "CONFIRMED" },
+        });
+      }
+
+      return res.status(200).json({ status: "success", transaction: response.data });
+    }
+
+    await prisma.transaction.update({
+      where: { reference },
+      data: { status: "FAILED" },
+    });
+
+    return res.status(200).json({ status: "failed", transaction: response.data });
+  } catch (error) {
+    next(error);
+  }
+};
+
+exports.handleWebhook = async (req, res, next) => {
+  try {
+    const event = req.body;
+
+    if (event.event === "charge.success") {
+      const { reference, status, amount, metadata } = event.data;
+
+      await prisma.transaction.update({
+        where: { reference },
+        data: {
+          status: status === "success" ? "SUCCESS" : "FAILED",
+          paidAt: status === "success" ? new Date() : undefined,
+        },
+      });
+
+      if (metadata?.bookingId && status === "success") {
+        await prisma.booking.update({
+          where: { id: metadata.bookingId },
+          data: { status: "CONFIRMED" },
+        });
+
+        const booking = await prisma.booking.findUnique({
+          where: { id: metadata.bookingId },
+          include: { child: { select: { firstName: true } } },
+        });
+
+        if (booking) {
+          await createNotification({
+            userId: booking.parentId,
+            title: "Payment Successful",
+            body: `Payment of GHS ${amount / 100} confirmed for ${booking.child.firstName}'s session`,
+          });
+          await createNotification({
+            userId: booking.therapistId,
+            title: "Session Booked & Paid",
+            body: `A session has been booked and paid for`,
+          });
+        }
+      }
+
+      if (metadata?.subscriptionId && status === "success") {
+        const sub = await prisma.subscriptionPlan.findUnique({
+          where: { id: metadata.subscriptionId },
+        });
+        if (sub) {
+          await prisma.userSubscription.create({
+            data: {
+              userId: metadata.userId,
+              planId: sub.id,
+              startDate: new Date(),
+              endDate: new Date(Date.now() + sub.duration * 86400000),
+              status: "ACTIVE",
+              transactionId: reference,
+            },
+          });
+        }
+      }
+    }
+
+    return res.sendStatus(200);
+  } catch (error) {
+    next(error);
+  }
+};
+
+exports.listTransactions = async (req, res, next) => {
+  try {
+    const transactions = await prisma.transaction.findMany({
+      where: { userId: req.user.id },
+      orderBy: { createdAt: "desc" },
+    });
+    return res.status(200).json({ transactions });
+  } catch (error) {
+    next(error);
+  }
+};

@@ -108,6 +108,12 @@ export default function BookingsPage() {
               )}
               {user?.role === "PARENT" && b.status === "PENDING" && (
                 <div className="mt-3 flex gap-2 border-t pt-3">
+                  <Link
+                    href={`/bookings/${b.id}/payment`}
+                    className="rounded-lg bg-blue-600 px-3 py-1.5 text-xs text-white hover:bg-blue-500"
+                  >
+                    Pay Now
+                  </Link>
                   <button onClick={() => handleCancel(b.id, b.status)} className="rounded-lg bg-red-600 px-3 py-1.5 text-xs text-white hover:bg-red-500">
                     Cancel
                   </button>
