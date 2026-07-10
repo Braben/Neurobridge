@@ -14,10 +14,20 @@ export default function ChildDetailPage() {
   const { isAuthenticated, user } = useAppSelector((state) => state.auth);
   const { currentChild: child, isLoading, error } = useAppSelector((state) => state.child);
 
+  // Phase 2: file attachment state — must be BEFORE any early return
+  const [attachments, setAttachments] = useState<FileAttachment[]>([]);
+  const [uploading, setUploading] = useState(false);
+  const fileRef = useRef<HTMLInputElement>(null);
+
   useEffect(() => {
     if (!isAuthenticated) { router.push("/login"); return; }
     dispatch(fetchChild(id));
   }, [isAuthenticated, id, router, dispatch]);
+
+  useEffect(() => {
+    if (!id) return;
+    uploadApi.list({ childId: id }).then((d) => setAttachments(d.attachments)).catch(() => {});
+  }, [id]);
 
   const handleDelete = async () => {
     if (!window.confirm("Delete this child? This cannot be undone.")) return;
@@ -45,17 +55,6 @@ export default function ChildDetailPage() {
       </div>
     );
   }
-
-  // Phase 2: file attachment state — list of uploaded files, upload progress,
-  // and a ref to the hidden file input element
-  const [attachments, setAttachments] = useState<FileAttachment[]>([]);
-  const [uploading, setUploading] = useState(false);
-  const fileRef = useRef<HTMLInputElement>(null);
-
-  // Fetch existing attachments for this child on mount
-  useEffect(() => {
-    uploadApi.list({ childId: id }).then((d) => setAttachments(d.attachments)).catch(() => {});
-  }, [id]);
 
   // Handle file upload: read the selected file from the input, upload via API,
   // then prepend the result to the local list for immediate UI feedback
