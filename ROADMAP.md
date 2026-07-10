@@ -2,7 +2,7 @@
 
 > **Target:** Full-stack digital therapy platform for children with special needs  
 > **Stack:** Express.js / Prisma / PostgreSQL (Neon) — Next.js / Redux Toolkit / Tailwind CSS  
-> **PRD Source:** `neurobridge2.pdf` | **Current Progress:** ~2% of Phase 0-1 features
+> **PRD Source:** `neurobridge2.pdf` | **Current Progress:** Phase 0–2 complete → Phase 3
 
 ---
 
@@ -121,7 +121,7 @@ Goal: More powerful clinical tools, file uploads, notifications, resource librar
 |---|------|---------|----------|---------|
 | 2.1 | Progress aggregation endpoints (behaviour trends, session counts) | ✅ | ❌ | Phase 2.1 |
 | 2.2 | Goal mastery calculations | ✅ | ❌ | Phase 2.1 |
-| 2.3 | Progress charts (behaviour trends, skill mastery %) | ❌ | ✅ | Phase 2.1 |
+| 2.3 | Progress charts (behaviour trends, skill mastery %) | ✅ | ✅ | Phase 2.1 |
 
 ### Week 9 — File Uploads + Notifications
 
@@ -129,7 +129,7 @@ Goal: More powerful clinical tools, file uploads, notifications, resource librar
 |---|------|---------|----------|---------|
 | 2.4 | File upload endpoint (Cloudinary) — reports, assessments, videos | ✅ | ❌ | Phase 2.3 |
 | 2.5 | Notification CRUD + real-time push (Socket.io) | ✅ | ❌ | Phase 2.4 |
-| 2.6 | File upload UI (drag & drop, linked to child/session) | ❌ | ✅ | Phase 2.3 |
+| 2.6 | File upload UI (drag & drop, linked to child/session) | ✅ | ✅ | Phase 2.3 |
 | 2.7 | Notification UI (bell icon, dropdown, mark read) | ❌ | ✅ | Phase 2.4 |
 
 ### Week 10 — Resource Library + Therapist Profiles
@@ -138,8 +138,8 @@ Goal: More powerful clinical tools, file uploads, notifications, resource librar
 |---|------|---------|----------|---------|
 | 2.8 | Resource model + CRUD endpoints (articles, videos, PDFs) | ✅ | ❌ | Phase 2.6 |
 | 2.9 | Therapist public profile endpoint | ✅ | ❌ | Phase 2.5 |
-| 2.10 | Resource Library UI (browse, search, view) | ❌ | ✅ | Phase 2.6 |
-| 2.11 | Therapist profile page (public, specialization, experience) | ❌ | ✅ | Phase 2.5 |
+| 2.10 | Resource Library UI (browse, search, view) | ✅ | ✅ | Phase 2.6 |
+| 2.11 | Therapist profile page (public, specialization, experience) | ✅ | ✅ | Phase 2.5 |
 
 **Milestone:** Platform feels professional — progress charts, file uploads, real-time notifications, resource library.
 

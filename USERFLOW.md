@@ -20,6 +20,7 @@ Guest ──► /register ──► Fill form ──► OTP sent to email
 ```
 
 **Roles:**
+
 - **PARENT** — auto-approved, can immediately add children
 - **THERAPIST** — pending admin approval, limited access until approved
 
@@ -43,11 +44,12 @@ User ──► /login ──► Email/Phone + Password ──► Authenticated
 ```
 
 **Token Lifecycle:**
+
 ```
 Login ──► accessToken (15m) + refreshToken (7d cookie)
-  │                                                        
-  │  401 on any API call                                    
-  ▼                                                        
+  │
+  │  401 on any API call
+  ▼
 Axios interceptor ──► POST /auth/refresh ──► New token pair
 ```
 
@@ -292,7 +294,9 @@ SocketManager                    Navbar                  Notifications Page
 
 ## Test Coverage (19 tests)
 
-| Test File | Tests | What It Covers |
-|-----------|-------|----------------|
-| `tests/auth.test.js` | 11 | Register (success, duplicate, invalid), Login (email, phone, wrong pw, missing), Refresh, Profile (auth, unauth), Logout |
-| `tests/notifications.e2e.test.js` | 8 | Assignment notifications, session notifications, unread count, mark read, mark all read, auth guard, `notification:new` socket event, `session:created` socket event |
+| Test File                         | Tests | What It Covers                                                                                                                                                       |
+| --------------------------------- | ----- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `tests/auth.test.js`              | 11    | Register (success, duplicate, invalid), Login (email, phone, wrong pw, missing), Refresh, Profile (auth, unauth), Logout                                             |
+| `tests/notifications.e2e.test.js` | 8     | Assignment notifications, session notifications, unread count, mark read, mark all read, auth guard, `notification:new` socket event, `session:created` socket event |
+
+opencode -s ses_0cc3116bbffej3n1RWDoqBP70M

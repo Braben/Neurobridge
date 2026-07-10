@@ -54,6 +54,9 @@ export default function Navbar() {
     { href: "/dashboard", label: "Dashboard" },
     { href: "/children", label: "Children" },
     { href: "/messages", label: "Messages" },
+    // Phase 2 links — resource library and therapist directory
+    { href: "/resources", label: "Resources" },
+    { href: "/therapists", label: "Therapists" },
     { href: "/notifications", label: "Notifications" },
     ...(user.role === "ADMIN" ? [{ href: "/admin", label: "Admin" }] : []),
   ];

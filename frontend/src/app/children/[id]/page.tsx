@@ -1,10 +1,11 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { useAppDispatch, useAppSelector } from "../../hooks/useRedux";
 import { fetchChild, deleteChild } from "../../store/slices/childSlice";
+import { uploadApi, FileAttachment } from "../../services/upload";
 
 export default function ChildDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -45,11 +46,48 @@ export default function ChildDetailPage() {
     );
   }
 
+  // Phase 2: file attachment state — list of uploaded files, upload progress,
+  // and a ref to the hidden file input element
+  const [attachments, setAttachments] = useState<FileAttachment[]>([]);
+  const [uploading, setUploading] = useState(false);
+  const fileRef = useRef<HTMLInputElement>(null);
+
+  // Fetch existing attachments for this child on mount
+  useEffect(() => {
+    uploadApi.list({ childId: id }).then((d) => setAttachments(d.attachments)).catch(() => {});
+  }, [id]);
+
+  // Handle file upload: read the selected file from the input, upload via API,
+  // then prepend the result to the local list for immediate UI feedback
+  const handleUpload = async () => {
+    const file = fileRef.current?.files?.[0];
+    if (!file) return;
+    setUploading(true);
+    try {
+      const res = await uploadApi.upload(file, id);
+      setAttachments((prev) => [res.attachment, ...prev]);
+      if (fileRef.current) fileRef.current.value = "";
+    } catch {
+      // File upload failed silently — the user can retry
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  // Handle file deletion: remove from Cloudinary + DB, then update local state
+  const handleDeleteFile = async (attachmentId: string) => {
+    await uploadApi.delete(attachmentId);
+    setAttachments((prev) => prev.filter((a) => a.id !== attachmentId));
+  };
+
+  // Navigation tabs — now includes Progress (charts) and Files (attachments)
   const navLinks = [
     { href: `/children/${id}/sessions`, label: "Sessions", count: child.sessions.length },
     { href: `/children/${id}/intake`, label: "Intake Form", active: !!child.intakeForm },
     { href: `/children/${id}#goals`, label: "Goals", count: child.goals.length },
     { href: `/children/${id}#behaviours`, label: "Behaviours", count: child.behaviours.length },
+    { href: `/progress/${id}`, label: "Progress" },
+    { href: `/children/${id}#files`, label: "Files", count: attachments.length },
   ];
 
   return (
@@ -179,6 +217,37 @@ export default function ChildDetailPage() {
                 <div key={s.id} className="flex items-center justify-between rounded-lg bg-gray-50 p-3">
                   <p className="text-sm text-gray-900">{new Date(s.sessionDate).toLocaleDateString()}</p>
                   {s.duration && <span className="text-xs text-gray-500">{s.duration} min</span>}
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* File Uploads Section — Phase 2: upload, list, and delete files */}
+        <div id="files" className="rounded-xl bg-white p-6 shadow">
+          <h2 className="mb-4 text-lg font-semibold text-gray-900">Files</h2>
+          {/* File picker + upload button */}
+          <div className="flex items-center gap-2 mb-4">
+            <input ref={fileRef} type="file" className="block text-sm text-gray-500 file:mr-3 file:rounded-lg file:border-0 file:bg-blue-50 file:px-3 file:py-1.5 file:text-sm file:font-medium file:text-blue-700 hover:file:bg-blue-100" />
+            <button onClick={handleUpload} disabled={uploading}
+              className="rounded-lg bg-blue-600 px-4 py-1.5 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50">
+              {uploading ? "Uploading..." : "Upload"}
+            </button>
+          </div>
+          {/* Attachment list — each entry is a clickable link + delete button */}
+          {attachments.length === 0 ? (
+            <p className="text-sm text-gray-400 italic">No files uploaded.</p>
+          ) : (
+            <div className="space-y-2">
+              {attachments.map((a) => (
+                <div key={a.id} className="flex items-center justify-between rounded-lg bg-gray-50 p-3">
+                  <div className="min-w-0 flex-1">
+                    <a href={a.url} target="_blank" rel="noopener noreferrer" className="text-sm font-medium text-blue-600 hover:text-blue-500 truncate block">
+                      {a.fileName}
+                    </a>
+                    <p className="text-xs text-gray-400">{new Date(a.createdAt).toLocaleDateString()} &middot; {a.mimeType}</p>
+                  </div>
+                  <button onClick={() => handleDeleteFile(a.id)} className="ml-2 text-xs text-red-600 hover:text-red-500">Delete</button>
                 </div>
               ))}
             </div>

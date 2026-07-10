@@ -1,7 +1,7 @@
 # Neurobridge — Progress Tracker
 
-> **Last Updated:** 2026-07-05  
-> **Current Phase:** Phase 2 (Product Improvement) — In Progress
+> **Last Updated:** 2026-07-10  
+> **Current Phase:** Phase 2 (Product Improvement) — ✅ Complete
 
 ---
 
@@ -89,7 +89,7 @@
 | ----- | ------------------------------------------------------------------------------------------------------------------------------- | ---------- | ---------- |
 | 0     | Profile management, rate limiting, CORS lockdown, JWT secrets, test framework, register+OTP integration                         | Week 2     | ✅ Complete |
 | 1     | Child CRUD, parent/therapist dashboards, session notes, intake forms, goal tracking, behaviour tracking, admin panel, messaging | Week 3–7   | ✅ Complete |
-| 2     | Progress charts, file uploads, notifications, resource library, therapist profiles                                              | Week 8–10  | 🔴 Pending |
+| 2     | Progress charts, file uploads, notifications, resource library, therapist profiles                                              | Week 8–10  | ✅ Complete |
 | 3     | Booking system, payments (Paystack), subscriptions, reports generator                                                           | Week 11–13 | 🔴 Pending |
 | 4     | School dashboard, AI features, teletherapy, multi-language, mobile app                                                          | Week 14–18 | 🔴 Pending |
 
@@ -165,5 +165,16 @@
 | 2026-07-05 | Navbar Refactor                              | Extracted to `components/Navbar.tsx` with role-aware links, mobile menu, hydration-safe       |
 | 2026-07-05 | Comprehensive E2E Tests                      | 8 notification integration tests covering API + real-time socket events                       |
 | 2026-07-05 | Database Seed Overhaul                       | Full seed script: 3 parents, 3 therapists, 4 children, intake forms, goals, behaviours, sessions, conversations, notifications |
+| 2026-07-05 | Prisma: Resource + FileAttachment Models     | Added Resource and FileAttachment models with relations to User, Child, Session; ResourceType enum |
+| 2026-07-05 | Backend: Resource CRUD                       | Full CRUD endpoints for resources with type/search filtering, role-based access                 |
+| 2026-07-05 | Backend: File Upload (Cloudinary)            | Cloudinary + multer config, upload/delete files, list by childId/sessionId                      |
+| 2026-07-05 | Backend: Progress Aggregation                | Sessions, goals, behaviour trends, summary stats per child                                      |
+| 2026-07-05 | Backend: Therapist Public Profile            | Public profile endpoint with expertise, avatar, child/session counts                            |
+| 2026-07-05 | Frontend: Progress Charts Page               | `/progress/[childId]` — Recharts bar/pie/line charts for session duration, goal status, trends  |
+| 2026-07-05 | Frontend: Resource Library Page              | `/resources` — grid view with search, type filter, external resource links                      |
+| 2026-07-05 | Frontend: Therapist Profile Page             | `/therapists/[id]` — avatar, expertise badge, stats cards, contact info                         |
+| 2026-07-05 | Frontend: Child Detail Tabs + File Upload    | Added Progress/Files tabs to child detail page; upload/delete UI with attachment list           |
+| 2026-07-05 | Frontend: Navbar Phase 2 Links               | Added Resources and Therapists links to Navbar (desktop + mobile)                               |
+| 2026-07-10 | Phase 2 E2E Verification                     | Verified all 5 Phase 2 features end-to-end: 19/19 tests pass, DB tables intact, frontend pages render |
 
-> Phase 1 complete. Phase 2 started — real-time infrastructure, notifications, and notification UI done. Next: progress charts, file uploads, resource library, therapist profiles.
+> Phase 2 complete. Next: Phase 3 — Booking system, payments (Paystack), subscriptions, reports generator.

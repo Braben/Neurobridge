@@ -71,6 +71,12 @@ model User {
   // Notifications
   notifications Notification[]
 
+  // Uploaded resources
+  resources Resource[]
+
+  // Uploaded file attachments
+  fileAttachments FileAttachment[]
+
   @@index([email])
   @@index([role])
 }
@@ -98,6 +104,7 @@ model Child {
   goals      Goal[]
   sessions   Session[]
   behaviours Behaviour[]
+  fileAttachments FileAttachment[]
 
   @@index([lastName])
 }
@@ -182,6 +189,7 @@ model Session {
   child     Child        @relation(fields: [childId], references: [id])
   therapist User         @relation("TherapistSessions", fields: [therapistId], references: [id])
   note      SessionNote?
+  fileAttachments FileAttachment[]
 
   @@index([childId])
   @@index([therapistId])
@@ -314,4 +322,65 @@ model Notification {
   user User @relation(fields: [userId], references: [id])
 
   @@index([userId])
+}
+
+//////////////////////////////////////////////////
+// RESOURCES (library: articles, videos, PDFs)
+//////////////////////////////////////////////////
+
+// Discriminator enum for resource library items — tells the UI which icon and
+// layout to use when displaying the resource card (article, video, or PDF).
+enum ResourceType {
+  ARTICLE
+  VIDEO
+  PDF
+}
+
+// Resource — a shareable library item (article, video, or PDF) curated by
+// therapists or admins for parents. Each resource has a title, optional
+// description, type discriminator, and external URL. The uploader is tracked
+// for attribution. Only ADMIN and THERAPIST roles may create resources; only
+// ADMIN may delete them (enforced at the route level).
+model Resource {
+  id          String       @id @default(uuid())
+  title       String
+  description String?
+  type        ResourceType
+  url         String
+  uploadedById String
+  createdAt   DateTime     @default(now())
+
+  uploadedBy User @relation(fields: [uploadedById], references: [id])
+
+  @@index([type])
+  @@index([title])
+}
+
+//////////////////////////////////////////////////
+// FILE ATTACHMENTS (uploaded reports, assessments, etc.)
+//////////////////////////////////////////////////
+
+// FileAttachment — metadata for files uploaded to Cloudinary (reports, assessments,
+// documents, videos, etc.). Each attachment can optionally be linked to a child
+// and/or a therapy session for organisational context. The publicId is stored
+// so the file can be deleted from Cloudinary when the attachment is removed.
+// Files are limited to 10 MB at the multer middleware level.
+model FileAttachment {
+  id        String   @id @default(uuid())
+  childId   String?
+  sessionId String?
+  fileName  String          // Original filename from the uploader's device
+  url       String          // Full Cloudinary URL for viewing / downloading
+  publicId  String          // Cloudinary asset public ID (required for deletion)
+  mimeType  String          // MIME type detected by Cloudinary / multer
+  size      Int?            // File size in bytes
+  uploadedById String
+  createdAt DateTime @default(now())
+
+  child     Child?  @relation(fields: [childId], references: [id])
+  session   Session? @relation(fields: [sessionId], references: [id])
+  uploadedBy User   @relation(fields: [uploadedById], references: [id])
+
+  @@index([childId])
+  @@index([sessionId])
 }
