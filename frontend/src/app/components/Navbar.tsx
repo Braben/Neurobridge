@@ -80,22 +80,24 @@ export default function Navbar() {
           Neurobridge
         </Link>
 
-        {/* Desktop nav links */}
-        <div className="hidden items-center gap-6 sm:flex">
-          {navLinks.map((link) => (
-            <Link
-              key={link.href}
-              href={link.href}
-              className={`relative text-sm font-medium transition-colors ${
-                isActive(link.href)
-                  ? "text-blue-600"
-                  : "text-gray-600 hover:text-gray-900"
-              }`}
-            >
-              {link.label}
-            </Link>
-          ))}
-        </div>
+        {/* Desktop nav links — hidden on dashboard (sidebar handles nav there) */}
+        {pathname !== "/dashboard" && (
+          <div className="hidden items-center gap-6 sm:flex">
+            {navLinks.map((link) => (
+              <Link
+                key={link.href}
+                href={link.href}
+                className={`relative text-sm font-medium transition-colors ${
+                  isActive(link.href)
+                    ? "text-blue-600"
+                    : "text-gray-600 hover:text-gray-900"
+                }`}
+              >
+                {link.label}
+              </Link>
+            ))}
+          </div>
+        )}
 
         {/* Desktop right section: bell, email, role, logout */}
         <div className="hidden items-center gap-3 sm:flex">
@@ -190,8 +192,8 @@ export default function Navbar() {
         </button>
       </div>
 
-      {/* Mobile menu dropdown */}
-      {menuOpen && (
+      {/* Mobile menu dropdown — hidden on dashboard (sidebar handles nav there) */}
+      {menuOpen && pathname !== "/dashboard" && (
         <div className="border-t border-gray-200 px-4 py-3 sm:hidden">
           <div className="space-y-1">
             {navLinks.map((link) => (
