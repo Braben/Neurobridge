@@ -155,7 +155,7 @@ Goal: Revenue generation — booking, payments, subscription plans, reports.
 |---|------|---------|----------|---------|
 | 3.1 | Availability slots model + endpoints | ✅ | ❌ | Phase 3.1 |
 | 3.2 | Booking CRUD endpoints | ✅ | ❌ | Phase 3.1 |
-| 3.3 | Calendar view — therapist availability + book session | ❌ | ✅ | Phase 3.1 |
+| 3.3 | Calendar view — therapist availability + book session | ✅ | ✅ | Phase 3.1 |
 
 ### Week 12 — Payments + Subscriptions
 

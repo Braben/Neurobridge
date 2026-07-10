@@ -178,5 +178,10 @@
 | 2026-07-10 | Phase 2 E2E Verification                     | Verified all 5 Phase 2 features end-to-end: 19/19 tests pass, DB tables intact, frontend pages render |
 | 2026-07-10 | Booking System: AvailabilitySlot + Booking models | Added Prisma models, migration, backend CRUD for therapist availability slots and parent bookings |
 | 2026-07-10 | Booking System: Real-time notifications         | Booking create/confirm/cancel triggers notifications via Socket.io to therapist and parent |
+| 2026-07-10 | Frontend: Availability + Booking API services    | TypeScript API service layer for availability slot and booking CRUD operations               |
+| 2026-07-10 | Frontend: Therapist Availability Page            | `/availability` — therapists manage recurring weekly slots with add/remove UI                |
+| 2026-07-10 | Frontend: Booking List Page                      | `/bookings` — role-aware list with confirm/cancel/complete actions                           |
+| 2026-07-10 | Frontend: New Booking Wizard                     | `/bookings/new` — 4-step wizard: pick therapist → pick slot → pick child → confirm           |
+| 2026-07-10 | Frontend: Navbar Booking Links                   | Added role-aware Bookings link (parent) and Bookings + Availability links (therapist)         |
 
-> Phase 3 started: Booking system backend complete. Next: Calendar UI for therapist availability + book session.
+> Phase 3 — Booking System complete (backend + frontend). Next: Phase 3 — Payments (Paystack integration).
