@@ -50,29 +50,6 @@ export default function Navbar() {
     dispatch(markAllRead());
   };
 
-  const navLinks = [
-    { href: "/dashboard", label: "Dashboard" },
-    { href: "/children", label: "Children" },
-    { href: "/messages", label: "Messages" },
-    // Phase 2 links — resource library and therapist directory
-    { href: "/resources", label: "Resources" },
-    { href: "/therapists", label: "Therapists" },
-    // Phase 3 links — booking system
-    ...(user.role === "PARENT" ? [{ href: "/bookings", label: "Bookings" }] : []),
-    ...(user.role === "THERAPIST" ? [{ href: "/bookings", label: "Bookings" }, { href: "/availability", label: "Availability" }] : []),
-    { href: "/subscriptions", label: "Plans" },
-    { href: "/reports", label: "Reports" },
-    { href: "/notifications", label: "Notifications" },
-    ...(user.role === "ADMIN"
-      ? [{ href: "/admin", label: "Admin" }, { href: "/admin/revenue", label: "Revenue" }]
-      : []),
-  ];
-
-  const isActive = (href: string) => {
-    if (href === "/dashboard") return pathname === "/dashboard";
-    return pathname.startsWith(href);
-  };
-
   return (
     <nav className="bg-white shadow">
       <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3">
@@ -80,24 +57,7 @@ export default function Navbar() {
           Neurobridge
         </Link>
 
-        {/* Desktop nav links — hidden on dashboard (sidebar handles nav there) */}
-        {pathname !== "/dashboard" && (
-          <div className="hidden items-center gap-6 sm:flex">
-            {navLinks.map((link) => (
-              <Link
-                key={link.href}
-                href={link.href}
-                className={`relative text-sm font-medium transition-colors ${
-                  isActive(link.href)
-                    ? "text-blue-600"
-                    : "text-gray-600 hover:text-gray-900"
-                }`}
-              >
-                {link.label}
-              </Link>
-            ))}
-          </div>
-        )}
+        {/* Sidebar handles navigation — desktop nav links removed */}
 
         {/* Desktop right section: bell, email, role, logout */}
         <div className="hidden items-center gap-3 sm:flex">
@@ -192,40 +152,17 @@ export default function Navbar() {
         </button>
       </div>
 
-      {/* Mobile menu dropdown — hidden on dashboard (sidebar handles nav there) */}
-      {menuOpen && pathname !== "/dashboard" && (
-        <div className="border-t border-gray-200 px-4 py-3 sm:hidden">
-          <div className="space-y-1">
-            {navLinks.map((link) => (
-              <Link
-                key={link.href}
-                href={link.href}
-                onClick={() => setMenuOpen(false)}
-                className={`relative block rounded-md px-3 py-2 text-sm font-medium ${
-                  isActive(link.href)
-                    ? "bg-blue-50 text-blue-600"
-                    : "text-gray-600 hover:bg-gray-50"
-                }`}
-              >
-                {link.label}
-                {link.href === "/notifications" && unreadCount > 0 && (
-                  <span className="ml-2 rounded-full bg-red-500 px-1.5 py-0.5 text-[10px] font-bold text-white">
-                    {unreadCount > 9 ? "9+" : unreadCount}
-                  </span>
-                )}
-              </Link>
-            ))}
-          </div>
-          <div className="mt-3 border-t border-gray-200 pt-3">
-            <p className="px-3 text-sm text-gray-500">{user.email}</p>
-            <button
-              onClick={handleLogout}
-              disabled={isLoggingOut}
-              className="mt-2 w-full rounded-lg bg-red-600 px-3 py-2 text-sm font-medium text-white hover:bg-red-700 disabled:opacity-50"
-            >
-              {isLoggingOut ? "Logging out..." : "Logout"}
-            </button>
-          </div>
+      {/* Mobile menu — sidebar handles nav links */}
+      {menuOpen && (
+        <div className="border-t border-gray-200 px-4 py-4 sm:hidden">
+          <p className="text-sm text-gray-500">{user.email}</p>
+          <button
+            onClick={handleLogout}
+            disabled={isLoggingOut}
+            className="mt-2 w-full rounded-lg bg-red-600 px-3 py-2 text-sm font-medium text-white hover:bg-red-700 disabled:opacity-50"
+          >
+            {isLoggingOut ? "Logging out..." : "Logout"}
+          </button>
         </div>
       )}
     </nav>

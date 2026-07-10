@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { Providers } from "./providers";
 import Navbar from "./components/Navbar";
+import DashboardShell from "./components/DashboardShell";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -32,7 +33,7 @@ export default function RootLayout({
       <body className="min-h-full flex flex-col" suppressHydrationWarning>
         <Providers>
           <Navbar />
-          {children}
+          <DashboardShell>{children}</DashboardShell>
         </Providers>
       </body>
     </html>

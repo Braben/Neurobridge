@@ -5,7 +5,6 @@ import { useAppDispatch, useAppSelector } from "../hooks/useRedux";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { fetchChildren } from "../store/slices/childSlice";
-import Sidebar from "../components/Sidebar";
 
 export default function Dashboard() {
   const router = useRouter();
@@ -26,9 +25,7 @@ export default function Dashboard() {
   const unapprovedCount = children.filter((c) => !c.diagnosis).length;
 
   return (
-    <div className="flex min-h-screen bg-gray-50">
-      <Sidebar />
-      <main className="flex-1 space-y-6 overflow-y-auto p-4 pt-6">
+    <div className="space-y-6">
         {/* Welcome Banner */}
         <div className="rounded-xl bg-white p-6 shadow">
           <h2 className="text-lg font-semibold text-gray-900">
@@ -120,7 +117,6 @@ export default function Dashboard() {
             </div>
           )}
         </div>
-      </main>
     </div>
   );
 }
