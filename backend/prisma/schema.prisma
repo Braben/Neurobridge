@@ -77,6 +77,11 @@ model User {
   // Uploaded file attachments
   fileAttachments FileAttachment[]
 
+  // Phase 3: Booking system
+  availabilitySlots AvailabilitySlot[]
+  bookingsAsParent  Booking[] @relation("BookingParent")
+  bookingsAsTherapist Booking[] @relation("BookingTherapist")
+
   @@index([email])
   @@index([role])
 }
@@ -105,6 +110,9 @@ model Child {
   sessions   Session[]
   behaviours Behaviour[]
   fileAttachments FileAttachment[]
+
+  // Phase 3: Booking system
+  bookings Booking[]
 
   @@index([lastName])
 }
@@ -383,4 +391,55 @@ model FileAttachment {
 
   @@index([childId])
   @@index([sessionId])
+}
+
+//////////////////////////////////////////////////
+// BOOKING SYSTEM (Phase 3)
+//////////////////////////////////////////////////
+
+enum BookingStatus {
+  PENDING
+  CONFIRMED
+  CANCELLED
+  COMPLETED
+}
+
+model AvailabilitySlot {
+  id          String   @id @default(uuid())
+  therapistId String
+  dayOfWeek   Int?              // 0=Sun..6=Sat, null for specificDate
+  specificDate DateTime?        // Non-recurring date override
+  startTime   String            // "09:00"
+  endTime     String            // "10:00"
+  isRecurring Boolean  @default(true)
+  createdAt   DateTime @default(now())
+
+  therapist User      @relation(fields: [therapistId], references: [id])
+  bookings  Booking[]
+
+  @@index([therapistId])
+  @@index([dayOfWeek])
+}
+
+model Booking {
+  id          String        @id @default(uuid())
+  slotId      String
+  childId     String
+  parentId    String
+  therapistId String
+  status      BookingStatus @default(PENDING)
+  notes       String?
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  slot      AvailabilitySlot @relation(fields: [slotId], references: [id])
+  child     Child            @relation(fields: [childId], references: [id])
+  parent    User             @relation("BookingParent", fields: [parentId], references: [id])
+  therapist User             @relation("BookingTherapist", fields: [therapistId], references: [id])
+
+  @@index([slotId])
+  @@index([childId])
+  @@index([therapistId])
+  @@index([parentId])
+  @@index([status])
 }

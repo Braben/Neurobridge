@@ -21,6 +21,9 @@ const resourceRoutes = require("./src/routes/resource.route");
 const uploadRoutes = require("./src/routes/upload.route");
 const progressRoutes = require("./src/routes/progress.route");
 const therapistRoutes = require("./src/routes/therapist.route");
+// Phase 3: Booking system
+const availabilityRoutes = require("./src/routes/availability.route");
+const bookingRoutes = require("./src/routes/booking.route");
 
 const app = express();
 
@@ -70,6 +73,9 @@ app.use("/api/v1/resources", resourceRoutes);
 app.use("/api/v1/upload", uploadRoutes);
 app.use("/api/v1/progress", progressRoutes);
 app.use("/api/v1/therapists", therapistRoutes);
+// Phase 3: Booking system
+app.use("/api/v1/availability", availabilityRoutes);
+app.use("/api/v1/bookings", bookingRoutes);
 
 // --- 404 Catch-All ---
 app.use((req, res, next) => {

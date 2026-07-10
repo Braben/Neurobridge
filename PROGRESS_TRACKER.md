@@ -1,7 +1,7 @@
 # Neurobridge — Progress Tracker
 
 > **Last Updated:** 2026-07-10  
-> **Current Phase:** Phase 2 (Product Improvement) — ✅ Complete
+> **Current Phase:** Phase 3 (Business Features) — In Progress
 
 ---
 
@@ -90,7 +90,7 @@
 | 0     | Profile management, rate limiting, CORS lockdown, JWT secrets, test framework, register+OTP integration                         | Week 2     | ✅ Complete |
 | 1     | Child CRUD, parent/therapist dashboards, session notes, intake forms, goal tracking, behaviour tracking, admin panel, messaging | Week 3–7   | ✅ Complete |
 | 2     | Progress charts, file uploads, notifications, resource library, therapist profiles                                              | Week 8–10  | ✅ Complete |
-| 3     | Booking system, payments (Paystack), subscriptions, reports generator                                                           | Week 11–13 | 🔴 Pending |
+| 3     | Booking system, payments (Paystack), subscriptions, reports generator                                                           | Week 11–13 | 🟡 In Progress |
 | 4     | School dashboard, AI features, teletherapy, multi-language, mobile app                                                          | Week 14–18 | 🔴 Pending |
 
 ---
@@ -176,5 +176,7 @@
 | 2026-07-05 | Frontend: Child Detail Tabs + File Upload    | Added Progress/Files tabs to child detail page; upload/delete UI with attachment list           |
 | 2026-07-05 | Frontend: Navbar Phase 2 Links               | Added Resources and Therapists links to Navbar (desktop + mobile)                               |
 | 2026-07-10 | Phase 2 E2E Verification                     | Verified all 5 Phase 2 features end-to-end: 19/19 tests pass, DB tables intact, frontend pages render |
+| 2026-07-10 | Booking System: AvailabilitySlot + Booking models | Added Prisma models, migration, backend CRUD for therapist availability slots and parent bookings |
+| 2026-07-10 | Booking System: Real-time notifications         | Booking create/confirm/cancel triggers notifications via Socket.io to therapist and parent |
 
-> Phase 2 complete. Next: Phase 3 — Booking system, payments (Paystack), subscriptions, reports generator.
+> Phase 3 started: Booking system backend complete. Next: Calendar UI for therapist availability + book session.
