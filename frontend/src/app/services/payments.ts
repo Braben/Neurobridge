@@ -24,4 +24,12 @@ export const paymentsApi = {
 
   listTransactions: () =>
     api.get<{ transactions: Transaction[] }>("/payments/transactions").then((r) => r.data),
+
+  revenueDashboard: () =>
+    api.get<{
+      revenue: { total: number; monthly: number };
+      activeSubscriptions: number;
+      totalUsers: number;
+      recentTransactions: (Transaction & { user: { id: string; firstName: string; lastName: string; email: string } })[];
+    }>("/payments/revenue").then((r) => r.data),
 };

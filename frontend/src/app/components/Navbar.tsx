@@ -61,8 +61,11 @@ export default function Navbar() {
     ...(user.role === "PARENT" ? [{ href: "/bookings", label: "Bookings" }] : []),
     ...(user.role === "THERAPIST" ? [{ href: "/bookings", label: "Bookings" }, { href: "/availability", label: "Availability" }] : []),
     { href: "/subscriptions", label: "Plans" },
+    { href: "/reports", label: "Reports" },
     { href: "/notifications", label: "Notifications" },
-    ...(user.role === "ADMIN" ? [{ href: "/admin", label: "Admin" }] : []),
+    ...(user.role === "ADMIN"
+      ? [{ href: "/admin", label: "Admin" }, { href: "/admin/revenue", label: "Revenue" }]
+      : []),
   ];
 
   const isActive = (href: string) => {

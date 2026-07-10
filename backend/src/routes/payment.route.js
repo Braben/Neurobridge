@@ -4,6 +4,7 @@ const {
   verifyPayment,
   handleWebhook,
   listTransactions,
+  revenueDashboard,
 } = require("../modules/payments/payments.controller");
 const { verifyToken } = require("../middleware/auth");
 
@@ -13,5 +14,6 @@ router.post("/webhook", handleWebhook);
 router.post("/initialize", verifyToken, initializePayment);
 router.get("/verify/:reference", verifyToken, verifyPayment);
 router.get("/transactions", verifyToken, listTransactions);
+router.get("/revenue", verifyToken, revenueDashboard);
 
 module.exports = router;

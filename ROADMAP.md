@@ -145,7 +145,7 @@ Goal: More powerful clinical tools, file uploads, notifications, resource librar
 
 ---
 
-## PHASE 3: BUSINESS FEATURES (Week 11–13)
+## PHASE 3: BUSINESS FEATURES (Week 11–13) ✅
 
 Goal: Revenue generation — booking, payments, subscription plans, reports.
 
@@ -171,12 +171,12 @@ Goal: Revenue generation — booking, payments, subscription plans, reports.
 
 | # | Task | Backend | Frontend | PRD Ref |
 |---|------|---------|----------|---------|
-| 3.9 | Report generation endpoint (aggregate child data → PDF) | ✅ | ❌ | Phase 3.4 |
-| 3.10 | Transaction history + revenue dashboard endpoints | ✅ | ❌ | Phase 3.2 |
-| 3.11 | Reports UI (generate, preview, download PDF) | ❌ | ✅ | Phase 3.4 |
-| 3.12 | Revenue dashboard (admin) | ❌ | ✅ | Phase 3.2 |
+| 3.9 | Report generation endpoint (aggregate child data → PDF) | ✅ | ✅ | Phase 3.4 |
+| 3.10 | Transaction history + revenue dashboard endpoints | ✅ | ✅ | Phase 3.2 |
+| 3.11 | Reports UI (generate, preview, download PDF) | ✅ | ✅ | Phase 3.4 |
+| 3.12 | Revenue dashboard (admin) | ✅ | ✅ | Phase 3.2 |
 
-**Milestone:** Platform generates revenue — parents book and pay, system auto-generates reports.
+**Milestone:** Phase 3 Complete — parents book, pay, subscribe, and download therapy reports.
 
 ---
 

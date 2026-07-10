@@ -194,4 +194,10 @@
 | 2026-07-10 | Frontend: Subscription Plans Page               | `/subscriptions` — plan grid, subscribe button, Paystack redirect |
 | 2026-07-10 | Frontend: Navbar Updates                        | Added Plans link; added Pay Now button on PENDING bookings |
 
-> Phase 3 — Booking System + Payments/Subscriptions complete. Next: Phase 3 — Reports Generator + Revenue Dashboard.
+| 2026-07-10 | Backend: Report Generation (PDF)                  | PDFKit-based report with child info, sessions, goals, behaviours, intake summary |
+| 2026-07-10 | Backend: Revenue Dashboard Endpoint              | Admin endpoint: total/monthly revenue, active subs, user count, recent transactions |
+| 2026-07-10 | Frontend: Reports Page                          | `/reports` — pick child, generate & download PDF reports |
+| 2026-07-10 | Frontend: Admin Revenue Dashboard               | `/admin/revenue` — revenue stats cards + recent transactions table |
+| 2026-07-10 | Frontend: Navbar Phase 3 Links                  | Added Plans, Reports, Revenue links to Navbar |
+
+> ✅ **Phase 3 Complete!** Booking System → Payments → Subscriptions → Reports.

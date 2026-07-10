@@ -152,3 +152,36 @@ exports.listTransactions = async (req, res, next) => {
     next(error);
   }
 };
+
+exports.revenueDashboard = async (req, res, next) => {
+  try {
+    if (req.user.role !== "ADMIN") {
+      return res.status(403).json({ message: "Admin access required" });
+    }
+
+    const [transactions, activeSubs, totalUsers] = await Promise.all([
+      prisma.transaction.findMany({
+        where: { status: "SUCCESS" },
+        orderBy: { createdAt: "desc" },
+        include: { user: { select: { id: true, firstName: true, lastName: true, email: true } } },
+      }),
+      prisma.userSubscription.count({ where: { status: "ACTIVE" } }),
+      prisma.user.count(),
+    ]);
+
+    const totalRevenue = transactions.reduce((sum, t) => sum + t.amount, 0);
+    const thisMonth = transactions.filter(
+      (t) => new Date(t.createdAt).getMonth() === new Date().getMonth()
+    );
+    const monthlyRevenue = thisMonth.reduce((sum, t) => sum + t.amount, 0);
+
+    return res.status(200).json({
+      revenue: { total: totalRevenue, monthly: monthlyRevenue },
+      activeSubscriptions: activeSubs,
+      totalUsers,
+      recentTransactions: transactions.slice(0, 20),
+    });
+  } catch (error) {
+    next(error);
+  }
+};
