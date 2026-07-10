@@ -41,7 +41,7 @@ export default function BookingsPage() {
     setBookings((prev) => prev.map((b) => b.id === id ? { ...b, status: "COMPLETED" } : b));
   };
 
-  if (loading) return <div className="flex justify-center py-12"><div className="h-8 w-8 animate-spin rounded-full border-4 border-blue-600 border-t-transparent" /></div>;
+  if (!user) return null;
 
   const dayName = (d: number | null) =>
     d !== null ? ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"][d] : "";

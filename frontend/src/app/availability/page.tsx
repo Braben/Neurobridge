@@ -47,7 +47,7 @@ export default function AvailabilityPage() {
     setSlots((prev) => prev.filter((s) => s.id !== id));
   };
 
-  if (loading) return <div className="flex justify-center py-12"><div className="h-8 w-8 animate-spin rounded-full border-4 border-blue-600 border-t-transparent" /></div>;
+  if (!user) return null;
 
   const grouped = DAYS.map((_, i) => ({
     day: DAYS[i],

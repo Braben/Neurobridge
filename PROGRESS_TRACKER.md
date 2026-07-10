@@ -1,7 +1,7 @@
 # Neurobridge — Progress Tracker
 
 > **Last Updated:** 2026-07-10  
-> **Current Phase:** Phase 3 (Business Features) — In Progress
+> **Current Phase:** Phase 3 (Business Features) — Hydration Fix ✅
 
 ---
 
@@ -183,5 +183,6 @@
 | 2026-07-10 | Frontend: Booking List Page                      | `/bookings` — role-aware list with confirm/cancel/complete actions                           |
 | 2026-07-10 | Frontend: New Booking Wizard                     | `/bookings/new` — 4-step wizard: pick therapist → pick slot → pick child → confirm           |
 | 2026-07-10 | Frontend: Navbar Booking Links                   | Added role-aware Bookings link (parent) and Bookings + Availability links (therapist)         |
+| 2026-07-10 | Hydration Fix: Booking Pages                     | Fixed hydration mismatch in 3 pages: changed `if (loading) return <spinner>` → `if (!user) return null` |
 
-> Phase 3 — Booking System complete (backend + frontend). Next: Phase 3 — Payments (Paystack integration).
+> Phase 3 — Booking System complete (backend + frontend + hydration fix). Next: Phase 3 — Payments (Paystack integration).

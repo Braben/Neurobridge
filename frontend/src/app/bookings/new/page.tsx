@@ -77,7 +77,7 @@ export default function NewBookingPage() {
 
   const DAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
-  if (loading) return <div className="flex justify-center py-12"><div className="h-8 w-8 animate-spin rounded-full border-4 border-blue-600 border-t-transparent" /></div>;
+  if (!user) return null;
 
   return (
     <div className="mx-auto max-w-2xl px-4 py-6">
