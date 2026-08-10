@@ -5,8 +5,24 @@ import { useRouter } from "next/navigation";
 import { useAppDispatch, useAppSelector } from "../../hooks/useRedux";
 import { registerUser, clearError } from "../../store/slices/authSlice";
 import Link from "next/link";
+import AppButton from "../../components/ui/AppButton";
+import AuthFrame from "../../components/ui/AuthFrame";
+import { FormField } from "../../components/ui/FormField";
+import GlobalMessage from "../../components/ui/GlobalMessage";
 
-export default function RegisterPage() {
+type RegisterRole = "ADMIN" | "PARENT" | "THERAPIST";
+
+const roleLabels: Record<RegisterRole, string> = {
+  ADMIN: "administrator",
+  PARENT: "Parent",
+  THERAPIST: "Therapist",
+};
+
+export default function RegisterPage({
+  initialRole = "PARENT",
+}: {
+  initialRole?: RegisterRole;
+}) {
   const router = useRouter();
   const dispatch = useAppDispatch();
   const { isLoading, error } = useAppSelector((state) => state.auth);
@@ -18,8 +34,10 @@ export default function RegisterPage() {
     phone: "",
     password: "",
     confirmPassword: "",
-    role: "PARENT" as "PARENT" | "THERAPIST",
+    role: initialRole,
+    otherNames: "",
     areaofexpertise: "",
+    adminInviteCode: "",
   });
 
   const [validationError, setValidationError] = useState<string | null>(null);
@@ -46,6 +64,10 @@ export default function RegisterPage() {
       setValidationError("Therapists must provide an area of expertise");
       return;
     }
+    if (formData.role === "ADMIN" && !formData.adminInviteCode.trim()) {
+      setValidationError("Administrators must provide an invite code");
+      return;
+    }
 
     const payload = {
       firstName: formData.firstName,
@@ -55,6 +77,7 @@ export default function RegisterPage() {
       password: formData.password,
       role: formData.role,
       ...(formData.role === "THERAPIST" && { areaofexpertise: formData.areaofexpertise }),
+      ...(formData.role === "ADMIN" && { adminInviteCode: formData.adminInviteCode }),
     };
 
     const result = await dispatch(registerUser(payload));
@@ -65,163 +88,183 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gray-50 px-4 py-8">
-      <div className="w-full max-w-md space-y-6 rounded-xl bg-white p-8 shadow-lg">
-        <div className="text-center">
-          <h1 className="text-2xl font-bold text-gray-900">Create account</h1>
-          <p className="mt-1 text-sm text-gray-500">Join Neurobridge as a parent or therapist</p>
+    <AuthFrame footerMinimal>
+      {(validationError || error) && (
+        <GlobalMessage variant="error">
+          Please ensure that all fields are filled correctly
+        </GlobalMessage>
+      )}
+
+      <div className="mx-auto w-full max-w-2xl">
+        <div className="mb-8">
+          <h1 className="text-2xl font-bold text-[#171f27]">
+            Sign Up as a {roleLabels[formData.role]} to{" "}
+            <span className="text-[#009cae]">Neuro Bridge Africa</span>
+          </h1>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label htmlFor="firstName" className="block text-sm font-medium text-gray-700">
-                First name
-              </label>
-              <input
-                id="firstName"
-                name="firstName"
-                type="text"
-                required
-                value={formData.firstName}
-                onChange={handleChange}
-                className="mt-1 block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-              />
-            </div>
-            <div>
-              <label htmlFor="lastName" className="block text-sm font-medium text-gray-700">
-                Last name
-              </label>
-              <input
-                id="lastName"
-                name="lastName"
-                type="text"
-                required
-                value={formData.lastName}
-                onChange={handleChange}
-                className="mt-1 block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-              />
-            </div>
+        <div className="mb-6 grid grid-cols-3 gap-3 rounded-md bg-[#eef8fc] p-1.5">
+          <button
+            type="button"
+            onClick={() => setFormData({ ...formData, role: "PARENT" })}
+            className={`rounded-md px-4 py-2 text-sm font-semibold transition ${
+              formData.role === "PARENT" ? "bg-white text-[#073f63] shadow-sm" : "text-[#4e7b93]"
+            }`}
+          >
+            Parent
+          </button>
+          <button
+            type="button"
+            onClick={() => setFormData({ ...formData, role: "THERAPIST" })}
+            className={`rounded-md px-4 py-2 text-sm font-semibold transition ${
+              formData.role === "THERAPIST" ? "bg-white text-[#073f63] shadow-sm" : "text-[#4e7b93]"
+            }`}
+          >
+            Therapist
+          </button>
+          <button
+            type="button"
+            onClick={() => setFormData({ ...formData, role: "ADMIN" })}
+            className={`rounded-md px-4 py-2 text-sm font-semibold transition ${
+              formData.role === "ADMIN" ? "bg-white text-[#073f63] shadow-sm" : "text-[#4e7b93]"
+            }`}
+          >
+            Admin
+          </button>
+        </div>
+
+        <form onSubmit={handleSubmit} className="space-y-5">
+          <div className="grid gap-5 sm:grid-cols-2">
+            <FormField
+              label="First Name"
+              name="firstName"
+              type="text"
+              required
+              value={formData.firstName}
+              onChange={handleChange}
+              placeholder="Enter your first name"
+            />
+            <FormField
+              label="Last Name"
+              name="lastName"
+              type="text"
+              required
+              value={formData.lastName}
+              onChange={handleChange}
+              placeholder="Enter your last name"
+            />
           </div>
 
-          <div>
-            <label htmlFor="email" className="block text-sm font-medium text-gray-700">
-              Email
-            </label>
-            <input
-              id="email"
+          <div className="grid gap-5 sm:grid-cols-2">
+            {formData.role === "ADMIN" && (
+              <FormField
+                label="Other Name(s)"
+                name="otherNames"
+                type="text"
+                value={formData.otherNames}
+                onChange={handleChange}
+                placeholder="Enter any other names you have"
+              />
+            )}
+            <FormField
+              label="Email"
               name="email"
               type="email"
               required
               value={formData.email}
               onChange={handleChange}
-              className="mt-1 block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+              placeholder="Enter your email address"
             />
-          </div>
-
-          <div>
-            <label htmlFor="phone" className="block text-sm font-medium text-gray-700">
-              Phone
-            </label>
-            <input
-              id="phone"
+            <FormField
+              label="Phone Number"
               name="phone"
               type="tel"
               required
               value={formData.phone}
               onChange={handleChange}
-              placeholder="+233501234567"
-              className="mt-1 block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+              placeholder="Enter your phone number"
             />
           </div>
 
-          <div>
-            <label htmlFor="role" className="block text-sm font-medium text-gray-700">
-              I am a
-            </label>
-            <select
-              id="role"
-              name="role"
-              value={formData.role}
-              onChange={handleChange}
-              className="mt-1 block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-            >
-              <option value="PARENT">Parent / Guardian</option>
-              <option value="THERAPIST">Therapist</option>
-            </select>
-          </div>
-
           {formData.role === "THERAPIST" && (
-            <div>
-              <label htmlFor="areaofexpertise" className="block text-sm font-medium text-gray-700">
-                Area of expertise
-              </label>
-              <input
-                id="areaofexpertise"
-                name="areaofexpertise"
-                type="text"
-                required={formData.role === "THERAPIST"}
-                value={formData.areaofexpertise}
-                onChange={handleChange}
-                placeholder="e.g., Speech therapy, Occupational therapy"
-                className="mt-1 block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-              />
-            </div>
+            <FormField
+              label="Area of Expertise"
+              name="areaofexpertise"
+              type="text"
+              required
+              value={formData.areaofexpertise}
+              onChange={handleChange}
+              placeholder="Speech therapy, Occupational therapy"
+            />
           )}
 
-          <div>
-            <label htmlFor="password" className="block text-sm font-medium text-gray-700">
-              Password
-            </label>
-            <input
-              id="password"
+          <div className="grid gap-5 sm:grid-cols-2">
+            <FormField
+              label="Create Your Password"
               name="password"
               type="password"
               required
               value={formData.password}
               onChange={handleChange}
-              placeholder="At least 6 characters"
-              className="mt-1 block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+              placeholder="Enter password"
+              error={validationError?.toLowerCase().includes("password") ? validationError : undefined}
             />
-          </div>
-
-          <div>
-            <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700">
-              Confirm password
-            </label>
-            <input
-              id="confirmPassword"
+            <FormField
+              label="Confirm Your Password"
               name="confirmPassword"
               type="password"
               required
               value={formData.confirmPassword}
               onChange={handleChange}
-              className="mt-1 block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+              placeholder="Confirm password"
+              status={
+                formData.confirmPassword && formData.password === formData.confirmPassword
+                  ? "success"
+                  : validationError?.toLowerCase().includes("password")
+                    ? "error"
+                    : "default"
+              }
+              helpText={
+                formData.confirmPassword && formData.password === formData.confirmPassword
+                  ? "Password matches"
+                  : undefined
+              }
             />
           </div>
 
-          {(validationError || error) && (
-            <div className="rounded-lg bg-red-50 p-3 text-sm text-red-700">
-              {validationError || error}
-            </div>
+          {formData.role === "ADMIN" && (
+            <FormField
+              label="Admin Invite Code"
+              name="adminInviteCode"
+              type="text"
+              required
+              value={formData.adminInviteCode}
+              onChange={handleChange}
+              placeholder="Enter your admin invite code"
+              error={
+                validationError?.toLowerCase().includes("invite") ? validationError : undefined
+              }
+              className="text-center"
+            />
           )}
 
-          <button
+          <AppButton
             type="submit"
             disabled={isLoading}
-            className="w-full rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+            className="mx-auto flex min-w-44"
+            variant="secondary"
           >
-            {isLoading ? "Creating account..." : "Create account"}
-          </button>
+            {isLoading ? "Loading" : "Sign Up"}
+          </AppButton>
         </form>
 
-        <p className="text-center text-sm text-gray-500">
+        <p className="mt-5 text-center text-xs font-semibold text-[#1d2b36]">
           Already have an account?{" "}
-          <Link href="/login" className="font-medium text-blue-600 hover:text-blue-500">
-            Sign in
+          <Link href="/login" className="text-[#009cae] hover:underline">
+            Login
           </Link>
         </p>
       </div>
-    </div>
+    </AuthFrame>
   );
 }

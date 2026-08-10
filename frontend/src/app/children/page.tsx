@@ -1,10 +1,14 @@
 "use client";
 
+import Image from "next/image";
 import { useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useAppDispatch, useAppSelector } from "../hooks/useRedux";
 import { fetchChildren, deleteChild } from "../store/slices/childSlice";
+import AppButton from "../components/ui/AppButton";
+import { DashboardPanel, EmptyState } from "../components/ui/DashboardCards";
+import GlobalMessage from "../components/ui/GlobalMessage";
 
 export default function ChildrenPage() {
   const router = useRouter();
@@ -27,94 +31,102 @@ export default function ChildrenPage() {
 
   if (!user) return null;
 
+  const title = user.role === "THERAPIST" ? "Assigned Children" : "My Children";
+
   return (
-    <div className="min-h-screen bg-gray-50">
-      <header className="bg-white shadow">
-        <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-4">
-          <div className="flex items-center gap-4">
-            <Link href="/dashboard" className="text-sm text-blue-600 hover:text-blue-500">&larr; Dashboard</Link>
-            <h1 className="text-xl font-bold text-gray-900">My Children</h1>
-          </div>
-          <Link
-            href="/children/add"
-            className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700"
-          >
-            + Add Child
-          </Link>
-        </div>
-      </header>
+    <div className="space-y-7">
+      {error && <GlobalMessage variant="error">{error}</GlobalMessage>}
 
-      <main className="mx-auto max-w-7xl px-4 py-6">
-        {error && (
-          <div className="mb-4 rounded-lg bg-red-50 p-3 text-sm text-red-700">{error}</div>
-        )}
-
+      <DashboardPanel
+        title={title}
+        description="Review child profiles, intake status, and therapy records."
+        action={
+          user.role !== "THERAPIST" && (
+            <AppButton href="/children/add" variant="secondary">
+              Add Child
+            </AppButton>
+          )
+        }
+      >
         {isLoading ? (
           <div className="flex items-center justify-center py-12">
-            <div className="h-8 w-8 animate-spin rounded-full border-4 border-blue-600 border-t-transparent" />
+            <div className="h-8 w-8 animate-spin rounded-full border-4 border-[#0078d4] border-t-transparent" />
           </div>
         ) : children.length === 0 ? (
-          <div className="rounded-xl bg-white p-12 text-center shadow">
-            <p className="text-gray-500">No children registered yet.</p>
-            <Link
-              href="/children/add"
-              className="mt-4 inline-block rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700"
-            >
-              Add Your First Child
-            </Link>
-          </div>
+          <EmptyState
+            title="No children registered yet"
+            message="Child profiles will appear here once they are added to the platform."
+            action={
+              user.role !== "THERAPIST" && (
+                <AppButton href="/children/add" variant="secondary">
+                  Add Your First Child
+                </AppButton>
+              )
+            }
+          />
         ) : (
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {children.map((child) => (
-              <div key={child.id} className="rounded-xl bg-white p-5 shadow transition-shadow hover:shadow-md">
-                <div className="flex items-start justify-between">
-                  <div>
-                    <h3 className="text-lg font-semibold text-gray-900">
-                      {child.firstName} {child.lastName}
-                    </h3>
-                    <p className="mt-1 text-sm text-gray-500 capitalize">{child.gender.toLowerCase()}</p>
-                  </div>
-                  <span className="rounded-full bg-blue-100 px-2 py-0.5 text-xs font-medium text-blue-700">
-                    {new Date(child.dateOfBirth).toLocaleDateString()}
-                  </span>
-                </div>
-
-                {child.diagnosis && (
-                  <p className="mt-2 text-sm text-gray-600">
-                    <span className="font-medium">Diagnosis:</span> {child.diagnosis}
-                  </p>
-                )}
-                {child.school && (
-                  <p className="text-sm text-gray-600">
-                    <span className="font-medium">School:</span> {child.school}
-</p>
-                )}
-
-                <div className="mt-4 flex gap-2">
-                  <Link
-                    href={`/children/${child.id}`}
-                    className="rounded-md bg-gray-100 px-3 py-1.5 text-xs font-medium text-gray-700 hover:bg-gray-200"
-                  >
-                    View
-                  </Link>
-                  <Link
-                    href={`/children/${child.id}/edit`}
-                    className="rounded-md bg-gray-100 px-3 py-1.5 text-xs font-medium text-gray-700 hover:bg-gray-200"
-                  >
-                    Edit
-                  </Link>
-                  <button
-                    onClick={() => handleDelete(child.id, `${child.firstName} ${child.lastName}`)}
-                    className="rounded-md bg-red-50 px-3 py-1.5 text-xs font-medium text-red-600 hover:bg-red-100"
-                  >
-                    Delete
-                  </button>
-                </div>
-              </div>
-            ))}
+          <div className="overflow-hidden rounded-md border border-[#d7e6f2] bg-white shadow-sm">
+            <div className="overflow-x-auto">
+              <table className="w-full min-w-[920px] text-left text-sm">
+                <thead className="bg-[#f6fbfd] text-xs uppercase text-[#536471]">
+                  <tr>
+                    <th className="px-6 py-3">Child</th>
+                    <th className="px-6 py-3">Date of Birth</th>
+                    <th className="px-6 py-3">Gender</th>
+                    <th className="px-6 py-3">Diagnosis</th>
+                    <th className="px-6 py-3">School</th>
+                    <th className="px-6 py-3">Actions</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-[#edf4f8]">
+                  {children.map((child) => (
+                    <tr key={child.id} className="hover:bg-[#f8fbfd]">
+                      <td className="px-6 py-4">
+                        <div className="flex items-center gap-3">
+                          <Image src="/design-assets/child-portrait.jpg" alt="" width={40} height={40} className="h-10 w-10 rounded-full object-cover" />
+                          <div>
+                            <p className="font-semibold text-[#111827]">{child.firstName} {child.lastName}</p>
+                            <p className="text-xs text-[#536471]">Profile ID: {child.id.slice(0, 8)}</p>
+                          </div>
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 text-[#536471]">{new Date(child.dateOfBirth).toLocaleDateString()}</td>
+                      <td className="px-6 py-4 capitalize text-[#536471]">{child.gender.toLowerCase()}</td>
+                      <td className="px-6 py-4 text-[#536471]">{child.diagnosis || "Pending"}</td>
+                      <td className="px-6 py-4 text-[#536471]">{child.school || "Not provided"}</td>
+                      <td className="px-6 py-4">
+                        <div className="flex flex-wrap gap-2">
+                          <AppButton href={`/children/${child.id}`} size="sm" variant="outline">
+                            View
+                          </AppButton>
+                          {user.role !== "THERAPIST" && (
+                            <>
+                              <AppButton href={`/children/${child.id}/edit`} size="sm" variant="ghost">
+                                Edit
+                              </AppButton>
+                              <AppButton
+                                onClick={() => handleDelete(child.id, `${child.firstName} ${child.lastName}`)}
+                                size="sm"
+                                variant="danger"
+                              >
+                                Delete
+                              </AppButton>
+                            </>
+                          )}
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </div>
         )}
-      </main>
+      </DashboardPanel>
+
+      <Link href="/dashboard" className="inline-flex text-sm font-semibold text-[#0078d4] hover:underline">
+        &larr; Dashboard
+      </Link>
     </div>
   );
 }

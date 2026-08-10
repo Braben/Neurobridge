@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useAppSelector } from "../hooks/useRedux";
+import BrandLogo from "./ui/BrandLogo";
 
 interface NavItem {
   href: string;
@@ -63,10 +64,10 @@ export default function Sidebar() {
   };
 
   return (
-    <aside className="hidden w-56 shrink-0 flex-col border-r border-gray-200 bg-white sm:flex sm:h-screen sm:sticky sm:top-0">
-      <div className="flex h-14 items-center border-b border-gray-200 px-4">
-        <Link href="/dashboard" className="text-lg font-bold text-gray-900">
-          Neurobridge
+    <aside className="hidden w-60 shrink-0 flex-col border-r border-[#b7eef2] bg-[#dff9f9] sm:flex sm:h-[calc(100vh-77px)] sm:sticky sm:top-[77px]">
+      <div className="flex min-h-20 items-center border-b border-[#b7eef2] px-5">
+        <Link href="/dashboard" aria-label="Neuro Bridge Africa dashboard">
+          <BrandLogo compact className="w-40" />
         </Link>
       </div>
       <nav className="flex-1 overflow-y-auto p-3">
@@ -79,8 +80,8 @@ export default function Sidebar() {
                 href={item.href}
                 className={`flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors ${
                   active
-                    ? "bg-blue-50 text-blue-700"
-                    : "text-gray-600 hover:bg-gray-100 hover:text-gray-900"
+                    ? "bg-white text-[#073f63] shadow-sm"
+                    : "text-[#3b647a] hover:bg-white/70 hover:text-[#073f63]"
                 }`}
               >
                 <svg

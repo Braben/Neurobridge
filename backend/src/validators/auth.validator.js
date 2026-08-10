@@ -3,16 +3,18 @@ const { z } = require("zod");
 
 // Validates user registration payload
 // areaofexpertise is required only when role === "THERAPIST" (enforced in controller)
+// adminInviteCode is required only when role === "ADMIN" (enforced in controller)
 exports.registerSchema = z.object({
   firstName: z.string().min(1, "First name is required").max(50),
   lastName: z.string().min(1, "Last name is required").max(50),
   email: z.string().email("Invalid email format"),
   phone: z.string().min(5, "Phone number is too short").max(20),
   password: z.string().min(6, "Password must be at least 6 characters"),
-  role: z.enum(["PARENT", "THERAPIST"], {
-    errorMap: () => ({ message: "Role must be PARENT or THERAPIST" }),
+  role: z.enum(["ADMIN", "PARENT", "THERAPIST"], {
+    errorMap: () => ({ message: "Role must be ADMIN, PARENT, or THERAPIST" }),
   }),
   avatar: z.string().url("Invalid avatar URL").optional().nullable(),
+  adminInviteCode: z.string().optional().nullable(),
   areaofexpertise: z.string().optional().nullable(),
 });
 

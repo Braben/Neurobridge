@@ -17,11 +17,24 @@ const generateOtpCode = () => {
 
 exports.registerUser = async (req, res, next) => {
   try {
-    const { firstName, lastName, email, phone, password, role, avatar, areaofexpertise } = req.body;
+    const {
+      firstName,
+      lastName,
+      email,
+      phone,
+      password,
+      role,
+      avatar,
+      adminInviteCode,
+      areaofexpertise,
+    } = req.body;
 
-    // Admin registration is blocked at the public endpoint
+    // Admin registration requires a deployment-configured invite code
     if (role === "ADMIN") {
-      return res.status(403).json({ message: "Admin accounts cannot be created publicly" });
+      const inviteCode = process.env.ADMIN_INVITE_CODE;
+      if (!inviteCode || adminInviteCode !== inviteCode) {
+        return res.status(403).json({ message: "Invalid admin invite code" });
+      }
     }
 
     // Therapists must specify their area of expertise
@@ -327,7 +340,7 @@ exports.verifyOtp = async (req, res, next) => {
     // Approve the user (email is now verified)
     // Therapists still require separate admin approval
     const user = await prisma.user.findUnique({ where: { email } });
-    if (user && user.role === "PARENT") {
+    if (user && (user.role === "PARENT" || user.role === "ADMIN")) {
       await prisma.user.update({
         where: { email },
         data: { isApproved: true },
@@ -336,7 +349,7 @@ exports.verifyOtp = async (req, res, next) => {
 
     return res.status(200).json({
       message: "OTP verified successfully. Email confirmed.",
-      isApproved: user?.role === "PARENT" ? true : false,
+      isApproved: user?.role === "PARENT" || user?.role === "ADMIN" ? true : false,
     });
   } catch (error) {
     next(error);

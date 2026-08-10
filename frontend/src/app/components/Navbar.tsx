@@ -5,6 +5,7 @@
 // notifications for quick scanning.
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useAppDispatch, useAppSelector } from "../hooks/useRedux";
@@ -12,6 +13,8 @@ import { logoutUser } from "../store/slices/authSlice";
 import { markAllRead } from "../store/slices/notificationSlice";
 import { notificationsApi } from "../services/notifications";
 import { useState, useRef, useEffect } from "react";
+import AppButton from "./ui/AppButton";
+import BrandLogo from "./ui/BrandLogo";
 
 export default function Navbar() {
   const pathname = usePathname();
@@ -35,7 +38,7 @@ export default function Navbar() {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  const authPages = ["/login", "/register", "/verify-otp"];
+  const authPages = ["/", "/login", "/register", "/verify-otp"];
   if (!isAuthenticated || !user || authPages.includes(pathname)) return null;
 
   const handleLogout = async () => {
@@ -51,21 +54,33 @@ export default function Navbar() {
   };
 
   return (
-    <nav className="bg-white shadow">
-      <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3">
-        <Link href="/dashboard" className="text-lg font-bold text-gray-900">
-          Neurobridge
+    <nav className="border-b border-[#d7e6f2] bg-white">
+      <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-4">
+        <Link href="/dashboard" aria-label="Neuro Bridge Africa dashboard">
+          <BrandLogo compact className="w-36 sm:w-44" />
         </Link>
 
-        {/* Sidebar handles navigation — desktop nav links removed */}
+        <div className="hidden items-center gap-7 text-base font-semibold text-[#073f63] lg:flex">
+          <Link className={pathname === "/dashboard" ? "underline decoration-2 underline-offset-4" : "hover:text-[#0078d4]"} href="/dashboard">
+            Overview
+          </Link>
+          <Link className="hover:text-[#0078d4]" href="/about">
+            About Us
+          </Link>
+          <Link className="hover:text-[#0078d4]" href="/resources">
+            Our Services
+          </Link>
+          <Link className="hover:text-[#0078d4]" href="/messages">
+            Contact Us
+          </Link>
+        </div>
 
-        {/* Desktop right section: bell, email, role, logout */}
-        <div className="hidden items-center gap-3 sm:flex">
-          {/* Notification bell with unread badge + dropdown */}
+        <div className="hidden items-center gap-4 sm:flex">
           <div ref={bellRef} className="relative">
             <button
               onClick={() => setBellOpen(!bellOpen)}
-              className="relative rounded-full p-2 text-gray-500 hover:bg-gray-100 hover:text-gray-700"
+              aria-label="Open notifications"
+              className="relative rounded-full p-2 text-[#073f63] hover:bg-[#eaf6fb]"
             >
               <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
@@ -80,32 +95,32 @@ export default function Navbar() {
 
             {/* Bell dropdown — shows up to 10 recent notifications */}
             {bellOpen && (
-              <div className="absolute right-0 z-50 mt-2 w-80 rounded-xl border border-gray-200 bg-white shadow-lg">
-                <div className="flex items-center justify-between border-b border-gray-100 px-4 py-3">
-                  <span className="text-sm font-semibold text-gray-900">Notifications</span>
+              <div className="absolute right-0 z-50 mt-2 w-80 rounded-md border border-[#d7e6f2] bg-white shadow-lg">
+                <div className="flex items-center justify-between border-b border-[#edf4f8] px-4 py-3">
+                  <span className="text-sm font-semibold text-[#111827]">Notifications</span>
                   {unreadCount > 0 && (
-                    <button onClick={handleMarkAllRead} className="text-xs text-blue-600 hover:text-blue-500">
+                    <button onClick={handleMarkAllRead} className="text-xs font-semibold text-[#0078d4] hover:underline">
                       Mark all read
                     </button>
                   )}
                 </div>
                 <div className="max-h-80 overflow-y-auto">
                   {notifications.length === 0 ? (
-                    <p className="px-4 py-6 text-center text-sm text-gray-500">No notifications</p>
+                    <p className="px-4 py-6 text-center text-sm text-[#536471]">No notifications</p>
                   ) : (
                     notifications.slice(0, 10).map((n) => (
                       <Link
                         key={n.id}
                         href="/notifications"
                         onClick={() => setBellOpen(false)}
-                        className={`block border-b border-gray-50 px-4 py-3 transition-colors hover:bg-gray-50 ${
-                          !n.isRead ? "bg-blue-50/50" : ""
+                        className={`block border-b border-[#edf4f8] px-4 py-3 transition-colors hover:bg-[#f6fbfd] ${
+                          !n.isRead ? "bg-[#eaf6fb]" : ""
                         }`}
                       >
-                        <p className={`text-sm ${!n.isRead ? "font-semibold" : ""} text-gray-900`}>
+                        <p className={`text-sm ${!n.isRead ? "font-semibold" : ""} text-[#111827]`}>
                           {n.title}
                         </p>
-                        <p className="mt-0.5 text-xs text-gray-500 line-clamp-2">{n.body}</p>
+                        <p className="mt-0.5 line-clamp-2 text-xs text-[#536471]">{n.body}</p>
                       </Link>
                     ))
                   )}
@@ -114,7 +129,7 @@ export default function Navbar() {
                   <Link
                     href="/notifications"
                     onClick={() => setBellOpen(false)}
-                    className="block border-t border-gray-100 px-4 py-2 text-center text-xs font-medium text-blue-600 hover:text-blue-500"
+                    className="block border-t border-[#edf4f8] px-4 py-2 text-center text-xs font-semibold text-[#0078d4] hover:underline"
                   >
                     View all notifications
                   </Link>
@@ -123,23 +138,30 @@ export default function Navbar() {
             )}
           </div>
 
-          <span className="text-sm text-gray-500">{user.email}</span>
-          <span className="rounded-full bg-blue-100 px-2 py-0.5 text-xs font-medium text-blue-700">
-            {user.role}
-          </span>
-          <button
-            onClick={handleLogout}
-            disabled={isLoggingOut}
-            className="rounded-lg bg-red-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-red-700 disabled:opacity-50"
-          >
+          <div className="flex items-center gap-3">
+            <Image
+              src={user.avatar || "/design-assets/child-portrait.jpg"}
+              alt=""
+              width={44}
+              height={44}
+              className="h-11 w-11 rounded-full object-cover"
+            />
+            <div className="hidden xl:block">
+              <p className="text-sm font-semibold text-[#111827]">
+                Welcome, {user.firstName || "User"}
+              </p>
+              <p className="text-xs text-[#536471]">{user.role}</p>
+            </div>
+          </div>
+          <AppButton onClick={handleLogout} disabled={isLoggingOut} variant="ghost" size="sm">
             {isLoggingOut ? "..." : "Logout"}
-          </button>
+          </AppButton>
         </div>
 
-        {/* Mobile hamburger button */}
         <button
           onClick={() => setMenuOpen(!menuOpen)}
-          className="rounded-md p-2 text-gray-600 hover:bg-gray-100 sm:hidden"
+          aria-label="Open menu"
+          className="rounded-md bg-[#d9edf8] p-2 text-[#073f63] hover:bg-[#c7e4f4] sm:hidden"
         >
           <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path
@@ -152,17 +174,12 @@ export default function Navbar() {
         </button>
       </div>
 
-      {/* Mobile menu — sidebar handles nav links */}
       {menuOpen && (
-        <div className="border-t border-gray-200 px-4 py-4 sm:hidden">
-          <p className="text-sm text-gray-500">{user.email}</p>
-          <button
-            onClick={handleLogout}
-            disabled={isLoggingOut}
-            className="mt-2 w-full rounded-lg bg-red-600 px-3 py-2 text-sm font-medium text-white hover:bg-red-700 disabled:opacity-50"
-          >
+        <div className="border-t border-[#d7e6f2] px-4 py-4 sm:hidden">
+          <p className="text-sm font-semibold text-[#111827]">{user.email}</p>
+          <AppButton onClick={handleLogout} disabled={isLoggingOut} className="mt-3" fullWidth variant="danger">
             {isLoggingOut ? "Logging out..." : "Logout"}
-          </button>
+          </AppButton>
         </div>
       )}
     </nav>

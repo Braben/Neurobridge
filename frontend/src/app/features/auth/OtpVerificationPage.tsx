@@ -4,6 +4,9 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useAppDispatch, useAppSelector } from "../../hooks/useRedux";
 import { verifyOtp, sendOtp, clearError } from "../../store/slices/authSlice";
+import AppButton from "../../components/ui/AppButton";
+import AuthFrame from "../../components/ui/AuthFrame";
+import GlobalMessage from "../../components/ui/GlobalMessage";
 
 export default function OtpVerificationPage() {
   const router = useRouter();
@@ -82,22 +85,24 @@ export default function OtpVerificationPage() {
   if (!otpEmail) return null;
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gray-50 px-4">
-      <div className="w-full max-w-md space-y-6 rounded-xl bg-white p-8 shadow-lg">
-        <div className="text-center">
-          <h1 className="text-2xl font-bold text-gray-900">Verify your email</h1>
-          <p className="mt-1 text-sm text-gray-500">
+    <AuthFrame footerMinimal>
+      {error && <GlobalMessage variant="error">{error}</GlobalMessage>}
+
+      <div className="mx-auto w-full max-w-md">
+        <div className="mb-8 text-center">
+          <h1 className="text-2xl font-bold text-[#171f27]">Verify your account</h1>
+          <p className="mt-2 text-sm text-[#4b5b66]">
             We sent a 6-digit code to{" "}
-            <span className="font-medium text-gray-700">{otpEmail}</span>
+            <span className="font-semibold text-[#073f63]">{otpEmail}</span>
           </p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-6">
           <div>
-            <label className="block text-center text-sm font-medium text-gray-700 mb-3">
+            <label className="mb-3 block text-center text-sm font-semibold text-[#1d2b36]">
               Enter verification code
             </label>
-            <div className="flex justify-center gap-2">
+            <div className="flex justify-center gap-2 sm:gap-3">
               {code.map((digit, index) => (
                 <input
                   key={index}
@@ -108,36 +113,33 @@ export default function OtpVerificationPage() {
                   value={digit}
                   onChange={(e) => handleCodeChange(index, e.target.value)}
                   onKeyDown={(e) => handleKeyDown(index, e)}
-                  className="h-12 w-10 rounded-lg border border-gray-300 text-center text-lg font-semibold shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                  className="h-12 w-10 rounded-md border border-[#c7dce9] text-center text-lg font-bold text-[#073f63] shadow-sm outline-none transition focus:border-[#0078d4] focus:ring-4 focus:ring-[#0078d4]/20 sm:w-12"
                 />
               ))}
             </div>
           </div>
 
-          {error && (
-            <div className="rounded-lg bg-red-50 p-3 text-sm text-red-700">{error}</div>
-          )}
-
-          <button
+          <AppButton
             type="submit"
             disabled={isLoading || code.join("").length !== 6}
-            className="w-full rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+            fullWidth
+            variant="secondary"
           >
-            {isLoading ? "Verifying..." : "Verify email"}
-          </button>
+            {isLoading ? "Loading" : "Verify Account"}
+          </AppButton>
         </form>
 
-        <div className="text-center">
+        <div className="mt-5 text-center">
           <button
             type="button"
             onClick={handleResend}
             disabled={resendDisabled}
-            className="text-sm text-blue-600 hover:text-blue-500 disabled:cursor-not-allowed disabled:text-gray-400"
+            className="text-sm font-semibold text-[#009cae] hover:underline disabled:cursor-not-allowed disabled:text-[#91a6b4]"
           >
             {resendDisabled ? `Resend code in ${resendCountdown}s` : "Resend code"}
           </button>
         </div>
       </div>
-    </div>
+    </AuthFrame>
   );
 }

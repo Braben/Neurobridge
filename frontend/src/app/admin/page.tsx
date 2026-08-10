@@ -5,6 +5,10 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useAppSelector } from "../hooks/useRedux";
 import { api } from "../services/api";
+import AppButton from "../components/ui/AppButton";
+import { DashboardPanel, StatCard } from "../components/ui/DashboardCards";
+import GlobalMessage from "../components/ui/GlobalMessage";
+import { SelectField } from "../components/ui/FormField";
 
 interface UserRow {
   id: string;
@@ -33,111 +37,139 @@ export default function AdminPage() {
   const [stats, setStats] = useState<Stats | null>(null);
   const [loading, setLoading] = useState(true);
   const [roleFilter, setRoleFilter] = useState("");
+  const [message, setMessage] = useState<{ variant: "error" | "success"; text: string } | null>(null);
 
   useEffect(() => {
-    if (!isAuthenticated) { router.push("/login"); return; }
-    if (user && user.role !== "ADMIN") { router.push("/dashboard"); return; }
+    if (!isAuthenticated) {
+      router.push("/login");
+      return;
+    }
+    if (user && user.role !== "ADMIN") {
+      router.push("/dashboard");
+      return;
+    }
     loadData();
   }, [isAuthenticated, user, router]);
 
   const loadData = async () => {
-    setLoading(true);
-    const [usersRes, statsRes] = await Promise.all([
-      api.get<{ users: UserRow[] }>("/admin/users"),
-      api.get<{ stats: Stats }>("/admin/stats"),
-    ]);
-    setUsers(usersRes.data.users);
-    setStats(statsRes.data.stats);
-    setLoading(false);
+    try {
+      setLoading(true);
+      const [usersRes, statsRes] = await Promise.all([
+        api.get<{ users: UserRow[] }>("/admin/users"),
+        api.get<{ stats: Stats }>("/admin/stats"),
+      ]);
+      setUsers(usersRes.data.users);
+      setStats(statsRes.data.stats);
+      setMessage(null);
+    } catch {
+      setMessage({ variant: "error", text: "Unable to load admin dashboard information." });
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleApprove = async (userId: string) => {
-    await api.patch(`/admin/users/${userId}/approve`);
-    setUsers((prev) => prev.map((u) => u.id === userId ? { ...u, isApproved: true } : u));
-    loadData();
+    try {
+      await api.patch(`/admin/users/${userId}/approve`);
+      setUsers((prev) => prev.map((u) => (u.id === userId ? { ...u, isApproved: true } : u)));
+      setMessage({ variant: "success", text: "Therapist account approved successfully." });
+      loadData();
+    } catch {
+      setMessage({ variant: "error", text: "Unable to approve this account. Please try again." });
+    }
   };
 
   const filtered = roleFilter ? users.filter((u) => u.role === roleFilter) : users;
 
-  if (user?.role !== "ADMIN") return <div className="flex min-h-screen items-center justify-center text-gray-500">Access denied.</div>;
+  if (user?.role !== "ADMIN") {
+    return <div className="flex min-h-screen items-center justify-center text-[#536471]">Access denied.</div>;
+  }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <header className="bg-white shadow">
-        <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-4">
-          <div className="flex items-center gap-4">
-            <Link href="/dashboard" className="text-sm text-blue-600 hover:text-blue-500">&larr; Dashboard</Link>
-            <h1 className="text-xl font-bold text-gray-900">Admin Panel</h1>
-          </div>
+    <div className="space-y-8">
+      {message && <GlobalMessage variant={message.variant}>{message.text}</GlobalMessage>}
+
+      <section>
+        <h1 className="text-3xl font-bold tracking-normal text-[#111827]">Admin Accounts</h1>
+        <p className="mt-2 text-sm text-[#536471]">
+          Manage parents, therapists, approvals, and platform account status.
+        </p>
+      </section>
+
+      {stats && (
+        <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
+          <StatCard value={stats.totalChildren} label="Children" accent="teal" />
+          <StatCard value={stats.totalParents} label="Parents" />
+          <StatCard value={stats.totalTherapists} label="Therapists" />
+          <StatCard value={stats.pendingTherapists} label="Pending Approval" accent="gold" />
+          <StatCard value={stats.totalSessions} label="Sessions" accent="green" />
         </div>
-      </header>
+      )}
 
-      <main className="mx-auto max-w-7xl space-y-6 px-4 py-6">
-        {/* Stats */}
-        {stats && (
-          <div className="grid gap-4 sm:grid-cols-5">
-            <div className="rounded-xl bg-white p-4 shadow"><p className="text-xs text-gray-500">Children</p><p className="text-xl font-bold">{stats.totalChildren}</p></div>
-            <div className="rounded-xl bg-white p-4 shadow"><p className="text-xs text-gray-500">Parents</p><p className="text-xl font-bold">{stats.totalParents}</p></div>
-            <div className="rounded-xl bg-white p-4 shadow"><p className="text-xs text-gray-500">Therapists</p><p className="text-xl font-bold">{stats.totalTherapists}</p></div>
-            <div className="rounded-xl bg-white p-4 shadow"><p className="text-xs text-gray-500">Pending Approval</p><p className="text-xl font-bold text-yellow-600">{stats.pendingTherapists}</p></div>
-            <div className="rounded-xl bg-white p-4 shadow"><p className="text-xs text-gray-500">Sessions</p><p className="text-xl font-bold">{stats.totalSessions}</p></div>
-          </div>
-        )}
-
-        {/* Users table */}
-        <div className="rounded-xl bg-white shadow">
-          <div className="flex items-center justify-between border-b border-gray-200 px-6 py-4">
-            <h2 className="text-lg font-semibold text-gray-900">Users</h2>
-            <select value={roleFilter} onChange={(e) => setRoleFilter(e.target.value)}
-              className="rounded-lg border border-gray-300 px-3 py-1.5 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500">
+      <DashboardPanel
+        title="Users"
+        description="Full platform account database"
+        action={
+          <div className="w-48">
+            <SelectField
+              label="Filter"
+              name="roleFilter"
+              value={roleFilter}
+              onChange={(e) => setRoleFilter(e.target.value)}
+            >
               <option value="">All Roles</option>
               <option value="ADMIN">Admin</option>
               <option value="PARENT">Parent</option>
               <option value="THERAPIST">Therapist</option>
-            </select>
+            </SelectField>
           </div>
-
+        }
+      >
+        <div className="overflow-hidden rounded-md border border-[#d7e6f2] bg-white shadow-sm">
           {loading ? (
             <div className="flex items-center justify-center py-12">
-              <div className="h-8 w-8 animate-spin rounded-full border-4 border-blue-600 border-t-transparent" />
+              <div className="h-8 w-8 animate-spin rounded-full border-4 border-[#0078d4] border-t-transparent" />
             </div>
           ) : (
             <div className="overflow-x-auto">
-              <table className="w-full text-left text-sm">
-                <thead className="border-b border-gray-200 bg-gray-50">
+              <table className="w-full min-w-[860px] text-left text-sm">
+                <thead className="bg-[#f6fbfd] text-xs uppercase text-[#536471]">
                   <tr>
-                    <th className="px-6 py-3 font-medium text-gray-500">Name</th>
-                    <th className="px-6 py-3 font-medium text-gray-500">Email</th>
-                    <th className="px-6 py-3 font-medium text-gray-500">Role</th>
-                    <th className="px-6 py-3 font-medium text-gray-500">Status</th>
-                    <th className="px-6 py-3 font-medium text-gray-500">Actions</th>
+                    <th className="px-6 py-3">Name</th>
+                    <th className="px-6 py-3">Email</th>
+                    <th className="px-6 py-3">Phone</th>
+                    <th className="px-6 py-3">Role</th>
+                    <th className="px-6 py-3">Status</th>
+                    <th className="px-6 py-3">Actions</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-gray-200">
-                  {filtered.map((u) => (
-                    <tr key={u.id} className="hover:bg-gray-50">
-                      <td className="px-6 py-4 font-medium text-gray-900">{u.firstName} {u.lastName}</td>
-                      <td className="px-6 py-4 text-gray-500">{u.email}</td>
+                <tbody className="divide-y divide-[#edf4f8]">
+                  {filtered.map((account) => (
+                    <tr key={account.id} className="hover:bg-[#f8fbfd]">
+                      <td className="px-6 py-4 font-semibold text-[#111827]">
+                        {account.firstName} {account.lastName}
+                      </td>
+                      <td className="px-6 py-4 text-[#536471]">{account.email}</td>
+                      <td className="px-6 py-4 text-[#536471]">{account.phone}</td>
                       <td className="px-6 py-4">
-                        <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${
-                          u.role === "ADMIN" ? "bg-purple-100 text-purple-700" :
-                          u.role === "THERAPIST" ? "bg-blue-100 text-blue-700" :
-                          "bg-green-100 text-green-700"
-                        }`}>{u.role}</span>
+                        <span className="rounded-full bg-[#eaf6fb] px-3 py-1 text-xs font-semibold text-[#073f63]">
+                          {account.role}
+                        </span>
                       </td>
                       <td className="px-6 py-4">
-                        {u.isApproved ? (
-                          <span className="text-green-600">Approved</span>
-                        ) : (
-                          <span className="text-yellow-600">Pending</span>
-                        )}
+                        <span className={account.isApproved ? "text-[#2e7d32]" : "text-[#b7791f]"}>
+                          {account.isApproved ? "Approved" : "Pending"}
+                        </span>
                       </td>
                       <td className="px-6 py-4">
-                        {!u.isApproved && u.role === "THERAPIST" && (
-                          <button onClick={() => handleApprove(u.id)}
-                            className="rounded-md bg-green-600 px-3 py-1 text-xs font-medium text-white hover:bg-green-700">
+                        {!account.isApproved && account.role === "THERAPIST" ? (
+                          <AppButton onClick={() => handleApprove(account.id)} size="sm" variant="secondary">
                             Approve
-                          </button>
+                          </AppButton>
+                        ) : (
+                          <Link href={`/messages`} className="font-semibold text-[#0078d4] hover:underline">
+                            Contact
+                          </Link>
                         )}
                       </td>
                     </tr>
@@ -147,7 +179,7 @@ export default function AdminPage() {
             </div>
           )}
         </div>
-      </main>
+      </DashboardPanel>
     </div>
   );
 }

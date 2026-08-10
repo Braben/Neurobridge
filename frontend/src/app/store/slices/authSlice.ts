@@ -46,6 +46,7 @@ export const registerUser = createAsyncThunk(
     phone: string;
     password: string;
     role: string;
+    adminInviteCode?: string;
     areaofexpertise?: string;
   }) => {
     const response = await api.post("/auth/register", data);
