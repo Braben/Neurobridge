@@ -8,6 +8,7 @@ const userResponseFields = {
   lastName: true,
   email: true,
   phone: true,
+  dateOfBirth: true,
   areaofexpertise: true,
   role: true,
   avatar: true,
@@ -35,16 +36,17 @@ exports.getProfile = async (req, res, next) => {
 };
 
 // Updates the profile of the currently authenticated user
-// Only allows updating firstName, lastName, phone, and avatar
+// Only allows updating firstName, lastName, phone, dateOfBirth, and avatar
 exports.updateProfile = async (req, res, next) => {
   try {
-    const { firstName, lastName, phone, avatar } = req.body;
+    const { firstName, lastName, phone, dateOfBirth, avatar } = req.body;
 
     // Build the update payload with only provided fields
     const updateData = {};
     if (firstName !== undefined) updateData.firstName = firstName;
     if (lastName !== undefined) updateData.lastName = lastName;
     if (phone !== undefined) updateData.phone = phone;
+    if (dateOfBirth !== undefined) updateData.dateOfBirth = dateOfBirth ? new Date(dateOfBirth) : null;
     if (avatar !== undefined) updateData.avatar = avatar;
 
     if (Object.keys(updateData).length === 0) {

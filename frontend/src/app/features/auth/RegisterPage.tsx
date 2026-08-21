@@ -7,16 +7,48 @@ import { registerUser, clearError } from "../../store/slices/authSlice";
 import Link from "next/link";
 import AppButton from "../../components/ui/AppButton";
 import AuthFrame from "../../components/ui/AuthFrame";
-import { FormField } from "../../components/ui/FormField";
+import { FormField, SelectField } from "../../components/ui/FormField";
 import GlobalMessage from "../../components/ui/GlobalMessage";
 
-type RegisterRole = "ADMIN" | "PARENT" | "THERAPIST";
+type RegisterRole = "PARENT" | "THERAPIST";
 
 const roleLabels: Record<RegisterRole, string> = {
-  ADMIN: "administrator",
   PARENT: "Parent",
   THERAPIST: "Therapist",
 };
+
+const expertiseOptions = [
+  "ADHD Therapy",
+  "Speech Therapy",
+  "Occupational Therapy",
+  "Behavioural Therapy",
+  "Special Education",
+  "Child Psychology",
+  "Developmental Therapy",
+];
+
+function EyeIcon({ hidden }: { hidden: boolean }) {
+  return hidden ? (
+    <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
+      <path strokeLinecap="round" strokeLinejoin="round" d="m3 3 18 18" />
+      <path strokeLinecap="round" strokeLinejoin="round" d="M10.6 10.6a2 2 0 0 0 2.8 2.8" />
+      <path strokeLinecap="round" strokeLinejoin="round" d="M9.2 5.4A9.7 9.7 0 0 1 12 5c6 0 9.75 7 9.75 7a17 17 0 0 1-2.5 3.3M6.5 6.9C3.8 8.6 2.25 12 2.25 12s3.75 7 9.75 7c1.5 0 2.9-.4 4.1-1" />
+    </svg>
+  ) : (
+    <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
+      <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 12s3.75-6.75 9.75-6.75S21.75 12 21.75 12s-3.75 6.75-9.75 6.75S2.25 12 2.25 12Z" />
+      <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
+    </svg>
+  );
+}
+
+function splitFullName(fullName: string) {
+  const parts = fullName.trim().split(/\s+/);
+  return {
+    firstName: parts[0] || "",
+    lastName: parts.slice(1).join(" ") || parts[0] || "",
+  };
+}
 
 export default function RegisterPage({
   initialRole = "PARENT",
@@ -28,21 +60,27 @@ export default function RegisterPage({
   const { isLoading, error } = useAppSelector((state) => state.auth);
 
   const [formData, setFormData] = useState({
+    fullName: "",
     firstName: "",
     lastName: "",
-    email: "",
-    phone: "",
+    identifier: "",
+    dateOfBirth: "",
     password: "",
     confirmPassword: "",
     role: initialRole,
-    otherNames: "",
     areaofexpertise: "",
-    adminInviteCode: "",
   });
 
   const [validationError, setValidationError] = useState<string | null>(null);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+  const selectedRole = formData.role;
+  const passwordMatches = Boolean(formData.confirmPassword) && formData.password === formData.confirmPassword;
+
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
+  ) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
@@ -60,30 +98,52 @@ export default function RegisterPage({
       setValidationError("Password must be at least 6 characters");
       return;
     }
+    if (!formData.dateOfBirth) {
+      setValidationError("Date of birth is required");
+      return;
+    }
+    if (!formData.identifier.trim()) {
+      setValidationError("Email or phone number is required");
+      return;
+    }
     if (formData.role === "THERAPIST" && !formData.areaofexpertise) {
       setValidationError("Therapists must provide an area of expertise");
       return;
     }
-    if (formData.role === "ADMIN" && !formData.adminInviteCode.trim()) {
-      setValidationError("Administrators must provide an invite code");
+
+    const names = formData.role === "THERAPIST"
+      ? splitFullName(formData.fullName)
+      : {
+          firstName: formData.firstName.trim(),
+          lastName: formData.lastName.trim(),
+        };
+
+    if (!names.firstName || !names.lastName) {
+      setValidationError(formData.role === "THERAPIST" ? "Full name is required" : "First and last name are required");
       return;
     }
 
+    const identifier = formData.identifier.trim();
+    const identifierPayload = identifier.includes("@")
+      ? { email: identifier }
+      : { phone: identifier };
+
     const payload = {
-      firstName: formData.firstName,
-      lastName: formData.lastName,
-      email: formData.email,
-      phone: formData.phone,
+      firstName: names.firstName,
+      lastName: names.lastName,
+      identifier,
+      ...identifierPayload,
+      dateOfBirth: formData.dateOfBirth,
       password: formData.password,
       role: formData.role,
-      ...(formData.role === "THERAPIST" && { areaofexpertise: formData.areaofexpertise }),
-      ...(formData.role === "ADMIN" && { adminInviteCode: formData.adminInviteCode }),
+      ...(formData.role === "THERAPIST" && {
+        areaofexpertise: formData.areaofexpertise,
+      }),
     };
 
     const result = await dispatch(registerUser(payload));
     if (registerUser.fulfilled.match(result)) {
-      // Registration succeeded — user will be redirected to OTP verification
-      router.push("/verify-otp");
+      router.push(result.payload.requiresOtp ? "/verify-otp" : "/dashboard");
     }
   };
 
@@ -95,172 +155,161 @@ export default function RegisterPage({
         </GlobalMessage>
       )}
 
-      <div className="mx-auto w-full max-w-2xl">
-        <div className="mb-8">
-          <h1 className="text-2xl font-bold text-[#171f27]">
-            Sign Up as a {roleLabels[formData.role]} to{" "}
-            <span className="text-[#009cae]">Neuro Bridge Africa</span>
+      <div className="mx-auto w-full max-w-[746px]">
+        <div className="mb-8 lg:mb-10">
+          <h1 className="text-[clamp(28px,4vw,32px)] font-medium leading-[38px] text-[#111111]">
+            Sign Up as a {roleLabels[selectedRole]} to{" "}
+            <span className="text-[#008080]">Neuro Bridge Africa</span>
           </h1>
         </div>
 
-        <div className="mb-6 grid grid-cols-3 gap-3 rounded-md bg-[#eef8fc] p-1.5">
-          <button
-            type="button"
-            onClick={() => setFormData({ ...formData, role: "PARENT" })}
-            className={`rounded-md px-4 py-2 text-sm font-semibold transition ${
-              formData.role === "PARENT" ? "bg-white text-[#073f63] shadow-sm" : "text-[#4e7b93]"
-            }`}
-          >
-            Parent
-          </button>
-          <button
-            type="button"
-            onClick={() => setFormData({ ...formData, role: "THERAPIST" })}
-            className={`rounded-md px-4 py-2 text-sm font-semibold transition ${
-              formData.role === "THERAPIST" ? "bg-white text-[#073f63] shadow-sm" : "text-[#4e7b93]"
-            }`}
-          >
-            Therapist
-          </button>
-          <button
-            type="button"
-            onClick={() => setFormData({ ...formData, role: "ADMIN" })}
-            className={`rounded-md px-4 py-2 text-sm font-semibold transition ${
-              formData.role === "ADMIN" ? "bg-white text-[#073f63] shadow-sm" : "text-[#4e7b93]"
-            }`}
-          >
-            Admin
-          </button>
-        </div>
-
-        <form onSubmit={handleSubmit} className="space-y-5">
-          <div className="grid gap-5 sm:grid-cols-2">
-            <FormField
-              label="First Name"
-              name="firstName"
-              type="text"
-              required
-              value={formData.firstName}
-              onChange={handleChange}
-              placeholder="Enter your first name"
-            />
-            <FormField
-              label="Last Name"
-              name="lastName"
-              type="text"
-              required
-              value={formData.lastName}
-              onChange={handleChange}
-              placeholder="Enter your last name"
-            />
-          </div>
-
-          <div className="grid gap-5 sm:grid-cols-2">
-            {formData.role === "ADMIN" && (
+        <form onSubmit={handleSubmit} className="space-y-6">
+          {selectedRole === "THERAPIST" ? (
+            <div className="grid gap-6 sm:grid-cols-2">
               <FormField
-                label="Other Name(s)"
-                name="otherNames"
+                label="Full Name"
+                name="fullName"
                 type="text"
-                value={formData.otherNames}
+                required
+                value={formData.fullName}
                 onChange={handleChange}
-                placeholder="Enter any other names you have"
+                placeholder="Enter your full name"
               />
-            )}
-            <FormField
-              label="Email"
-              name="email"
-              type="email"
-              required
-              value={formData.email}
-              onChange={handleChange}
-              placeholder="Enter your email address"
-            />
-            <FormField
-              label="Phone Number"
-              name="phone"
-              type="tel"
-              required
-              value={formData.phone}
-              onChange={handleChange}
-              placeholder="Enter your phone number"
-            />
-          </div>
-
-          {formData.role === "THERAPIST" && (
-            <FormField
-              label="Area of Expertise"
-              name="areaofexpertise"
-              type="text"
-              required
-              value={formData.areaofexpertise}
-              onChange={handleChange}
-              placeholder="Speech therapy, Occupational therapy"
-            />
+              <FormField
+                label="Date of Birth"
+                name="dateOfBirth"
+                type="date"
+                required
+                value={formData.dateOfBirth}
+                onChange={handleChange}
+              />
+            </div>
+          ) : (
+            <div className="grid gap-6 sm:grid-cols-2">
+              <FormField
+                label="First Name"
+                name="firstName"
+                type="text"
+                required
+                value={formData.firstName}
+                onChange={handleChange}
+                placeholder="Enter your first name"
+              />
+              <FormField
+                label="Last Name"
+                name="lastName"
+                type="text"
+                required
+                value={formData.lastName}
+                onChange={handleChange}
+                placeholder="Enter your last name"
+              />
+            </div>
           )}
 
-          <div className="grid gap-5 sm:grid-cols-2">
+          <div className="grid gap-6 sm:grid-cols-2">
+            <FormField
+              label={selectedRole === "THERAPIST" ? "Email or Phone Number" : "Date of Birth"}
+              name={selectedRole === "THERAPIST" ? "identifier" : "dateOfBirth"}
+              type={selectedRole === "THERAPIST" ? "text" : "date"}
+              required
+              value={selectedRole === "THERAPIST" ? formData.identifier : formData.dateOfBirth}
+              onChange={handleChange}
+              placeholder={selectedRole === "THERAPIST" ? "Enter your email or phone number" : undefined}
+            />
+            {selectedRole === "THERAPIST" ? (
+              <SelectField
+                label="Area of Expertise"
+                name="areaofexpertise"
+                required
+                value={formData.areaofexpertise}
+                onChange={handleChange}
+              >
+                <option value="">What&apos;s your area of expertise</option>
+                {expertiseOptions.map((option) => (
+                  <option key={option} value={option}>
+                    {option}
+                  </option>
+                ))}
+              </SelectField>
+            ) : (
+              <FormField
+                label="Email or Phone Number"
+                name="identifier"
+                type="text"
+                required
+                value={formData.identifier}
+                onChange={handleChange}
+                placeholder="Enter your email or phone number"
+              />
+            )}
+          </div>
+
+          <div className="grid gap-6 sm:grid-cols-2">
             <FormField
               label="Create Your Password"
               name="password"
-              type="password"
+              type={showPassword ? "text" : "password"}
               required
               value={formData.password}
               onChange={handleChange}
               placeholder="Enter password"
-              error={validationError?.toLowerCase().includes("password") ? validationError : undefined}
+              rightIcon={<EyeIcon hidden={!showPassword} />}
+              rightIconLabel={showPassword ? "Hide password" : "Show password"}
+              onRightIconClick={() => setShowPassword((visible) => !visible)}
+              error={
+                validationError?.toLowerCase().includes("password")
+                  ? validationError
+                  : undefined
+              }
             />
             <FormField
               label="Confirm Your Password"
               name="confirmPassword"
-              type="password"
+              type={showConfirmPassword ? "text" : "password"}
               required
               value={formData.confirmPassword}
               onChange={handleChange}
               placeholder="Confirm password"
               status={
-                formData.confirmPassword && formData.password === formData.confirmPassword
+                passwordMatches
                   ? "success"
-                  : validationError?.toLowerCase().includes("password")
+                  : formData.confirmPassword && formData.password !== formData.confirmPassword
                     ? "error"
                     : "default"
               }
+              error={
+                formData.confirmPassword && formData.password !== formData.confirmPassword
+                  ? "Password doesn't match"
+                  : undefined
+              }
               helpText={
-                formData.confirmPassword && formData.password === formData.confirmPassword
+                passwordMatches
                   ? "Password matches"
                   : undefined
               }
+              rightIcon={<EyeIcon hidden={!showConfirmPassword} />}
+              rightIconLabel={showConfirmPassword ? "Hide password" : "Show password"}
+              onRightIconClick={() => setShowConfirmPassword((visible) => !visible)}
             />
           </div>
 
-          {formData.role === "ADMIN" && (
-            <FormField
-              label="Admin Invite Code"
-              name="adminInviteCode"
-              type="text"
-              required
-              value={formData.adminInviteCode}
-              onChange={handleChange}
-              placeholder="Enter your admin invite code"
-              error={
-                validationError?.toLowerCase().includes("invite") ? validationError : undefined
-              }
-              className="text-center"
-            />
-          )}
-
-          <AppButton
-            type="submit"
-            disabled={isLoading}
-            className="mx-auto flex min-w-44"
-            variant="secondary"
-          >
-            {isLoading ? "Loading" : "Sign Up"}
-          </AppButton>
+          <div className="flex w-full justify-center pt-1">
+            <AppButton
+              type="submit"
+              disabled={isLoading}
+              className="mx-auto w-full max-w-[361px] cursor-pointer"
+              variant="primary"
+              size="lg"
+            >
+              {isLoading ? "Loading" : "Sign Up"}
+            </AppButton>
+          </div>
         </form>
 
-        <p className="mt-5 text-center text-xs font-semibold text-[#1d2b36]">
+        <p className="mt-5 text-center text-base font-medium leading-6 text-[#111111]">
           Already have an account?{" "}
-          <Link href="/login" className="text-[#009cae] hover:underline">
+          <Link href="/login" className="text-[#008080] underline">
             Login
           </Link>
         </p>

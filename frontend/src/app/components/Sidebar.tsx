@@ -24,6 +24,7 @@ const icons: Record<string, string> = {
   Notifications: "M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9",
   Admin: "M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.066 2.573c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.573 1.066c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.066-2.573c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z M15 12a3 3 0 11-6 0 3 3 0 016 0z",
   Revenue: "M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z",
+  Sessions: "M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z",
 };
 
 export default function Sidebar() {
@@ -35,24 +36,30 @@ export default function Sidebar() {
   const navItems: NavItem[] = [
     { href: "/dashboard", label: "Dashboard", icon: icons.Dashboard },
     { href: "/children", label: "Children", icon: icons.Children },
-    { href: "/messages", label: "Messages", icon: icons.Messages },
-    { href: "/resources", label: "Resources", icon: icons.Resources },
-    { href: "/therapists", label: "Therapists", icon: icons.Therapists },
-    ...(user.role === "PARENT"
+    ...(user.role === "ADMIN" || user.role === "PARENT"
+      ? [{ href: "/therapists" as const, label: "Therapists" as const, icon: icons.Therapists }]
+      : []),
+    ...(user.role === "PARENT" || user.role === "THERAPIST" || user.role === "ADMIN"
       ? [{ href: "/bookings" as const, label: "Bookings" as const, icon: icons.Bookings }]
       : []),
     ...(user.role === "THERAPIST"
-      ? [
-          { href: "/bookings" as const, label: "Bookings" as const, icon: icons.Bookings },
-          { href: "/availability" as const, label: "Availability" as const, icon: icons.Availability },
-        ]
+      ? [{ href: "/availability" as const, label: "Availability" as const, icon: icons.Availability }]
       : []),
-    { href: "/subscriptions", label: "Plans", icon: icons.Plans },
+    { href: "/messages", label: "Messages", icon: icons.Messages },
+    { href: "/resources", label: "Resources", icon: icons.Resources },
+    ...(user.role === "PARENT"
+      ? [{ href: "/subscriptions" as const, label: "Plans" as const, icon: icons.Plans }]
+      : []),
     { href: "/reports", label: "Reports", icon: icons.Reports },
     { href: "/notifications", label: "Notifications", icon: icons.Notifications },
     ...(user.role === "ADMIN"
       ? [
           { href: "/admin" as const, label: "Admin" as const, icon: icons.Admin },
+          { href: "/admin/parents" as const, label: "Parent Accounts" as const, icon: icons.Children },
+          { href: "/admin/therapists" as const, label: "Therapist Accounts" as const, icon: icons.Therapists },
+          { href: "/admin/children" as const, label: "Children Database" as const, icon: icons.Children },
+          { href: "/admin/sessions" as const, label: "Admin Sessions" as const, icon: icons.Sessions },
+          { href: "/admin/content" as const, label: "Admin Content" as const, icon: icons.Resources },
           { href: "/admin/revenue" as const, label: "Revenue" as const, icon: icons.Revenue },
         ]
       : []),
@@ -60,6 +67,7 @@ export default function Sidebar() {
 
   const isActive = (href: string) => {
     if (href === "/dashboard") return pathname === "/dashboard";
+    if (href === "/admin") return pathname === "/admin";
     return pathname.startsWith(href);
   };
 

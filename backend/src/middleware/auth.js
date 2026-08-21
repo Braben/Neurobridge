@@ -20,7 +20,16 @@ exports.verifyToken = async (req, res, next) => {
     // Confirm the user still exists in the database
     const user = await prisma.user.findUnique({
       where: { id: decoded.userId },
-      select: { id: true, role: true, isApproved: true, deletedAt: true },
+      select: {
+        id: true,
+        firstName: true,
+        lastName: true,
+        role: true,
+        isApproved: true,
+        deletedAt: true,
+        email: true,
+        phone: true,
+      },
     });
 
     if (!user || user.deletedAt) {

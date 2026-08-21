@@ -11,6 +11,8 @@ const childResponseFields = {
   dateOfBirth: true,
   gender: true,
   diagnosis: true,
+  coExistingConditions: true,
+  currentMedications: true,
   school: true,
   notes: true,
   createdAt: true,
@@ -20,7 +22,7 @@ const childResponseFields = {
 // Create a new child and auto-link to current parent
 exports.createChild = async (req, res, next) => {
   try {
-    const { firstName, lastName, dateOfBirth, gender, diagnosis, school, notes } = req.body;
+    const { firstName, lastName, dateOfBirth, gender, diagnosis, coExistingConditions, currentMedications, school, notes } = req.body;
 
     const child = await prisma.child.create({
       data: {
@@ -29,6 +31,8 @@ exports.createChild = async (req, res, next) => {
         dateOfBirth: new Date(dateOfBirth),
         gender,
         diagnosis: diagnosis || null,
+        coExistingConditions: coExistingConditions || null,
+        currentMedications: currentMedications || null,
         school: school || null,
         notes: notes || null,
       },
@@ -121,7 +125,7 @@ exports.getChild = async (req, res, next) => {
 exports.updateChild = async (req, res, next) => {
   try {
     const { id } = req.params;
-    const { firstName, lastName, dateOfBirth, gender, diagnosis, school, notes } = req.body;
+    const { firstName, lastName, dateOfBirth, gender, diagnosis, coExistingConditions, currentMedications, school, notes } = req.body;
 
     const existing = await prisma.child.findFirst({
       where: { id, deletedAt: null },
@@ -142,6 +146,8 @@ exports.updateChild = async (req, res, next) => {
     if (dateOfBirth !== undefined) updateData.dateOfBirth = new Date(dateOfBirth);
     if (gender !== undefined) updateData.gender = gender;
     if (diagnosis !== undefined) updateData.diagnosis = diagnosis;
+    if (coExistingConditions !== undefined) updateData.coExistingConditions = coExistingConditions;
+    if (currentMedications !== undefined) updateData.currentMedications = currentMedications;
     if (school !== undefined) updateData.school = school;
     if (notes !== undefined) updateData.notes = notes;
 

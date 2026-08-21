@@ -10,6 +10,7 @@ export interface Resource {
   description: string | null;
   type: "ARTICLE" | "VIDEO" | "PDF";
   url: string;
+  thumbnailUrl: string | null;
   uploadedById: string;
   createdAt: string;
   uploadedBy: { id: string; firstName: string; lastName: string };
@@ -25,11 +26,11 @@ export const resourcesApi = {
     api.get<{ resource: Resource }>(`/resources/${id}`).then((r) => r.data),
 
   // POST /resources — create new resource (ADMIN / THERAPIST only)
-  create: (data: { title: string; description?: string; type: string; url: string }) =>
+  create: (data: { title: string; description?: string; type: string; url: string; thumbnailUrl?: string }) =>
     api.post<{ message: string; resource: Resource }>("/resources", data).then((r) => r.data),
 
   // PUT /resources/:id — update existing resource (ADMIN / THERAPIST only)
-  update: (id: string, data: { title?: string; description?: string; type?: string; url?: string }) =>
+  update: (id: string, data: { title?: string; description?: string; type?: string; url?: string; thumbnailUrl?: string | null }) =>
     api.put<{ message: string; resource: Resource }>(`/resources/${id}`, data).then((r) => r.data),
 
   // DELETE /resources/:id — permanently remove resource (ADMIN only)

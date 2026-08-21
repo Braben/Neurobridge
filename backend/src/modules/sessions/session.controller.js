@@ -3,10 +3,11 @@ const { emitToUser } = require("../../sockets");
 const { notifyChildParents } = require("../../services/notification.service");
 
 const sessionFields = {
-  id: true, childId: true, therapistId: true, sessionDate: true, duration: true, createdAt: true,
+  id: true, childId: true, therapistId: true, bookingId: true, sessionDate: true, duration: true, createdAt: true,
   note: { select: { id: true, goalsWorkedOn: true, observations: true, recommendations: true } },
   child: { select: { id: true, firstName: true, lastName: true } },
   therapist: { select: { id: true, firstName: true, lastName: true } },
+  booking: { select: { id: true, status: true } },
 };
 
 exports.listSessions = async (req, res, next) => {
@@ -35,15 +36,25 @@ exports.listSessions = async (req, res, next) => {
 
 exports.createSession = async (req, res, next) => {
   try {
-    const { childId, sessionDate, duration } = req.body;
+    const { childId, sessionDate, duration, bookingId } = req.body;
 
     const childRecord = await prisma.child.findUnique({ where: { id: childId }, select: { id: true, firstName: true, lastName: true, deletedAt: true } });
     if (!childRecord || childRecord.deletedAt) {
       return res.status(404).json({ message: "Child not found" });
     }
 
+    if (bookingId) {
+      const booking = await prisma.booking.findFirst({
+        where: { id: bookingId, childId, therapistId: req.user.id },
+        select: { id: true },
+      });
+      if (!booking) {
+        return res.status(400).json({ message: "Booking does not match this therapist and child" });
+      }
+    }
+
     const session = await prisma.session.create({
-      data: { childId, therapistId: req.user.id, sessionDate: new Date(sessionDate), duration: duration || null },
+      data: { childId, therapistId: req.user.id, bookingId: bookingId || null, sessionDate: new Date(sessionDate), duration: duration || null },
       select: sessionFields,
     });
 

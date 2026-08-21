@@ -1,0 +1,14 @@
+Seeded login credentials are in [backend/prisma/seed.js](D:/All Project/NEUROBRIDGE/backend/prisma/seed.js):
+Admin: admin@neurobridge.com / Admin@123
+Demo Parent: parent@neurobridge.com / Parent@123
+Demo Therapist: therapist@neurobridge.com / Therapist@123
+Extra seeded users:
+sarah@example.com / Parent@123
+michael@example.com / Parent@123
+amara@example.com / Parent@123
+emily@example.com / Therapist@123
+james@example.com / Therapist@123
+lisa@example.com / Therapist@123 pending approval
+
+
+6:10 PM

@@ -14,8 +14,8 @@ export default function OtpVerificationPage() {
   const { otpEmail, isLoading, error } = useAppSelector((state) => state.auth);
 
   const [code, setCode] = useState(["", "", "", "", "", ""]);
-  const [resendDisabled, setResendDisabled] = useState(false);
-  const [resendCountdown, setResendCountdown] = useState(30);
+  const [resendCountdown, setResendCountdown] = useState(0);
+  const resendDisabled = resendCountdown > 0;
 
   // Redirect if no OTP email is set (user navigated here directly)
   useEffect(() => {
@@ -26,14 +26,12 @@ export default function OtpVerificationPage() {
 
   // Resend countdown timer
   useEffect(() => {
-    if (!resendDisabled) return;
     if (resendCountdown <= 0) {
-      setResendDisabled(false);
       return;
     }
     const timer = setTimeout(() => setResendCountdown((prev) => prev - 1), 1000);
     return () => clearTimeout(timer);
-  }, [resendDisabled, resendCountdown]);
+  }, [resendCountdown]);
 
   const handleCodeChange = (index: number, value: string) => {
     if (value.length > 1) return; // Only allow single digit
@@ -77,7 +75,6 @@ export default function OtpVerificationPage() {
 
   const handleResend = async () => {
     if (!otpEmail || resendDisabled) return;
-    setResendDisabled(true);
     setResendCountdown(30);
     await dispatch(sendOtp(otpEmail));
   };

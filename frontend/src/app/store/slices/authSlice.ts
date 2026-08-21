@@ -7,8 +7,9 @@ export interface User {
   id: string;
   firstName: string;
   lastName: string;
-  email: string;
-  phone: string;
+  email: string | null;
+  phone: string | null;
+  dateOfBirth: string | null;
   areaofexpertise: string | null;
   role: "ADMIN" | "PARENT" | "THERAPIST";
   avatar: string | null;
@@ -42,8 +43,10 @@ export const registerUser = createAsyncThunk(
   async (data: {
     firstName: string;
     lastName: string;
-    email: string;
-    phone: string;
+    identifier?: string;
+    email?: string;
+    phone?: string;
+    dateOfBirth?: string;
     password: string;
     role: string;
     adminInviteCode?: string;
@@ -111,9 +114,12 @@ const authSlice = createSlice({
       state.isLoading = false;
       state.accessToken = action.payload.accessToken;
       state.user = action.payload.user;
-      state.requiresOtp = true;
-      state.otpEmail = action.payload.user.email;
-      localStorage.setItem("accessToken", action.payload.accessToken);
+      state.requiresOtp = Boolean(action.payload.requiresOtp);
+      state.otpEmail = action.payload.requiresOtp ? action.payload.user.email : null;
+      state.isAuthenticated = !action.payload.requiresOtp;
+      if (action.payload.accessToken) {
+        localStorage.setItem("accessToken", action.payload.accessToken);
+      }
     });
     builder.addCase(registerUser.rejected, (state, action) => {
       state.isLoading = false;
@@ -148,12 +154,12 @@ const authSlice = createSlice({
     });
 
     // Verify OTP
-    builder.addCase(verifyOtp.fulfilled, (state) => {
+    builder.addCase(verifyOtp.fulfilled, (state, action) => {
       state.isAuthenticated = true;
       state.requiresOtp = false;
       state.otpEmail = null;
       if (state.user) {
-        state.user.isApproved = true;
+        state.user.isApproved = action.payload.isApproved;
       }
     });
     builder.addCase(verifyOtp.rejected, (state, action) => {

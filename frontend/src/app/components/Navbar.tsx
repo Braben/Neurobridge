@@ -38,7 +38,7 @@ export default function Navbar() {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  const authPages = ["/", "/login", "/register", "/verify-otp"];
+  const authPages = ["/", "/login", "/register", "/register/admin", "/verify-otp", "/forgot-password"];
   if (!isAuthenticated || !user || authPages.includes(pathname)) return null;
 
   const handleLogout = async () => {

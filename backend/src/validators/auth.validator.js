@@ -7,8 +7,10 @@ const { z } = require("zod");
 exports.registerSchema = z.object({
   firstName: z.string().min(1, "First name is required").max(50),
   lastName: z.string().min(1, "Last name is required").max(50),
-  email: z.string().email("Invalid email format"),
-  phone: z.string().min(5, "Phone number is too short").max(20),
+  identifier: z.string().min(5, "Email or phone number is too short").max(100).optional().nullable(),
+  email: z.string().email("Invalid email format").optional().nullable(),
+  phone: z.string().min(5, "Phone number is too short").max(20).optional().nullable(),
+  dateOfBirth: z.string().optional().nullable(),
   password: z.string().min(6, "Password must be at least 6 characters"),
   role: z.enum(["ADMIN", "PARENT", "THERAPIST"], {
     errorMap: () => ({ message: "Role must be ADMIN, PARENT, or THERAPIST" }),
@@ -16,6 +18,14 @@ exports.registerSchema = z.object({
   avatar: z.string().url("Invalid avatar URL").optional().nullable(),
   adminInviteCode: z.string().optional().nullable(),
   areaofexpertise: z.string().optional().nullable(),
+}).superRefine((data, ctx) => {
+  if (!data.identifier && !data.email && !data.phone) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      message: "Email or phone number is required",
+      path: ["identifier"],
+    });
+  }
 });
 
 // Validates login payload — accepts email OR phone (at least one required)
@@ -32,6 +42,16 @@ exports.loginSchema = z
 // Validates send-OTP request
 exports.sendOtpSchema = z.object({
   email: z.string().email("Invalid email format"),
+});
+
+exports.requestPasswordResetSchema = z.object({
+  identifier: z.string().min(5, "Email or phone number is too short").max(100),
+});
+
+exports.resetPasswordSchema = z.object({
+  email: z.string().email("Invalid email format"),
+  code: z.string().length(6, "Reset code must be exactly 6 characters"),
+  password: z.string().min(6, "Password must be at least 6 characters"),
 });
 
 // Validates verify-OTP request

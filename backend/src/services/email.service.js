@@ -71,3 +71,39 @@ exports.sendOtpEmail = async (email, otpCode) => {
 
   await transporter.sendMail(mailOptions);
 };
+
+exports.sendPasswordResetEmail = async (email, otpCode) => {
+  if (!process.env.SMTP_HOST) {
+    console.log("\n========================================");
+    console.log("  PASSWORD RESET CODE");
+    console.log("========================================");
+    console.log(`  Email: ${email}`);
+    console.log(`  Code:  ${otpCode}`);
+    console.log(`  Expires in 10 minutes`);
+    console.log("========================================\n");
+  }
+
+  const mailOptions = {
+    from: process.env.EMAIL_FROM || "noreply@neurobridge.com",
+    to: email,
+    subject: "Reset your Neurobridge password",
+    text: `Your password reset code is: ${otpCode}\n\nThis code expires in 10 minutes.\n\nIf you did not request this reset, please ignore this email.`,
+    html: `
+      <div style="font-family: Arial, sans-serif; max-width: 480px; margin: 0 auto;">
+        <h2 style="color: #2563eb;">Neurobridge Password Reset</h2>
+        <p>Use this code to reset your password:</p>
+        <div style="font-size: 32px; font-weight: bold; letter-spacing: 8px; text-align: center;
+                     padding: 16px; background: #f3f4f6; border-radius: 8px; margin: 16px 0;">
+          ${otpCode}
+        </div>
+        <p>This code expires in <strong>10 minutes</strong>.</p>
+        <hr style="border: none; border-top: 1px solid #e5e7eb; margin: 24px 0;" />
+        <p style="color: #6b7280; font-size: 12px;">
+          If you did not request this reset, please ignore this email.
+        </p>
+      </div>
+    `,
+  };
+
+  await transporter.sendMail(mailOptions);
+};

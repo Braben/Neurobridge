@@ -7,38 +7,48 @@ interface AuthFrameProps {
   footerMinimal?: boolean;
 }
 
-export default function AuthFrame({ children, footerMinimal = false }: AuthFrameProps) {
+export default function AuthFrame({
+  children,
+  footerMinimal = false,
+}: AuthFrameProps) {
   return (
-    <main className="min-h-screen bg-[#f7f7f7] p-0 text-[#111827] sm:p-8">
-      <div className="mx-auto grid min-h-screen max-w-7xl bg-white shadow-sm sm:min-h-[calc(100vh-4rem)] lg:grid-cols-[minmax(280px,360px)_1fr]">
-        <aside className="relative hidden overflow-hidden lg:block">
+    <main className="min-h-screen bg-[#fafafa] text-[#111111]">
+      <div className="grid min-h-screen bg-[#fafafa] lg:grid-cols-[minmax(360px,483px)_1fr]">
+        <aside className="relative hidden min-h-screen overflow-hidden lg:block">
           <div
             className="absolute inset-0 bg-cover bg-center"
-            style={{ backgroundImage: "url('/design-assets/therapy-room.jpg')" }}
+            style={{
+              backgroundImage: "url('/design-assets/child-portrait.jpg')",
+            }}
           />
-          <div className="absolute inset-0 bg-[#2e2814]/70" />
-          <div className="relative flex h-full flex-col justify-between px-8 py-9 text-white">
-            <Link href="/" className="inline-flex items-center gap-2 text-xs font-medium text-white/90">
+          <div className="absolute inset-0 bg-[#2c2916]/80" />
+          <div className="relative flex h-full flex-col px-10 py-16 text-white">
+            <Link
+              href="/"
+              className="inline-flex items-center gap-2 text-base font-normal leading-6 text-white"
+            >
               <span aria-hidden>&larr;</span>
               Go Back
             </Link>
-            <div className="space-y-7">
-              <BrandLogo variant="white" className="w-56" />
-              <p className="max-w-xs text-sm leading-6 text-white/90">
-                We envision a future where inclusive education is standard practice and families
-                have access to tools that help children reach their full developmental potential.
+            <div className="mt-auto mb-auto space-y-10">
+              <BrandLogo compact variant="white" className="w-full max-w-[414px]" />
+              <p className="max-w-[414px] text-xl leading-normal text-white">
+                We envision a future where inclusive education is standard
+                practice and families have access to tools that help children
+                reach their full developmental potential.
               </p>
             </div>
-            <span />
           </div>
         </aside>
 
-        <section className="relative flex min-h-screen flex-col justify-center px-5 py-10 sm:px-10 lg:min-h-0 lg:px-20">
-          {children}
+        <section className="relative flex min-h-screen flex-col px-5 py-8 sm:px-10 lg:px-[clamp(48px,8vw,120px)]">
+          <div className="flex flex-1 items-center justify-center py-10">
+            {children}
+          </div>
           <footer
             className={[
-              "mt-12 flex flex-wrap items-center gap-5 text-[11px] text-[#0b4a6f]",
-              footerMinimal ? "justify-end" : "justify-center lg:justify-end",
+              "flex flex-wrap items-center gap-8 pb-7 text-base leading-6 text-[#0a3d62]",
+              footerMinimal ? "justify-center lg:justify-end" : "justify-center lg:justify-end",
             ].join(" ")}
           >
             {!footerMinimal && (

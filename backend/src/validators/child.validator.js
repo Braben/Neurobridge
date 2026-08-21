@@ -29,6 +29,8 @@ exports.createChildSchema = z.object({
       errorMap: () => ({ message: "Gender must be MALE, FEMALE, or OTHER" }),
     }),
     diagnosis: z.string().max(500).optional().nullable(),
+    coExistingConditions: z.string().max(500).optional().nullable(),
+    currentMedications: z.string().max(500).optional().nullable(),
     school: z.string().max(100).optional().nullable(),
     notes: z.string().max(1000).optional().nullable(),
   }),
@@ -42,6 +44,8 @@ exports.updateChildSchema = z.object({
     dateOfBirth: z.string().datetime({ offset: true }).optional(),
     gender: z.enum(["MALE", "FEMALE", "OTHER"]).optional(),
     diagnosis: z.string().max(500).optional().nullable(),
+    coExistingConditions: z.string().max(500).optional().nullable(),
+    currentMedications: z.string().max(500).optional().nullable(),
     school: z.string().max(100).optional().nullable(),
     notes: z.string().max(1000).optional().nullable(),
   }).refine((data) => Object.keys(data).length > 0, {

@@ -44,6 +44,7 @@ const run = async () => {
   // ─────────────────────────────────────────────
   console.log("\n--- Parents ---");
   const parentsData = [
+    { firstName: "Demo", lastName: "Parent", email: "parent@neurobridge.com", phone: "+233501000000", password: "Parent@123" },
     { firstName: "Sarah", lastName: "Johnson", email: "sarah@example.com", phone: "+233501000001", password: "Parent@123" },
     { firstName: "Michael", lastName: "Chen", email: "michael@example.com", phone: "+233501000002", password: "Parent@123" },
     { firstName: "Amara", lastName: "Osei", email: "amara@example.com", phone: "+233501000003", password: "Parent@123" },
@@ -66,6 +67,7 @@ const run = async () => {
   // ─────────────────────────────────────────────
   console.log("\n--- Therapists ---");
   const therapistsData = [
+    { firstName: "Demo", lastName: "Therapist", email: "therapist@neurobridge.com", phone: "+233502000000", password: "Therapist@123", areaofexpertise: "Developmental Therapy", approved: true },
     { firstName: "Emily", lastName: "Watson", email: "emily@example.com", phone: "+233502000001", password: "Therapist@123", areaofexpertise: "Speech Therapy", approved: true },
     { firstName: "James", lastName: "Agyapong", email: "james@example.com", phone: "+233502000002", password: "Therapist@123", areaofexpertise: "Occupational Therapy", approved: true },
     { firstName: "Lisa", lastName: "Park", email: "lisa@example.com", phone: "+233502000003", password: "Therapist@123", areaofexpertise: "Behavioural Therapy", approved: false },
@@ -431,6 +433,8 @@ const run = async () => {
   console.log("═══════════════════════════════════════");
   console.log("\nAccounts:");
   console.log("  Admin:     admin@neurobridge.com / Admin@123");
+  console.log("  Demo Parent: parent@neurobridge.com / Parent@123");
+  console.log("  Demo Therapist: therapist@neurobridge.com / Therapist@123");
   console.log("  Parents:   sarah@example.com / Parent@123");
   console.log("             michael@example.com / Parent@123");
   console.log("             amara@example.com / Parent@123");

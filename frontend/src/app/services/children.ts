@@ -7,6 +7,8 @@ export interface Child {
   dateOfBirth: string;
   gender: "MALE" | "FEMALE" | "OTHER";
   diagnosis: string | null;
+  coExistingConditions: string | null;
+  currentMedications: string | null;
   school: string | null;
   notes: string | null;
   createdAt: string;
@@ -57,6 +59,8 @@ export interface CreateChildData {
   dateOfBirth: string;
   gender: "MALE" | "FEMALE" | "OTHER";
   diagnosis?: string;
+  coExistingConditions?: string;
+  currentMedications?: string;
   school?: string;
   notes?: string;
 }
@@ -67,6 +71,8 @@ export interface UpdateChildData {
   dateOfBirth?: string;
   gender?: "MALE" | "FEMALE" | "OTHER";
   diagnosis?: string | null;
+  coExistingConditions?: string | null;
+  currentMedications?: string | null;
   school?: string | null;
   notes?: string | null;
 }

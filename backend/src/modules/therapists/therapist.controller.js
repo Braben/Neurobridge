@@ -45,13 +45,18 @@ exports.listTherapists = async (req, res, next) => {
       where: { role: "THERAPIST", deletedAt: null, isApproved: true },
       select: {
         id: true, firstName: true, lastName: true, areaofexpertise: true, avatar: true,
-        _count: { select: { therapistAssignments: true } },
+        _count: { select: { therapistAssignments: true, sessions: true } },
       },
       orderBy: { createdAt: "desc" },
     });
 
     return res.status(200).json({
-      therapists: therapists.map((t) => ({ ...t, childCount: t._count.therapistAssignments, _count: undefined })),
+      therapists: therapists.map((t) => ({
+        ...t,
+        childCount: t._count.therapistAssignments,
+        sessionCount: t._count.sessions,
+        _count: undefined,
+      })),
     });
   } catch (error) {
     next(error);

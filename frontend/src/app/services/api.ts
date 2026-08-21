@@ -45,9 +45,17 @@ api.interceptors.response.use(
   (response) => response,
   async (error) => {
     const originalRequest = error.config;
+    const requestUrl = originalRequest?.url || "";
+    const isAuthAttempt =
+      requestUrl.includes("/auth/login") ||
+      requestUrl.includes("/auth/register") ||
+      requestUrl.includes("/auth/verify-otp") ||
+      requestUrl.includes("/auth/send-otp") ||
+      requestUrl.includes("/auth/resend-otp") ||
+      requestUrl.includes("/auth/refresh");
 
     // If 401 and not a refresh request itself, try refreshing
-    if (error.response?.status === 401 && !originalRequest._retry) {
+    if (error.response?.status === 401 && !originalRequest._retry && !isAuthAttempt) {
       if (isRefreshing) {
         // Queue the request while refresh is in progress
         return new Promise((resolve, reject) => {

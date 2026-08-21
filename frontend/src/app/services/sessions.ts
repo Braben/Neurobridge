@@ -4,6 +4,7 @@ export interface Session {
   id: string;
   childId: string;
   therapistId: string;
+  bookingId: string | null;
   sessionDate: string;
   duration: number | null;
   createdAt: string;
@@ -25,7 +26,7 @@ export const sessionsApi = {
   get: (id: string) =>
     api.get<{ session: Session }>(`/sessions/${id}`).then((r) => r.data),
 
-  create: (data: { childId: string; sessionDate: string; duration?: number | null }) =>
+  create: (data: { childId: string; sessionDate: string; duration?: number | null; bookingId?: string | null }) =>
     api.post<{ session: Session }>("/sessions", data).then((r) => r.data),
 
   update: (id: string, data: { sessionDate?: string; duration?: number | null }) =>

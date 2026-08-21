@@ -20,6 +20,7 @@ exports.validate = makeValidate;
 exports.createSessionSchema = z.object({
   body: z.object({
     childId: z.string().uuid("Invalid child ID"),
+    bookingId: z.string().uuid("Invalid booking ID").optional().nullable(),
     sessionDate: z.string().datetime({ offset: true }, "Invalid date format"),
     duration: z.number().int().positive().optional().nullable(),
   }),

@@ -48,9 +48,9 @@ exports.getResource = async (req, res, next) => {
 // (enforced at the route level). The requesting user is recorded as the uploader.
 exports.createResource = async (req, res, next) => {
   try {
-    const { title, description, type, url } = req.body;
+    const { title, description, type, url, thumbnailUrl } = req.body;
     const resource = await prisma.resource.create({
-      data: { title, description, type, url, uploadedById: req.user.id },
+      data: { title, description, type, url, thumbnailUrl: thumbnailUrl || null, uploadedById: req.user.id },
       include: { uploadedBy: { select: { id: true, firstName: true, lastName: true } } },
     });
     return res.status(201).json({ message: "Resource created", resource });
@@ -64,13 +64,13 @@ exports.createResource = async (req, res, next) => {
 // perform updates. Returns 404 if the resource is not found.
 exports.updateResource = async (req, res, next) => {
   try {
-    const { title, description, type, url } = req.body;
+    const { title, description, type, url, thumbnailUrl } = req.body;
     const existing = await prisma.resource.findUnique({ where: { id: req.params.id } });
     if (!existing) return res.status(404).json({ message: "Resource not found" });
 
     const resource = await prisma.resource.update({
       where: { id: req.params.id },
-      data: { title, description, type, url },
+      data: { title, description, type, url, thumbnailUrl },
       include: { uploadedBy: { select: { id: true, firstName: true, lastName: true } } },
     });
     return res.status(200).json({ message: "Resource updated", resource });

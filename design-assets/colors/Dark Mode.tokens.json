@@ -1,0 +1,2470 @@
+{
+  "Greyscale": {
+    "$type": "color",
+    "$value": {
+      "colorSpace": "srgb",
+      "components": [
+        0.08235294371843338,
+        0.1725490242242813,
+        0.27843138575553894
+      ],
+      "alpha": 0.4000000059604645,
+      "hex": "#152C47"
+    },
+    "$extensions": {
+      "com.figma.variableId": "VariableID:415:2104",
+      "com.figma.scopes": [
+        "ALL_SCOPES"
+      ]
+    }
+  },
+  "Main Colours": {
+    "Teal": {
+      "$type": "color",
+      "$value": {
+        "colorSpace": "srgb",
+        "components": [
+          0.45858824253082275,
+          0.9398431181907654,
+          0.9398431181907654
+        ],
+        "alpha": 1,
+        "hex": "#75F0F0"
+      },
+      "$description": "Generated from Material Color System",
+      "$extensions": {
+        "com.figma.variableId": "VariableID:18:112",
+        "com.figma.scopes": [
+          "ALL_SCOPES"
+        ]
+      }
+    },
+    "Red or Danger": {
+      "$type": "color",
+      "$value": {
+        "colorSpace": "srgb",
+        "components": [
+          0.7402641773223877,
+          0.1878761649131775,
+          0.1750299334526062
+        ],
+        "alpha": 1,
+        "hex": "#BD302D"
+      },
+      "$description": "Generated from Material Color System",
+      "$extensions": {
+        "com.figma.variableId": "VariableID:18:14",
+        "com.figma.scopes": [
+          "ALL_SCOPES"
+        ]
+      }
+    },
+    "Grey - Neutral": {
+      "$type": "color",
+      "$value": {
+        "colorSpace": "srgb",
+        "components": [
+          0.5329411625862122,
+          0.5329411625862122,
+          0.5329411625862122
+        ],
+        "alpha": 1,
+        "hex": "#888888"
+      },
+      "$description": "Generated from Material Color System",
+      "$extensions": {
+        "com.figma.variableId": "VariableID:18:42",
+        "com.figma.scopes": [
+          "ALL_SCOPES"
+        ]
+      }
+    },
+    "Disabled": {
+      "$type": "color",
+      "$value": {
+        "colorSpace": "srgb",
+        "components": [
+          0.12110579758882523,
+          0.24914716184139252,
+          0.36438441276550293
+        ],
+        "alpha": 1,
+        "hex": "#1F405D"
+      },
+      "$description": "Generated from Material Color System",
+      "$extensions": {
+        "com.figma.variableId": "VariableID:18:85",
+        "com.figma.scopes": [
+          "ALL_SCOPES"
+        ]
+      }
+    },
+    "Blue - Primary": {
+      "$type": "color",
+      "$value": {
+        "colorSpace": "srgb",
+        "components": [
+          0.5549716949462891,
+          0.7585272192955017,
+          0.9062048196792603
+        ],
+        "alpha": 1,
+        "hex": "#8EC1E7"
+      },
+      "$description": "Generated from Material Color System",
+      "$extensions": {
+        "com.figma.variableId": "VariableID:18:89",
+        "com.figma.scopes": [
+          "ALL_SCOPES"
+        ]
+      }
+    },
+    "Bright Blue - Focused": {
+      "$type": "color",
+      "$value": {
+        "colorSpace": "srgb",
+        "components": [
+          0.21294116973876953,
+          0.58064204454422,
+          0.9125490188598633
+        ],
+        "alpha": 1,
+        "hex": "#3694E9"
+      },
+      "$description": "Generated from Material Color System",
+      "$extensions": {
+        "com.figma.variableId": "VariableID:18:99",
+        "com.figma.scopes": [
+          "ALL_SCOPES"
+        ]
+      }
+    },
+    "Green - Success": {
+      "$type": "color",
+      "$value": {
+        "colorSpace": "srgb",
+        "components": [
+          0.4956683814525604,
+          0.767861008644104,
+          0.5094503164291382
+        ],
+        "alpha": 1,
+        "hex": "#7EC482"
+      },
+      "$description": "Generated from Material Color System",
+      "$extensions": {
+        "com.figma.variableId": "VariableID:18:125",
+        "com.figma.scopes": [
+          "ALL_SCOPES"
+        ]
+      }
+    }
+  },
+  "neutral": {
+    "black": {
+      "$type": "color",
+      "$value": {
+        "colorSpace": "srgb",
+        "components": [
+          0.846666693687439,
+          0.846666693687439,
+          0.846666693687439
+        ],
+        "alpha": 1,
+        "hex": "#D8D8D8"
+      },
+      "$description": "Generated from Material Color System",
+      "$extensions": {
+        "com.figma.variableId": "VariableID:18:6",
+        "com.figma.scopes": [
+          "ALL_SCOPES"
+        ]
+      }
+    },
+    "white": {
+      "$type": "color",
+      "$value": {
+        "colorSpace": "srgb",
+        "components": [
+          0.11568627506494522,
+          0.11568627506494522,
+          0.11568627506494522
+        ],
+        "alpha": 1,
+        "hex": "#1E1E1E"
+      },
+      "$description": "Generated from Material Color System",
+      "$extensions": {
+        "com.figma.variableId": "VariableID:18:7",
+        "com.figma.scopes": [
+          "ALL_SCOPES"
+        ]
+      }
+    }
+  },
+  "red": {
+    "50": {
+      "$type": "color",
+      "$value": {
+        "colorSpace": "srgb",
+        "components": [
+          0.23647059500217438,
+          0.026274509727954865,
+          0.0578039214015007
+        ],
+        "alpha": 1,
+        "hex": "#3C070F"
+      },
+      "$description": "Generated from Material Color System",
+      "$extensions": {
+        "com.figma.variableId": "VariableID:18:8",
+        "com.figma.scopes": [
+          "ALL_SCOPES"
+        ]
+      }
+    },
+    "100": {
+      "$type": "color",
+      "$value": {
+        "colorSpace": "srgb",
+        "components": [
+          0.3211764693260193,
+          0.035686273127794266,
+          0.06423529237508774
+        ],
+        "alpha": 1,
+        "hex": "#520910"
+      },
+      "$description": "Generated from Material Color System",
+      "$extensions": {
+        "com.figma.variableId": "VariableID:18:9",
+        "com.figma.scopes": [
+          "ALL_SCOPES"
+        ]
+      }
+    },
+    "200": {
+      "$type": "color",
+      "$value": {
+        "colorSpace": "srgb",
+        "components": [
+          0.44831573963165283,
+          0.11874308437108994,
+          0.11874308437108994
+        ],
+        "alpha": 1,
+        "hex": "#721E1E"
+      },
+      "$description": "Generated from Material Color System",
+      "$extensions": {
+        "com.figma.variableId": "VariableID:18:10",
+        "com.figma.scopes": [
+          "ALL_SCOPES"
+        ]
+      }
+    },
+    "300": {
+      "$type": "color",
+      "$value": {
+        "colorSpace": "srgb",
+        "components": [
+          0.558390736579895,
+          0.16239356994628906,
+          0.16239356994628906
+        ],
+        "alpha": 1,
+        "hex": "#8E2929"
+      },
+      "$description": "Generated from Material Color System",
+      "$extensions": {
+        "com.figma.variableId": "VariableID:18:11",
+        "com.figma.scopes": [
+          "ALL_SCOPES"
+        ]
+      }
+    },
+    "400": {
+      "$type": "color",
+      "$value": {
+        "colorSpace": "srgb",
+        "components": [
+          0.6657341122627258,
+          0.14352408051490784,
+          0.13348157703876495
+        ],
+        "alpha": 1,
+        "hex": "#AA2522"
+      },
+      "$description": "Generated from Material Color System",
+      "$extensions": {
+        "com.figma.variableId": "VariableID:18:12",
+        "com.figma.scopes": [
+          "ALL_SCOPES"
+        ]
+      }
+    },
+    "500": {
+      "$type": "color",
+      "$value": {
+        "colorSpace": "srgb",
+        "components": [
+          0.7426785230636597,
+          0.16485831141471863,
+          0.12241953611373901
+        ],
+        "alpha": 1,
+        "hex": "#BD2A1F"
+      },
+      "$description": "Generated from Material Color System",
+      "$extensions": {
+        "com.figma.variableId": "VariableID:18:13",
+        "com.figma.scopes": [
+          "ALL_SCOPES"
+        ]
+      }
+    },
+    "700": {
+      "$type": "color",
+      "$value": {
+        "colorSpace": "srgb",
+        "components": [
+          0.7531615495681763,
+          0.23742669820785522,
+          0.23742669820785522
+        ],
+        "alpha": 1,
+        "hex": "#C03D3D"
+      },
+      "$description": "Generated from Material Color System",
+      "$extensions": {
+        "com.figma.variableId": "VariableID:18:15",
+        "com.figma.scopes": [
+          "ALL_SCOPES"
+        ]
+      }
+    },
+    "800": {
+      "$type": "color",
+      "$value": {
+        "colorSpace": "srgb",
+        "components": [
+          0.778050422668457,
+          0.27528291940689087,
+          0.27528291940689087
+        ],
+        "alpha": 1,
+        "hex": "#C64646"
+      },
+      "$description": "Generated from Material Color System",
+      "$extensions": {
+        "com.figma.variableId": "VariableID:18:16",
+        "com.figma.scopes": [
+          "ALL_SCOPES"
+        ]
+      }
+    },
+    "900": {
+      "$type": "color",
+      "$value": {
+        "colorSpace": "srgb",
+        "components": [
+          0.8222971558570862,
+          0.31574204564094543,
+          0.31574204564094543
+        ],
+        "alpha": 1,
+        "hex": "#D25151"
+      },
+      "$description": "Generated from Material Color System",
+      "$extensions": {
+        "com.figma.variableId": "VariableID:18:17",
+        "com.figma.scopes": [
+          "ALL_SCOPES"
+        ]
+      }
+    },
+    "A100": {
+      "$type": "color",
+      "$value": {
+        "colorSpace": "srgb",
+        "components": [
+          0.5385882258415222,
+          0.09753960371017456,
+          0.05984313786029816
+        ],
+        "alpha": 1,
+        "hex": "#89190F"
+      },
+      "$description": "Generated from Material Color System",
+      "$extensions": {
+        "com.figma.variableId": "VariableID:18:18",
+        "com.figma.scopes": [
+          "ALL_SCOPES"
+        ]
+      }
+    },
+    "A200": {
+      "$type": "color",
+      "$value": {
+        "colorSpace": "srgb",
+        "components": [
+          0.668470561504364,
+          0.07427451014518738,
+          0.07427451014518738
+        ],
+        "alpha": 1,
+        "hex": "#AA1313"
+      },
+      "$description": "Generated from Material Color System",
+      "$extensions": {
+        "com.figma.variableId": "VariableID:18:19",
+        "com.figma.scopes": [
+          "ALL_SCOPES"
+        ]
+      }
+    },
+    "A400": {
+      "$type": "color",
+      "$value": {
+        "colorSpace": "srgb",
+        "components": [
+          0.8350588083267212,
+          0.09278431534767151,
+          0.2367599755525589
+        ],
+        "alpha": 1,
+        "hex": "#D5183C"
+      },
+      "$description": "Generated from Material Color System",
+      "$extensions": {
+        "com.figma.variableId": "VariableID:18:20",
+        "com.figma.scopes": [
+          "ALL_SCOPES"
+        ]
+      }
+    },
+    "A700": {
+      "$type": "color",
+      "$value": {
+        "colorSpace": "srgb",
+        "components": [
+          0.9131764769554138,
+          0.2185882329940796,
+          0.2185882329940796
+        ],
+        "alpha": 1,
+        "hex": "#E93838"
+      },
+      "$description": "Generated from Material Color System",
+      "$extensions": {
+        "com.figma.variableId": "VariableID:18:21",
+        "com.figma.scopes": [
+          "ALL_SCOPES"
+        ]
+      }
+    }
+  },
+  "amber": {
+    "50": {
+      "$type": "color",
+      "$value": {
+        "colorSpace": "srgb",
+        "components": [
+          0.2647058963775635,
+          0.20980392396450043,
+          0.029411764815449715
+        ],
+        "alpha": 1,
+        "hex": "#443608"
+      },
+      "$description": "Generated from Material Color System",
+      "$extensions": {
+        "com.figma.variableId": "VariableID:18:22",
+        "com.figma.scopes": [
+          "ALL_SCOPES"
+        ]
+      }
+    },
+    "100": {
+      "$type": "color",
+      "$value": {
+        "colorSpace": "srgb",
+        "components": [
+          0.3945882320404053,
+          0.3069019615650177,
+          0.043843138962984085
+        ],
+        "alpha": 1,
+        "hex": "#654E0B"
+      },
+      "$description": "Generated from Material Color System",
+      "$extensions": {
+        "com.figma.variableId": "VariableID:18:23",
+        "com.figma.scopes": [
+          "ALL_SCOPES"
+        ]
+      }
+    },
+    "200": {
+      "$type": "color",
+      "$value": {
+        "colorSpace": "srgb",
+        "components": [
+          0.5329411625862122,
+          0.41545724868774414,
+          0.05921568721532822
+        ],
+        "alpha": 1,
+        "hex": "#886A0F"
+      },
+      "$description": "Generated from Material Color System",
+      "$extensions": {
+        "com.figma.variableId": "VariableID:18:24",
+        "com.figma.scopes": [
+          "ALL_SCOPES"
+        ]
+      }
+    },
+    "300": {
+      "$type": "color",
+      "$value": {
+        "colorSpace": "srgb",
+        "components": [
+          0.6769411563873291,
+          0.5333476066589355,
+          0.07521568983793259
+        ],
+        "alpha": 1,
+        "hex": "#AD8813"
+      },
+      "$description": "Generated from Material Color System",
+      "$extensions": {
+        "com.figma.variableId": "VariableID:18:25",
+        "com.figma.scopes": [
+          "ALL_SCOPES"
+        ]
+      }
+    },
+    "400": {
+      "$type": "color",
+      "$value": {
+        "colorSpace": "srgb",
+        "components": [
+          0.7870588302612305,
+          0.6145973801612854,
+          0.08745098114013672
+        ],
+        "alpha": 1,
+        "hex": "#C99D16"
+      },
+      "$description": "Generated from Material Color System",
+      "$extensions": {
+        "com.figma.variableId": "VariableID:18:26",
+        "com.figma.scopes": [
+          "ALL_SCOPES"
+        ]
+      }
+    },
+    "500": {
+      "$type": "color",
+      "$value": {
+        "colorSpace": "srgb",
+        "components": [
+          0.8802353143692017,
+          0.6846274733543396,
+          0.09780392050743103
+        ],
+        "alpha": 1,
+        "hex": "#E0AF19"
+      },
+      "$description": "Generated from Material Color System",
+      "$extensions": {
+        "com.figma.variableId": "VariableID:18:27",
+        "com.figma.scopes": [
+          "ALL_SCOPES"
+        ]
+      }
+    },
+    "600": {
+      "$type": "color",
+      "$value": {
+        "colorSpace": "srgb",
+        "components": [
+          0.8999999761581421,
+          0.6615686416625977,
+          0.10000000149011612
+        ],
+        "alpha": 1,
+        "hex": "#E5A91A"
+      },
+      "$description": "Generated from Material Color System",
+      "$extensions": {
+        "com.figma.variableId": "VariableID:18:28",
+        "com.figma.scopes": [
+          "ALL_SCOPES"
+        ]
+      }
+    },
+    "700": {
+      "$type": "color",
+      "$value": {
+        "colorSpace": "srgb",
+        "components": [
+          0.8999999761581421,
+          0.6019607782363892,
+          0.10000000149011612
+        ],
+        "alpha": 1,
+        "hex": "#E5991A"
+      },
+      "$description": "Generated from Material Color System",
+      "$extensions": {
+        "com.figma.variableId": "VariableID:18:29",
+        "com.figma.scopes": [
+          "ALL_SCOPES"
+        ]
+      }
+    },
+    "800": {
+      "$type": "color",
+      "$value": {
+        "colorSpace": "srgb",
+        "components": [
+          0.8999999761581421,
+          0.5486274361610413,
+          0.10000000149011612
+        ],
+        "alpha": 1,
+        "hex": "#E58C1A"
+      },
+      "$description": "Generated from Material Color System",
+      "$extensions": {
+        "com.figma.variableId": "VariableID:18:30",
+        "com.figma.scopes": [
+          "ALL_SCOPES"
+        ]
+      }
+    },
+    "900": {
+      "$type": "color",
+      "$value": {
+        "colorSpace": "srgb",
+        "components": [
+          0.8999999761581421,
+          0.44823530316352844,
+          0.10000000149011612
+        ],
+        "alpha": 1,
+        "hex": "#E5721A"
+      },
+      "$description": "Generated from Material Color System",
+      "$extensions": {
+        "com.figma.variableId": "VariableID:18:31",
+        "com.figma.scopes": [
+          "ALL_SCOPES"
+        ]
+      }
+    },
+    "A100": {
+      "$type": "color",
+      "$value": {
+        "colorSpace": "srgb",
+        "components": [
+          0.5414117574691772,
+          0.443656861782074,
+          0.06015686318278313
+        ],
+        "alpha": 1,
+        "hex": "#8A710F"
+      },
+      "$description": "Generated from Material Color System",
+      "$extensions": {
+        "com.figma.variableId": "VariableID:18:32",
+        "com.figma.scopes": [
+          "ALL_SCOPES"
+        ]
+      }
+    },
+    "A200": {
+      "$type": "color",
+      "$value": {
+        "colorSpace": "srgb",
+        "components": [
+          0.7192941308021545,
+          0.5853940844535828,
+          0.07992156594991684
+        ],
+        "alpha": 1,
+        "hex": "#B79514"
+      },
+      "$description": "Generated from Material Color System",
+      "$extensions": {
+        "com.figma.variableId": "VariableID:18:33",
+        "com.figma.scopes": [
+          "ALL_SCOPES"
+        ]
+      }
+    },
+    "A400": {
+      "$type": "color",
+      "$value": {
+        "colorSpace": "srgb",
+        "components": [
+          0.8999999761581421,
+          0.7149019837379456,
+          0.10000000149011612
+        ],
+        "alpha": 1,
+        "hex": "#E5B61A"
+      },
+      "$description": "Generated from Material Color System",
+      "$extensions": {
+        "com.figma.variableId": "VariableID:18:34",
+        "com.figma.scopes": [
+          "ALL_SCOPES"
+        ]
+      }
+    },
+    "A700": {
+      "$type": "color",
+      "$value": {
+        "colorSpace": "srgb",
+        "components": [
+          0.8999999761581421,
+          0.6364706158638,
+          0.10000000149011612
+        ],
+        "alpha": 1,
+        "hex": "#E5A21A"
+      },
+      "$description": "Generated from Material Color System",
+      "$extensions": {
+        "com.figma.variableId": "VariableID:18:35",
+        "com.figma.scopes": [
+          "ALL_SCOPES"
+        ]
+      }
+    }
+  },
+  "grey": {
+    "50": {
+      "$type": "color",
+      "$value": {
+        "colorSpace": "srgb",
+        "components": [
+          0.11568627506494522,
+          0.11568627506494522,
+          0.11568627506494522
+        ],
+        "alpha": 1,
+        "hex": "#1E1E1E"
+      },
+      "$description": "Generated from Material Color System",
+      "$extensions": {
+        "com.figma.variableId": "VariableID:18:36",
+        "com.figma.scopes": [
+          "ALL_SCOPES"
+        ]
+      }
+    },
+    "100": {
+      "$type": "color",
+      "$value": {
+        "colorSpace": "srgb",
+        "components": [
+          0.13137255609035492,
+          0.13137255609035492,
+          0.13137255609035492
+        ],
+        "alpha": 1,
+        "hex": "#222222"
+      },
+      "$description": "Generated from Material Color System",
+      "$extensions": {
+        "com.figma.variableId": "VariableID:18:37",
+        "com.figma.scopes": [
+          "ALL_SCOPES"
+        ]
+      }
+    },
+    "200": {
+      "$type": "color",
+      "$value": {
+        "colorSpace": "srgb",
+        "components": [
+          0.15333333611488342,
+          0.15333333611488342,
+          0.15333333611488342
+        ],
+        "alpha": 1,
+        "hex": "#272727"
+      },
+      "$description": "Generated from Material Color System",
+      "$extensions": {
+        "com.figma.variableId": "VariableID:18:38",
+        "com.figma.scopes": [
+          "ALL_SCOPES"
+        ]
+      }
+    },
+    "300": {
+      "$type": "color",
+      "$value": {
+        "colorSpace": "srgb",
+        "components": [
+          0.19725489616394043,
+          0.19725489616394043,
+          0.19725489616394043
+        ],
+        "alpha": 1,
+        "hex": "#323232"
+      },
+      "$description": "Generated from Material Color System",
+      "$extensions": {
+        "com.figma.variableId": "VariableID:18:39",
+        "com.figma.scopes": [
+          "ALL_SCOPES"
+        ]
+      }
+    },
+    "400": {
+      "$type": "color",
+      "$value": {
+        "colorSpace": "srgb",
+        "components": [
+          0.30705881118774414,
+          0.30705881118774414,
+          0.30705881118774414
+        ],
+        "alpha": 1,
+        "hex": "#4E4E4E"
+      },
+      "$description": "Generated from Material Color System",
+      "$extensions": {
+        "com.figma.variableId": "VariableID:18:40",
+        "com.figma.scopes": [
+          "ALL_SCOPES"
+        ]
+      }
+    },
+    "500": {
+      "$type": "color",
+      "$value": {
+        "colorSpace": "srgb",
+        "components": [
+          0.40431371331214905,
+          0.40431371331214905,
+          0.40431371331214905
+        ],
+        "alpha": 1,
+        "hex": "#676767"
+      },
+      "$description": "Generated from Material Color System",
+      "$extensions": {
+        "com.figma.variableId": "VariableID:18:41",
+        "com.figma.scopes": [
+          "ALL_SCOPES"
+        ]
+      }
+    },
+    "700": {
+      "$type": "color",
+      "$value": {
+        "colorSpace": "srgb",
+        "components": [
+          0.5956862568855286,
+          0.5956862568855286,
+          0.5956862568855286
+        ],
+        "alpha": 1,
+        "hex": "#989898"
+      },
+      "$description": "Generated from Material Color System",
+      "$extensions": {
+        "com.figma.variableId": "VariableID:18:43",
+        "com.figma.scopes": [
+          "ALL_SCOPES"
+        ]
+      }
+    },
+    "800": {
+      "$type": "color",
+      "$value": {
+        "colorSpace": "srgb",
+        "components": [
+          0.6929411888122559,
+          0.6929411888122559,
+          0.6929411888122559
+        ],
+        "alpha": 1,
+        "hex": "#B1B1B1"
+      },
+      "$description": "Generated from Material Color System",
+      "$extensions": {
+        "com.figma.variableId": "VariableID:18:44",
+        "com.figma.scopes": [
+          "ALL_SCOPES"
+        ]
+      }
+    },
+    "900": {
+      "$type": "color",
+      "$value": {
+        "colorSpace": "srgb",
+        "components": [
+          0.796470582485199,
+          0.796470582485199,
+          0.796470582485199
+        ],
+        "alpha": 1,
+        "hex": "#CBCBCB"
+      },
+      "$description": "Generated from Material Color System",
+      "$extensions": {
+        "com.figma.variableId": "VariableID:18:45",
+        "com.figma.scopes": [
+          "ALL_SCOPES"
+        ]
+      }
+    }
+  },
+  "blue-grey": {
+    "50": {
+      "$type": "color",
+      "$value": {
+        "colorSpace": "srgb",
+        "components": [
+          0.029725490137934685,
+          0.2675293982028961,
+          0.2675293982028961
+        ],
+        "alpha": 1,
+        "hex": "#084444"
+      },
+      "$description": "Generated from Material Color System",
+      "$extensions": {
+        "com.figma.variableId": "VariableID:18:46",
+        "com.figma.scopes": [
+          "ALL_SCOPES"
+        ]
+      }
+    },
+    "100": {
+      "$type": "color",
+      "$value": {
+        "colorSpace": "srgb",
+        "components": [
+          0.20135223865509033,
+          0.2412898689508438,
+          0.2590399384498596
+        ],
+        "alpha": 1,
+        "hex": "#333E42"
+      },
+      "$description": "Generated from Material Color System",
+      "$extensions": {
+        "com.figma.variableId": "VariableID:18:47",
+        "com.figma.scopes": [
+          "ALL_SCOPES"
+        ]
+      }
+    },
+    "200": {
+      "$type": "color",
+      "$value": {
+        "colorSpace": "srgb",
+        "components": [
+          0.276286244392395,
+          0.3277738690376282,
+          0.35351768136024475
+        ],
+        "alpha": 1,
+        "hex": "#46545A"
+      },
+      "$description": "Generated from Material Color System",
+      "$extensions": {
+        "com.figma.variableId": "VariableID:18:48",
+        "com.figma.scopes": [
+          "ALL_SCOPES"
+        ]
+      }
+    },
+    "300": {
+      "$type": "color",
+      "$value": {
+        "colorSpace": "srgb",
+        "components": [
+          0.3510294258594513,
+          0.4178921580314636,
+          0.451323539018631
+        ],
+        "alpha": 1,
+        "hex": "#5A6B73"
+      },
+      "$description": "Generated from Material Color System",
+      "$extensions": {
+        "com.figma.variableId": "VariableID:18:49",
+        "com.figma.scopes": [
+          "ALL_SCOPES"
+        ]
+      }
+    },
+    "400": {
+      "$type": "color",
+      "$value": {
+        "colorSpace": "srgb",
+        "components": [
+          0.4095746576786041,
+          0.48622021079063416,
+          0.5245429873466492
+        ],
+        "alpha": 1,
+        "hex": "#687C86"
+      },
+      "$description": "Generated from Material Color System",
+      "$extensions": {
+        "com.figma.variableId": "VariableID:18:50",
+        "com.figma.scopes": [
+          "ALL_SCOPES"
+        ]
+      }
+    },
+    "500": {
+      "$type": "color",
+      "$value": {
+        "colorSpace": "srgb",
+        "components": [
+          0.46277347207069397,
+          0.5553024411201477,
+          0.5999716520309448
+        ],
+        "alpha": 1,
+        "hex": "#768E99"
+      },
+      "$description": "Generated from Material Color System",
+      "$extensions": {
+        "com.figma.variableId": "VariableID:18:51",
+        "com.figma.scopes": [
+          "ALL_SCOPES"
+        ]
+      }
+    },
+    "600": {
+      "$type": "color",
+      "$value": {
+        "colorSpace": "srgb",
+        "components": [
+          0.5144191980361938,
+          0.5998682379722595,
+          0.6393063068389893
+        ],
+        "alpha": 1,
+        "hex": "#8399A3"
+      },
+      "$description": "Generated from Material Color System",
+      "$extensions": {
+        "com.figma.variableId": "VariableID:18:52",
+        "com.figma.scopes": [
+          "ALL_SCOPES"
+        ]
+      }
+    },
+    "700": {
+      "$type": "color",
+      "$value": {
+        "colorSpace": "srgb",
+        "components": [
+          0.5813254714012146,
+          0.6539129614830017,
+          0.6884784698486328
+        ],
+        "alpha": 1,
+        "hex": "#94A7B0"
+      },
+      "$description": "Generated from Material Color System",
+      "$extensions": {
+        "com.figma.variableId": "VariableID:18:53",
+        "com.figma.scopes": [
+          "ALL_SCOPES"
+        ]
+      }
+    },
+    "800": {
+      "$type": "color",
+      "$value": {
+        "colorSpace": "srgb",
+        "components": [
+          0.6453579068183899,
+          0.7046192288398743,
+          0.7342499494552612
+        ],
+        "alpha": 1,
+        "hex": "#A5B4BB"
+      },
+      "$description": "Generated from Material Color System",
+      "$extensions": {
+        "com.figma.variableId": "VariableID:18:54",
+        "com.figma.scopes": [
+          "ALL_SCOPES"
+        ]
+      }
+    },
+    "900": {
+      "$type": "color",
+      "$value": {
+        "colorSpace": "srgb",
+        "components": [
+          0.7146416306495667,
+          0.7651848196983337,
+          0.7904564142227173
+        ],
+        "alpha": 1,
+        "hex": "#B6C3CA"
+      },
+      "$description": "Generated from Material Color System",
+      "$extensions": {
+        "com.figma.variableId": "VariableID:18:55",
+        "com.figma.scopes": [
+          "ALL_SCOPES"
+        ]
+      }
+    }
+  },
+  "black-alpha": {
+    "50": {
+      "$type": "color",
+      "$value": {
+        "colorSpace": "srgb",
+        "components": [
+          0.8999999761581421,
+          0.8999999761581421,
+          0.8999999761581421
+        ],
+        "alpha": 1,
+        "hex": "#E5E5E5"
+      },
+      "$description": "Generated from Material Color System",
+      "$extensions": {
+        "com.figma.variableId": "VariableID:18:56",
+        "com.figma.scopes": [
+          "ALL_SCOPES"
+        ]
+      }
+    },
+    "100": {
+      "$type": "color",
+      "$value": {
+        "colorSpace": "srgb",
+        "components": [
+          0.8999999761581421,
+          0.8999999761581421,
+          0.8999999761581421
+        ],
+        "alpha": 1,
+        "hex": "#E5E5E5"
+      },
+      "$description": "Generated from Material Color System",
+      "$extensions": {
+        "com.figma.variableId": "VariableID:18:57",
+        "com.figma.scopes": [
+          "ALL_SCOPES"
+        ]
+      }
+    },
+    "200": {
+      "$type": "color",
+      "$value": {
+        "colorSpace": "srgb",
+        "components": [
+          0.8999999761581421,
+          0.8999999761581421,
+          0.8999999761581421
+        ],
+        "alpha": 1,
+        "hex": "#E5E5E5"
+      },
+      "$description": "Generated from Material Color System",
+      "$extensions": {
+        "com.figma.variableId": "VariableID:18:58",
+        "com.figma.scopes": [
+          "ALL_SCOPES"
+        ]
+      }
+    },
+    "300": {
+      "$type": "color",
+      "$value": {
+        "colorSpace": "srgb",
+        "components": [
+          0.8999999761581421,
+          0.8999999761581421,
+          0.8999999761581421
+        ],
+        "alpha": 1,
+        "hex": "#E5E5E5"
+      },
+      "$description": "Generated from Material Color System",
+      "$extensions": {
+        "com.figma.variableId": "VariableID:18:59",
+        "com.figma.scopes": [
+          "ALL_SCOPES"
+        ]
+      }
+    },
+    "400": {
+      "$type": "color",
+      "$value": {
+        "colorSpace": "srgb",
+        "components": [
+          0.8999999761581421,
+          0.8999999761581421,
+          0.8999999761581421
+        ],
+        "alpha": 1,
+        "hex": "#E5E5E5"
+      },
+      "$description": "Generated from Material Color System",
+      "$extensions": {
+        "com.figma.variableId": "VariableID:18:60",
+        "com.figma.scopes": [
+          "ALL_SCOPES"
+        ]
+      }
+    },
+    "500": {
+      "$type": "color",
+      "$value": {
+        "colorSpace": "srgb",
+        "components": [
+          0.8999999761581421,
+          0.8999999761581421,
+          0.8999999761581421
+        ],
+        "alpha": 1,
+        "hex": "#E5E5E5"
+      },
+      "$description": "Generated from Material Color System",
+      "$extensions": {
+        "com.figma.variableId": "VariableID:18:61",
+        "com.figma.scopes": [
+          "ALL_SCOPES"
+        ]
+      }
+    },
+    "600": {
+      "$type": "color",
+      "$value": {
+        "colorSpace": "srgb",
+        "components": [
+          0.8999999761581421,
+          0.8999999761581421,
+          0.8999999761581421
+        ],
+        "alpha": 1,
+        "hex": "#E5E5E5"
+      },
+      "$description": "Generated from Material Color System",
+      "$extensions": {
+        "com.figma.variableId": "VariableID:18:62",
+        "com.figma.scopes": [
+          "ALL_SCOPES"
+        ]
+      }
+    },
+    "700": {
+      "$type": "color",
+      "$value": {
+        "colorSpace": "srgb",
+        "components": [
+          0.8999999761581421,
+          0.8999999761581421,
+          0.8999999761581421
+        ],
+        "alpha": 1,
+        "hex": "#E5E5E5"
+      },
+      "$description": "Generated from Material Color System",
+      "$extensions": {
+        "com.figma.variableId": "VariableID:18:63",
+        "com.figma.scopes": [
+          "ALL_SCOPES"
+        ]
+      }
+    },
+    "800": {
+      "$type": "color",
+      "$value": {
+        "colorSpace": "srgb",
+        "components": [
+          0.8999999761581421,
+          0.8999999761581421,
+          0.8999999761581421
+        ],
+        "alpha": 1,
+        "hex": "#E5E5E5"
+      },
+      "$description": "Generated from Material Color System",
+      "$extensions": {
+        "com.figma.variableId": "VariableID:18:64",
+        "com.figma.scopes": [
+          "ALL_SCOPES"
+        ]
+      }
+    },
+    "900": {
+      "$type": "color",
+      "$value": {
+        "colorSpace": "srgb",
+        "components": [
+          0.8999999761581421,
+          0.8999999761581421,
+          0.8999999761581421
+        ],
+        "alpha": 1,
+        "hex": "#E5E5E5"
+      },
+      "$description": "Generated from Material Color System",
+      "$extensions": {
+        "com.figma.variableId": "VariableID:18:65",
+        "com.figma.scopes": [
+          "ALL_SCOPES"
+        ]
+      }
+    },
+    "A100": {
+      "$type": "color",
+      "$value": {
+        "colorSpace": "srgb",
+        "components": [
+          0.8999999761581421,
+          0.8999999761581421,
+          0.8999999761581421
+        ],
+        "alpha": 1,
+        "hex": "#E5E5E5"
+      },
+      "$description": "Generated from Material Color System",
+      "$extensions": {
+        "com.figma.variableId": "VariableID:18:66",
+        "com.figma.scopes": [
+          "ALL_SCOPES"
+        ]
+      }
+    },
+    "A200": {
+      "$type": "color",
+      "$value": {
+        "colorSpace": "srgb",
+        "components": [
+          0.8999999761581421,
+          0.8999999761581421,
+          0.8999999761581421
+        ],
+        "alpha": 1,
+        "hex": "#E5E5E5"
+      },
+      "$description": "Generated from Material Color System",
+      "$extensions": {
+        "com.figma.variableId": "VariableID:18:67",
+        "com.figma.scopes": [
+          "ALL_SCOPES"
+        ]
+      }
+    },
+    "A400": {
+      "$type": "color",
+      "$value": {
+        "colorSpace": "srgb",
+        "components": [
+          0.8999999761581421,
+          0.8999999761581421,
+          0.8999999761581421
+        ],
+        "alpha": 1,
+        "hex": "#E5E5E5"
+      },
+      "$description": "Generated from Material Color System",
+      "$extensions": {
+        "com.figma.variableId": "VariableID:18:68",
+        "com.figma.scopes": [
+          "ALL_SCOPES"
+        ]
+      }
+    },
+    "A700": {
+      "$type": "color",
+      "$value": {
+        "colorSpace": "srgb",
+        "components": [
+          0.8999999761581421,
+          0.8999999761581421,
+          0.8999999761581421
+        ],
+        "alpha": 1,
+        "hex": "#E5E5E5"
+      },
+      "$description": "Generated from Material Color System",
+      "$extensions": {
+        "com.figma.variableId": "VariableID:18:69",
+        "com.figma.scopes": [
+          "ALL_SCOPES"
+        ]
+      }
+    }
+  },
+  "white-alpha": {
+    "50": {
+      "$type": "color",
+      "$value": {
+        "colorSpace": "srgb",
+        "components": [
+          0.10000000149011612,
+          0.10000000149011612,
+          0.10000000149011612
+        ],
+        "alpha": 1,
+        "hex": "#1A1A1A"
+      },
+      "$description": "Generated from Material Color System",
+      "$extensions": {
+        "com.figma.variableId": "VariableID:18:70",
+        "com.figma.scopes": [
+          "ALL_SCOPES"
+        ]
+      }
+    },
+    "100": {
+      "$type": "color",
+      "$value": {
+        "colorSpace": "srgb",
+        "components": [
+          0.10000000149011612,
+          0.10000000149011612,
+          0.10000000149011612
+        ],
+        "alpha": 1,
+        "hex": "#1A1A1A"
+      },
+      "$description": "Generated from Material Color System",
+      "$extensions": {
+        "com.figma.variableId": "VariableID:18:71",
+        "com.figma.scopes": [
+          "ALL_SCOPES"
+        ]
+      }
+    },
+    "200": {
+      "$type": "color",
+      "$value": {
+        "colorSpace": "srgb",
+        "components": [
+          0.10000000149011612,
+          0.10000000149011612,
+          0.10000000149011612
+        ],
+        "alpha": 1,
+        "hex": "#1A1A1A"
+      },
+      "$description": "Generated from Material Color System",
+      "$extensions": {
+        "com.figma.variableId": "VariableID:18:72",
+        "com.figma.scopes": [
+          "ALL_SCOPES"
+        ]
+      }
+    },
+    "300": {
+      "$type": "color",
+      "$value": {
+        "colorSpace": "srgb",
+        "components": [
+          0.10000000149011612,
+          0.10000000149011612,
+          0.10000000149011612
+        ],
+        "alpha": 1,
+        "hex": "#1A1A1A"
+      },
+      "$description": "Generated from Material Color System",
+      "$extensions": {
+        "com.figma.variableId": "VariableID:18:73",
+        "com.figma.scopes": [
+          "ALL_SCOPES"
+        ]
+      }
+    },
+    "400": {
+      "$type": "color",
+      "$value": {
+        "colorSpace": "srgb",
+        "components": [
+          0.10000000149011612,
+          0.10000000149011612,
+          0.10000000149011612
+        ],
+        "alpha": 1,
+        "hex": "#1A1A1A"
+      },
+      "$description": "Generated from Material Color System",
+      "$extensions": {
+        "com.figma.variableId": "VariableID:18:74",
+        "com.figma.scopes": [
+          "ALL_SCOPES"
+        ]
+      }
+    },
+    "500": {
+      "$type": "color",
+      "$value": {
+        "colorSpace": "srgb",
+        "components": [
+          0.10000000149011612,
+          0.10000000149011612,
+          0.10000000149011612
+        ],
+        "alpha": 1,
+        "hex": "#1A1A1A"
+      },
+      "$description": "Generated from Material Color System",
+      "$extensions": {
+        "com.figma.variableId": "VariableID:18:75",
+        "com.figma.scopes": [
+          "ALL_SCOPES"
+        ]
+      }
+    },
+    "600": {
+      "$type": "color",
+      "$value": {
+        "colorSpace": "srgb",
+        "components": [
+          0.10000000149011612,
+          0.10000000149011612,
+          0.10000000149011612
+        ],
+        "alpha": 1,
+        "hex": "#1A1A1A"
+      },
+      "$description": "Generated from Material Color System",
+      "$extensions": {
+        "com.figma.variableId": "VariableID:18:76",
+        "com.figma.scopes": [
+          "ALL_SCOPES"
+        ]
+      }
+    },
+    "700": {
+      "$type": "color",
+      "$value": {
+        "colorSpace": "srgb",
+        "components": [
+          0.10000000149011612,
+          0.10000000149011612,
+          0.10000000149011612
+        ],
+        "alpha": 1,
+        "hex": "#1A1A1A"
+      },
+      "$description": "Generated from Material Color System",
+      "$extensions": {
+        "com.figma.variableId": "VariableID:18:77",
+        "com.figma.scopes": [
+          "ALL_SCOPES"
+        ]
+      }
+    },
+    "800": {
+      "$type": "color",
+      "$value": {
+        "colorSpace": "srgb",
+        "components": [
+          0.10000000149011612,
+          0.10000000149011612,
+          0.10000000149011612
+        ],
+        "alpha": 1,
+        "hex": "#1A1A1A"
+      },
+      "$description": "Generated from Material Color System",
+      "$extensions": {
+        "com.figma.variableId": "VariableID:18:78",
+        "com.figma.scopes": [
+          "ALL_SCOPES"
+        ]
+      }
+    },
+    "900": {
+      "$type": "color",
+      "$value": {
+        "colorSpace": "srgb",
+        "components": [
+          0.10000000149011612,
+          0.10000000149011612,
+          0.10000000149011612
+        ],
+        "alpha": 1,
+        "hex": "#1A1A1A"
+      },
+      "$description": "Generated from Material Color System",
+      "$extensions": {
+        "com.figma.variableId": "VariableID:18:79",
+        "com.figma.scopes": [
+          "ALL_SCOPES"
+        ]
+      }
+    },
+    "A100": {
+      "$type": "color",
+      "$value": {
+        "colorSpace": "srgb",
+        "components": [
+          0.10000000149011612,
+          0.10000000149011612,
+          0.10000000149011612
+        ],
+        "alpha": 1,
+        "hex": "#1A1A1A"
+      },
+      "$description": "Generated from Material Color System",
+      "$extensions": {
+        "com.figma.variableId": "VariableID:18:80",
+        "com.figma.scopes": [
+          "ALL_SCOPES"
+        ]
+      }
+    },
+    "A200": {
+      "$type": "color",
+      "$value": {
+        "colorSpace": "srgb",
+        "components": [
+          0.10000000149011612,
+          0.10000000149011612,
+          0.10000000149011612
+        ],
+        "alpha": 1,
+        "hex": "#1A1A1A"
+      },
+      "$description": "Generated from Material Color System",
+      "$extensions": {
+        "com.figma.variableId": "VariableID:18:81",
+        "com.figma.scopes": [
+          "ALL_SCOPES"
+        ]
+      }
+    },
+    "A400": {
+      "$type": "color",
+      "$value": {
+        "colorSpace": "srgb",
+        "components": [
+          0.10000000149011612,
+          0.10000000149011612,
+          0.10000000149011612
+        ],
+        "alpha": 1,
+        "hex": "#1A1A1A"
+      },
+      "$description": "Generated from Material Color System",
+      "$extensions": {
+        "com.figma.variableId": "VariableID:18:82",
+        "com.figma.scopes": [
+          "ALL_SCOPES"
+        ]
+      }
+    },
+    "A700": {
+      "$type": "color",
+      "$value": {
+        "colorSpace": "srgb",
+        "components": [
+          0.10000000149011612,
+          0.10000000149011612,
+          0.10000000149011612
+        ],
+        "alpha": 1,
+        "hex": "#1A1A1A"
+      },
+      "$description": "Generated from Material Color System",
+      "$extensions": {
+        "com.figma.variableId": "VariableID:18:83",
+        "com.figma.scopes": [
+          "ALL_SCOPES"
+        ]
+      }
+    }
+  },
+  "deep-blue": {
+    "50": {
+      "$type": "color",
+      "$value": {
+        "colorSpace": "srgb",
+        "components": [
+          0.027215685695409775,
+          0.18814322352409363,
+          0.24494117498397827
+        ],
+        "alpha": 1,
+        "hex": "#07303E"
+      },
+      "$description": "Generated from Material Color System",
+      "$extensions": {
+        "com.figma.variableId": "VariableID:18:84",
+        "com.figma.scopes": [
+          "ALL_SCOPES"
+        ]
+      }
+    },
+    "200": {
+      "$type": "color",
+      "$value": {
+        "colorSpace": "srgb",
+        "components": [
+          0.25970277190208435,
+          0.37340351939201355,
+          0.47676780819892883
+        ],
+        "alpha": 1,
+        "hex": "#425F7A"
+      },
+      "$description": "Generated from Material Color System",
+      "$extensions": {
+        "com.figma.variableId": "VariableID:18:86",
+        "com.figma.scopes": [
+          "ALL_SCOPES"
+        ]
+      }
+    },
+    "300": {
+      "$type": "color",
+      "$value": {
+        "colorSpace": "srgb",
+        "components": [
+          0.37859582901000977,
+          0.49532952904701233,
+          0.5994433760643005
+        ],
+        "alpha": 1,
+        "hex": "#617E99"
+      },
+      "$description": "Generated from Material Color System",
+      "$extensions": {
+        "com.figma.variableId": "VariableID:18:87",
+        "com.figma.scopes": [
+          "ALL_SCOPES"
+        ]
+      }
+    },
+    "400": {
+      "$type": "color",
+      "$value": {
+        "colorSpace": "srgb",
+        "components": [
+          0.48017457127571106,
+          0.6183453798294067,
+          0.7362959980964661
+        ],
+        "alpha": 1,
+        "hex": "#7A9EBC"
+      },
+      "$description": "Generated from Material Color System",
+      "$extensions": {
+        "com.figma.variableId": "VariableID:18:88",
+        "com.figma.scopes": [
+          "ALL_SCOPES"
+        ]
+      }
+    }
+  },
+  "bright-blue": {
+    "50": {
+      "$type": "color",
+      "$value": {
+        "colorSpace": "srgb",
+        "components": [
+          0.029725490137934685,
+          0.1831473708152771,
+          0.2675293982028961
+        ],
+        "alpha": 1,
+        "hex": "#082F44"
+      },
+      "$description": "Generated from Material Color System",
+      "$extensions": {
+        "com.figma.variableId": "VariableID:18:94",
+        "com.figma.scopes": [
+          "ALL_SCOPES"
+        ]
+      }
+    },
+    "100": {
+      "$type": "color",
+      "$value": {
+        "colorSpace": "srgb",
+        "components": [
+          0.05011764541268349,
+          0.2464117705821991,
+          0.45105883479118347
+        ],
+        "alpha": 1,
+        "hex": "#0D3F73"
+      },
+      "$description": "Generated from Material Color System",
+      "$extensions": {
+        "com.figma.variableId": "VariableID:18:95",
+        "com.figma.scopes": [
+          "ALL_SCOPES"
+        ]
+      }
+    },
+    "200": {
+      "$type": "color",
+      "$value": {
+        "colorSpace": "srgb",
+        "components": [
+          0.06705882400274277,
+          0.3388705849647522,
+          0.6035293936729431
+        ],
+        "alpha": 1,
+        "hex": "#11569A"
+      },
+      "$description": "Generated from Material Color System",
+      "$extensions": {
+        "com.figma.variableId": "VariableID:18:96",
+        "com.figma.scopes": [
+          "ALL_SCOPES"
+        ]
+      }
+    },
+    "300": {
+      "$type": "color",
+      "$value": {
+        "colorSpace": "srgb",
+        "components": [
+          0.06800000369548798,
+          0.3453333377838135,
+          0.6119999885559082
+        ],
+        "alpha": 1,
+        "hex": "#11589C"
+      },
+      "$description": "Generated from Material Color System",
+      "$extensions": {
+        "com.figma.variableId": "VariableID:18:97",
+        "com.figma.scopes": [
+          "ALL_SCOPES"
+        ]
+      }
+    },
+    "400": {
+      "$type": "color",
+      "$value": {
+        "colorSpace": "srgb",
+        "components": [
+          0.09058823436498642,
+          0.45777255296707153,
+          0.8152941465377808
+        ],
+        "alpha": 1,
+        "hex": "#1775D0"
+      },
+      "$description": "Generated from Material Color System",
+      "$extensions": {
+        "com.figma.variableId": "VariableID:18:98",
+        "com.figma.scopes": [
+          "ALL_SCOPES"
+        ]
+      }
+    },
+    "600": {
+      "$type": "color",
+      "$value": {
+        "colorSpace": "srgb",
+        "components": [
+          0.32588234543800354,
+          0.6100817918777466,
+          0.9250980615615845
+        ],
+        "alpha": 1,
+        "hex": "#539CEC"
+      },
+      "$description": "Generated from Material Color System",
+      "$extensions": {
+        "com.figma.variableId": "VariableID:18:100",
+        "com.figma.scopes": [
+          "ALL_SCOPES"
+        ]
+      }
+    },
+    "700": {
+      "$type": "color",
+      "$value": {
+        "colorSpace": "srgb",
+        "components": [
+          0.570731520652771,
+          0.6913601756095886,
+          0.8308371305465698
+        ],
+        "alpha": 1,
+        "hex": "#92B0D4"
+      },
+      "$description": "Generated from Material Color System",
+      "$extensions": {
+        "com.figma.variableId": "VariableID:18:101",
+        "com.figma.scopes": [
+          "ALL_SCOPES"
+        ]
+      }
+    },
+    "800": {
+      "$type": "color",
+      "$value": {
+        "colorSpace": "srgb",
+        "components": [
+          0.6494629383087158,
+          0.7471883893013,
+          0.8619096279144287
+        ],
+        "alpha": 1,
+        "hex": "#A6BFDC"
+      },
+      "$description": "Generated from Material Color System",
+      "$extensions": {
+        "com.figma.variableId": "VariableID:18:102",
+        "com.figma.scopes": [
+          "ALL_SCOPES"
+        ]
+      }
+    },
+    "900": {
+      "$type": "color",
+      "$value": {
+        "colorSpace": "srgb",
+        "components": [
+          0.6534117460250854,
+          0.7108501195907593,
+          0.9614902138710022
+        ],
+        "alpha": 1,
+        "hex": "#A7B5F5"
+      },
+      "$description": "Generated from Material Color System",
+      "$extensions": {
+        "com.figma.variableId": "VariableID:18:103",
+        "com.figma.scopes": [
+          "ALL_SCOPES"
+        ]
+      }
+    }
+  },
+  "gold-spectrum": {
+    "50": {
+      "$type": "color",
+      "$value": {
+        "colorSpace": "srgb",
+        "components": [
+          0.3240000009536743,
+          0.2675293982028961,
+          0.035999998450279236
+        ],
+        "alpha": 1,
+        "hex": "#534409"
+      },
+      "$description": "Generated from Material Color System",
+      "$extensions": {
+        "com.figma.variableId": "VariableID:18:104",
+        "com.figma.scopes": [
+          "ALL_SCOPES"
+        ]
+      }
+    },
+    "100": {
+      "$type": "color",
+      "$value": {
+        "colorSpace": "srgb",
+        "components": [
+          0.8507450819015503,
+          0.8359429836273193,
+          0.7421960830688477
+        ],
+        "alpha": 1,
+        "hex": "#D9D5BD"
+      },
+      "$description": "Generated from Material Color System",
+      "$extensions": {
+        "com.figma.variableId": "VariableID:18:105",
+        "com.figma.scopes": [
+          "ALL_SCOPES"
+        ]
+      }
+    },
+    "300": {
+      "$type": "color",
+      "$value": {
+        "colorSpace": "srgb",
+        "components": [
+          0.6825882196426392,
+          0.44057193398475647,
+          0.07584314048290253
+        ],
+        "alpha": 1,
+        "hex": "#AE7013"
+      },
+      "$description": "Generated from Material Color System",
+      "$extensions": {
+        "com.figma.variableId": "VariableID:18:106",
+        "com.figma.scopes": [
+          "ALL_SCOPES"
+        ]
+      }
+    },
+    "500": {
+      "$type": "color",
+      "$value": {
+        "colorSpace": "srgb",
+        "components": [
+          0.8999999761581421,
+          0.7745097875595093,
+          0.10000000149011612
+        ],
+        "alpha": 1,
+        "hex": "#E5C51A"
+      },
+      "$description": "Generated from Material Color System",
+      "$extensions": {
+        "com.figma.variableId": "VariableID:18:107",
+        "com.figma.scopes": [
+          "ALL_SCOPES"
+        ]
+      }
+    },
+    "700": {
+      "$type": "color",
+      "$value": {
+        "colorSpace": "srgb",
+        "components": [
+          0.9743529558181763,
+          0.8945620656013489,
+          0.7691764831542969
+        ],
+        "alpha": 1,
+        "hex": "#F8E4C4"
+      },
+      "$description": "Generated from Material Color System",
+      "$extensions": {
+        "com.figma.variableId": "VariableID:18:108",
+        "com.figma.scopes": [
+          "ALL_SCOPES"
+        ]
+      }
+    }
+  },
+  "teal-spectrum": {
+    "50": {
+      "$type": "color",
+      "$value": {
+        "colorSpace": "srgb",
+        "components": [
+          0.033176470547914505,
+          0.29858824610710144,
+          0.29226890206336975
+        ],
+        "alpha": 1,
+        "hex": "#084C4B"
+      },
+      "$description": "Generated from Material Color System",
+      "$extensions": {
+        "com.figma.variableId": "VariableID:18:109",
+        "com.figma.scopes": [
+          "ALL_SCOPES"
+        ]
+      }
+    },
+    "100": {
+      "$type": "color",
+      "$value": {
+        "colorSpace": "srgb",
+        "components": [
+          0.21363882720470428,
+          0.4349886178970337,
+          0.4313599467277527
+        ],
+        "alpha": 1,
+        "hex": "#366F6E"
+      },
+      "$description": "Generated from Material Color System",
+      "$extensions": {
+        "com.figma.variableId": "VariableID:18:110",
+        "com.figma.scopes": [
+          "ALL_SCOPES"
+        ]
+      }
+    },
+    "200": {
+      "$type": "color",
+      "$value": {
+        "colorSpace": "srgb",
+        "components": [
+          0.18979331851005554,
+          0.706677258014679,
+          0.6549888849258423
+        ],
+        "alpha": 1,
+        "hex": "#30B4A7"
+      },
+      "$description": "Generated from Material Color System",
+      "$extensions": {
+        "com.figma.variableId": "VariableID:18:111",
+        "com.figma.scopes": [
+          "ALL_SCOPES"
+        ]
+      }
+    },
+    "400": {
+      "$type": "color",
+      "$value": {
+        "colorSpace": "srgb",
+        "components": [
+          0.5320000052452087,
+          0.9480000138282776,
+          0.9480000138282776
+        ],
+        "alpha": 1,
+        "hex": "#88F2F2"
+      },
+      "$description": "Generated from Material Color System",
+      "$extensions": {
+        "com.figma.variableId": "VariableID:18:113",
+        "com.figma.scopes": [
+          "ALL_SCOPES"
+        ]
+      }
+    },
+    "500": {
+      "$type": "color",
+      "$value": {
+        "colorSpace": "srgb",
+        "components": [
+          0.5687058568000793,
+          0.9520784020423889,
+          0.9520784020423889
+        ],
+        "alpha": 1,
+        "hex": "#91F3F3"
+      },
+      "$description": "Generated from Material Color System",
+      "$extensions": {
+        "com.figma.variableId": "VariableID:18:114",
+        "com.figma.scopes": [
+          "ALL_SCOPES"
+        ]
+      }
+    },
+    "600": {
+      "$type": "color",
+      "$value": {
+        "colorSpace": "srgb",
+        "components": [
+          0.6759999990463257,
+          0.9639999866485596,
+          0.9639999866485596
+        ],
+        "alpha": 1,
+        "hex": "#ACF6F6"
+      },
+      "$description": "Generated from Material Color System",
+      "$extensions": {
+        "com.figma.variableId": "VariableID:18:115",
+        "com.figma.scopes": [
+          "ALL_SCOPES"
+        ]
+      }
+    },
+    "700": {
+      "$type": "color",
+      "$value": {
+        "colorSpace": "srgb",
+        "components": [
+          0.7663529515266418,
+          0.9740391969680786,
+          0.9740391969680786
+        ],
+        "alpha": 1,
+        "hex": "#C3F8F8"
+      },
+      "$description": "Generated from Material Color System",
+      "$extensions": {
+        "com.figma.variableId": "VariableID:18:116",
+        "com.figma.scopes": [
+          "ALL_SCOPES"
+        ]
+      }
+    }
+  },
+  "green": {
+    "50": {
+      "$type": "color",
+      "$value": {
+        "colorSpace": "srgb",
+        "components": [
+          0.10393583029508591,
+          0.19959358870983124,
+          0.11129412055015564
+        ],
+        "alpha": 1,
+        "hex": "#1B331C"
+      },
+      "$description": "Generated from Material Color System",
+      "$extensions": {
+        "com.figma.variableId": "VariableID:18:117",
+        "com.figma.scopes": [
+          "ALL_SCOPES"
+        ]
+      }
+    },
+    "100": {
+      "$type": "color",
+      "$value": {
+        "colorSpace": "srgb",
+        "components": [
+          0.15784314274787903,
+          0.29313725233078003,
+          0.16235293447971344
+        ],
+        "alpha": 1,
+        "hex": "#284B29"
+      },
+      "$description": "Generated from Material Color System",
+      "$extensions": {
+        "com.figma.variableId": "VariableID:18:118",
+        "com.figma.scopes": [
+          "ALL_SCOPES"
+        ]
+      }
+    },
+    "200": {
+      "$type": "color",
+      "$value": {
+        "colorSpace": "srgb",
+        "components": [
+          0.21407634019851685,
+          0.3969040513038635,
+          0.2215386927127838
+        ],
+        "alpha": 1,
+        "hex": "#376538"
+      },
+      "$description": "Generated from Material Color System",
+      "$extensions": {
+        "com.figma.variableId": "VariableID:18:119",
+        "com.figma.scopes": [
+          "ALL_SCOPES"
+        ]
+      }
+    },
+    "300": {
+      "$type": "color",
+      "$value": {
+        "colorSpace": "srgb",
+        "components": [
+          0.26687783002853394,
+          0.5041025876998901,
+          0.2770445942878723
+        ],
+        "alpha": 1,
+        "hex": "#448147"
+      },
+      "$description": "Generated from Material Color System",
+      "$extensions": {
+        "com.figma.variableId": "VariableID:18:120",
+        "com.figma.scopes": [
+          "ALL_SCOPES"
+        ]
+      }
+    },
+    "400": {
+      "$type": "color",
+      "$value": {
+        "colorSpace": "srgb",
+        "components": [
+          0.309230774641037,
+          0.5841025710105896,
+          0.32216590642929077
+        ],
+        "alpha": 1,
+        "hex": "#4F9552"
+      },
+      "$description": "Generated from Material Color System",
+      "$extensions": {
+        "com.figma.variableId": "VariableID:18:121",
+        "com.figma.scopes": [
+          "ALL_SCOPES"
+        ]
+      }
+    },
+    "500": {
+      "$type": "color",
+      "$value": {
+        "colorSpace": "srgb",
+        "components": [
+          0.3504854440689087,
+          0.6620635986328125,
+          0.3630744516849518
+        ],
+        "alpha": 1,
+        "hex": "#59A95D"
+      },
+      "$description": "Generated from Material Color System",
+      "$extensions": {
+        "com.figma.variableId": "VariableID:18:122",
+        "com.figma.scopes": [
+          "ALL_SCOPES"
+        ]
+      }
+    },
+    "600": {
+      "$type": "color",
+      "$value": {
+        "colorSpace": "srgb",
+        "components": [
+          0.39444035291671753,
+          0.6934027671813965,
+          0.4072989523410797
+        ],
+        "alpha": 1,
+        "hex": "#65B168"
+      },
+      "$description": "Generated from Material Color System",
+      "$extensions": {
+        "com.figma.variableId": "VariableID:18:123",
+        "com.figma.scopes": [
+          "ALL_SCOPES"
+        ]
+      }
+    },
+    "700": {
+      "$type": "color",
+      "$value": {
+        "colorSpace": "srgb",
+        "components": [
+          0.4467427134513855,
+          0.7320808172225952,
+          0.4600142538547516
+        ],
+        "alpha": 1,
+        "hex": "#72BB75"
+      },
+      "$description": "Generated from Material Color System",
+      "$extensions": {
+        "com.figma.variableId": "VariableID:18:124",
+        "com.figma.scopes": [
+          "ALL_SCOPES"
+        ]
+      }
+    },
+    "900": {
+      "$type": "color",
+      "$value": {
+        "colorSpace": "srgb",
+        "components": [
+          0.5818201303482056,
+          0.8385720252990723,
+          0.6009806990623474
+        ],
+        "alpha": 1,
+        "hex": "#94D699"
+      },
+      "$description": "Generated from Material Color System",
+      "$extensions": {
+        "com.figma.variableId": "VariableID:18:126",
+        "com.figma.scopes": [
+          "ALL_SCOPES"
+        ]
+      }
+    },
+    "A100": {
+      "$type": "color",
+      "$value": {
+        "colorSpace": "srgb",
+        "components": [
+          0.08560039848089218,
+          0.362242728471756,
+          0.1626974493265152
+        ],
+        "alpha": 1,
+        "hex": "#165C29"
+      },
+      "$description": "Generated from Material Color System",
+      "$extensions": {
+        "com.figma.variableId": "VariableID:18:127",
+        "com.figma.scopes": [
+          "ALL_SCOPES"
+        ]
+      }
+    },
+    "A200": {
+      "$type": "color",
+      "$value": {
+        "colorSpace": "srgb",
+        "components": [
+          0.2298823595046997,
+          0.9046053290367126,
+          0.9144313931465149
+        ],
+        "alpha": 1,
+        "hex": "#3BE7E9"
+      },
+      "$description": "Generated from Material Color System",
+      "$extensions": {
+        "com.figma.variableId": "VariableID:18:128",
+        "com.figma.scopes": [
+          "ALL_SCOPES"
+        ]
+      }
+    },
+    "A400": {
+      "$type": "color",
+      "$value": {
+        "colorSpace": "srgb",
+        "components": [
+          0.17058824002742767,
+          0.9078431129455566,
+          0.5488320589065552
+        ],
+        "alpha": 1,
+        "hex": "#2CE78C"
+      },
+      "$description": "Generated from Material Color System",
+      "$extensions": {
+        "com.figma.variableId": "VariableID:18:129",
+        "com.figma.scopes": [
+          "ALL_SCOPES"
+        ]
+      }
+    },
+    "A700": {
+      "$type": "color",
+      "$value": {
+        "colorSpace": "srgb",
+        "components": [
+          0.2552941143512726,
+          0.9172549247741699,
+          0.5300078392028809
+        ],
+        "alpha": 1,
+        "hex": "#41EA87"
+      },
+      "$description": "Generated from Material Color System",
+      "$extensions": {
+        "com.figma.variableId": "VariableID:18:130",
+        "com.figma.scopes": [
+          "ALL_SCOPES"
+        ]
+      }
+    }
+  },
+  "$extensions": {
+    "com.figma.modeName": "Dark Mode"
+  }
+}

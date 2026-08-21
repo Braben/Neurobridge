@@ -19,21 +19,21 @@ type AppButtonProps = BaseButtonProps & ButtonHTMLAttributes<HTMLButtonElement>;
 
 const variants: Record<ButtonVariant, string> = {
   primary:
-    "bg-[#0078d4] text-white hover:bg-[#005a9e] focus-visible:ring-[#0078d4] disabled:bg-[#b9dcf8]",
+    "bg-[#0a3d62] text-[#fafafa] hover:bg-[#0071d7] focus-visible:ring-[#0071d7] disabled:bg-[#b5d3ee]",
   secondary:
-    "bg-[#073f63] text-white hover:bg-[#052f4a] focus-visible:ring-[#073f63] disabled:bg-[#a9c2d2]",
+    "border border-[#0a3d62] bg-transparent text-[#0a3d62] hover:border-[#0071d7] hover:text-[#0071d7] focus-visible:ring-[#0071d7] disabled:border-[#b5d3ee] disabled:text-[#b5d3ee]",
   outline:
-    "border border-[#d7e6f2] bg-transparent text-[#073f63] hover:border-[#0078d4] hover:text-[#0078d4] focus-visible:ring-[#0078d4]",
+    "border border-[#b5d3ee] bg-[#f5f5f5] text-[#0a3d62] hover:border-[#0071d7] hover:text-[#0071d7] focus-visible:ring-[#0071d7]",
   ghost:
-    "bg-transparent text-[#073f63] hover:bg-[#eaf6fb] focus-visible:ring-[#0078d4]",
+    "bg-transparent text-[#0a3d62] hover:bg-[#e0f4ff] focus-visible:ring-[#0071d7]",
   danger:
-    "bg-[#e94545] text-white hover:bg-[#c93333] focus-visible:ring-[#e94545] disabled:bg-[#f4aaaa]",
+    "bg-[#e53935] text-white hover:bg-[#bd302d] focus-visible:ring-[#e53935] disabled:bg-[#ffb4b4]",
 };
 
 const sizes: Record<ButtonSize, string> = {
-  sm: "min-h-9 px-3 text-xs",
-  md: "min-h-11 px-5 text-sm",
-  lg: "min-h-12 px-6 text-base",
+  sm: "h-10 px-4 text-sm",
+  md: "h-12 px-6 text-base",
+  lg: "h-[60px] px-8 text-lg",
 };
 
 export default function AppButton({
@@ -49,7 +49,7 @@ export default function AppButton({
   ...props
 }: AppButtonProps) {
   const classes = [
-    "inline-flex items-center justify-center gap-2 rounded-md font-semibold transition-colors",
+    "inline-flex items-center justify-center gap-2 rounded-2xl font-medium transition-colors",
     "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2",
     "disabled:cursor-not-allowed disabled:opacity-80",
     variants[variant],

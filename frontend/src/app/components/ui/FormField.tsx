@@ -7,7 +7,9 @@ interface FormFieldProps {
   helpText?: string;
   label: string;
   name: string;
+  onRightIconClick?: () => void;
   rightIcon?: ReactNode;
+  rightIconLabel?: string;
   status?: FieldStatus;
 }
 
@@ -16,13 +18,13 @@ type SelectProps = FormFieldProps & SelectHTMLAttributes<HTMLSelectElement>;
 type TextAreaProps = FormFieldProps & TextareaHTMLAttributes<HTMLTextAreaElement>;
 
 const statusClasses: Record<FieldStatus, string> = {
-  default: "border-[#c7dce9] focus:border-[#0078d4] focus:ring-[#0078d4]/20",
+  default: "border-[#b5d3ee] focus:border-[#0071d7] focus:ring-[#0071d7]/20",
   error: "border-[#ef4444] text-[#d92d20] focus:border-[#ef4444] focus:ring-[#ef4444]/20",
   success: "border-[#59b36a] focus:border-[#2e7d32] focus:ring-[#2e7d32]/20",
 };
 
 const baseControl =
-  "mt-1 min-h-11 w-full rounded-md border bg-white px-3 text-sm text-[#111827] shadow-sm outline-none transition focus:ring-4 disabled:bg-[#f3f7fa]";
+  "mt-3 h-[60px] w-full rounded-2xl border bg-[#f5f5f5] px-4 text-base font-medium text-[#111111] outline-none transition placeholder:text-[#757575] focus:ring-4 disabled:bg-[#eeeeee]";
 
 function FieldChrome({
   children,
@@ -31,6 +33,7 @@ function FieldChrome({
   label,
   name,
   required,
+  status = "default",
 }: {
   children: ReactNode;
   error?: string;
@@ -38,16 +41,23 @@ function FieldChrome({
   label: string;
   name: string;
   required?: boolean;
+  status?: FieldStatus;
 }) {
+  const messageColor = error
+    ? "text-[#e53935]"
+    : status === "success"
+      ? "text-[#2e7d32]"
+      : "text-[#616161]";
+
   return (
     <div>
-      <label htmlFor={name} className="block text-xs font-semibold text-[#1d2b36]">
+      <label htmlFor={name} className="block text-base font-normal leading-6 text-[#111111]">
         {label}
         {required && <span className="text-[#e94545]"> *</span>}
       </label>
       {children}
       {(error || helpText) && (
-        <p className={`mt-1 text-[11px] ${error ? "text-[#e94545]" : "text-[#3b647a]"}`}>
+        <p className={`mt-2 text-xs ${messageColor}`}>
           {error || helpText}
         </p>
       )}
@@ -60,14 +70,16 @@ export function FormField({
   helpText,
   label,
   name,
+  onRightIconClick,
   rightIcon,
+  rightIconLabel,
   status = error ? "error" : "default",
   className = "",
   required,
   ...props
 }: InputProps) {
   return (
-    <FieldChrome error={error} helpText={helpText} label={label} name={name} required={required}>
+    <FieldChrome error={error} helpText={helpText} label={label} name={name} required={required} status={status}>
       <div className="relative">
         <input
           id={name}
@@ -79,7 +91,18 @@ export function FormField({
           {...props}
         />
         {rightIcon && (
-          <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[#4e7b93]">{rightIcon}</span>
+          onRightIconClick ? (
+            <button
+              type="button"
+              aria-label={rightIconLabel}
+              onClick={onRightIconClick}
+              className="absolute right-4 top-[calc(50%+6px)] -translate-y-1/2 text-[#0a4d78] transition hover:text-[#0071d7] focus:outline-none focus:ring-2 focus:ring-[#0071d7]/30"
+            >
+              {rightIcon}
+            </button>
+          ) : (
+            <span className="absolute right-4 top-[calc(50%+6px)] -translate-y-1/2 text-[#8ec1e7]">{rightIcon}</span>
+          )
         )}
       </div>
     </FieldChrome>
@@ -98,7 +121,7 @@ export function SelectField({
   ...props
 }: SelectProps) {
   return (
-    <FieldChrome error={error} helpText={helpText} label={label} name={name} required={required}>
+    <FieldChrome error={error} helpText={helpText} label={label} name={name} required={required} status={status}>
       <select
         id={name}
         name={name}
@@ -125,12 +148,12 @@ export function TextAreaField({
   ...props
 }: TextAreaProps) {
   return (
-    <FieldChrome error={error} helpText={helpText} label={label} name={name} required={required}>
+    <FieldChrome error={error} helpText={helpText} label={label} name={name} required={required} status={status}>
       <textarea
         id={name}
         name={name}
         required={required}
-        className={[baseControl, "min-h-28 py-3", statusClasses[status], className]
+        className={[baseControl, "h-auto min-h-36 py-4", statusClasses[status], className]
           .filter(Boolean)
           .join(" ")}
         {...props}

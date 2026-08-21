@@ -22,9 +22,11 @@ export function StatCard({
   trend,
   value,
 }: StatCardProps) {
+  const displayValue = typeof value === "number" && !Number.isFinite(value) ? "0" : value;
+
   return (
     <div className="rounded-md border border-[#b7d8f5] bg-white p-6 shadow-sm">
-      <p className={`text-4xl font-bold tracking-normal ${accentClasses[accent]}`}>{value}</p>
+      <p className={`text-4xl font-bold tracking-normal ${accentClasses[accent]}`}>{displayValue}</p>
       <div className="mt-4 flex flex-wrap items-center gap-3">
         <p className="text-base font-semibold text-[#1f2933]">{label}</p>
         {trend && <span className="text-sm font-semibold text-[#2e7d32]">{trend}</span>}
@@ -40,6 +42,28 @@ interface PanelProps {
   className?: string;
   description?: string;
   title: string;
+}
+
+interface ScreenHeaderProps {
+  action?: ReactNode;
+  eyebrow?: string;
+  description?: string;
+  title: string;
+}
+
+export function ScreenHeader({ action, description, eyebrow, title }: ScreenHeaderProps) {
+  return (
+    <section className="flex flex-wrap items-end justify-between gap-4">
+      <div>
+        {eyebrow && (
+          <p className="mb-2 text-xs font-bold uppercase text-[#0078d4]">{eyebrow}</p>
+        )}
+        <h1 className="text-3xl font-bold tracking-normal text-[#111827] sm:text-4xl">{title}</h1>
+        {description && <p className="mt-3 max-w-3xl text-sm leading-6 text-[#536471]">{description}</p>}
+      </div>
+      {action}
+    </section>
+  );
 }
 
 export function DashboardPanel({
@@ -60,6 +84,44 @@ export function DashboardPanel({
       </div>
       {children}
     </section>
+  );
+}
+
+export function FilterPanel({ children }: { children: ReactNode }) {
+  return (
+    <div className="rounded-md border border-[#d7e6f2] bg-white p-4 shadow-sm">
+      <div className="flex flex-wrap items-end gap-3">{children}</div>
+    </div>
+  );
+}
+
+export function LoadingState() {
+  return (
+    <div className="flex items-center justify-center py-12">
+      <div className="h-8 w-8 animate-spin rounded-full border-4 border-[#0078d4] border-t-transparent" />
+    </div>
+  );
+}
+
+const badgeClasses: Record<string, string> = {
+  blue: "bg-[#eaf6fb] text-[#073f63]",
+  green: "bg-[#eaf8ee] text-[#2e7d32]",
+  gold: "bg-[#fff5dc] text-[#946200]",
+  red: "bg-[#ffe8e8] text-[#bd302d]",
+  teal: "bg-[#dcfbfd] text-[#097685]",
+};
+
+export function StatusBadge({
+  children,
+  tone = "blue",
+}: {
+  children: ReactNode;
+  tone?: keyof typeof badgeClasses;
+}) {
+  return (
+    <span className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-bold ${badgeClasses[tone]}`}>
+      {children}
+    </span>
   );
 }
 
