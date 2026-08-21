@@ -24,6 +24,7 @@ import {
   StatusBadge,
 } from "../../components/ui/DashboardCards";
 import GlobalMessage from "../../components/ui/GlobalMessage";
+import RoleDashboard from "../../components/role-dashboard/RoleDashboard";
 import { useAppDispatch, useAppSelector } from "../../hooks/useRedux";
 import { api } from "../../services/api";
 import { Booking, BookingStatus, bookingsApi } from "../../services/bookings";
@@ -197,6 +198,18 @@ export default function Dashboard() {
   const pendingBookings = bookings.filter((booking) => booking.status === "PENDING").length;
   const confirmedBookings = bookings.filter((booking) => booking.status === "CONFIRMED").length;
   const notedSessions = sessions.filter((session) => session.note).length;
+
+  if (user.role !== "ADMIN") {
+    return (
+      <RoleDashboard
+        bookings={bookings}
+        childProfiles={children}
+        resources={resources}
+        sessions={sessions}
+        user={user}
+      />
+    );
+  }
 
   if (user.role === "ADMIN") {
     const totalUsers = revenue?.totalUsers ?? ((adminStats?.totalParents || 0) + (adminStats?.totalTherapists || 0));

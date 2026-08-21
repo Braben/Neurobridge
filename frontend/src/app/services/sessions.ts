@@ -8,15 +8,16 @@ export interface Session {
   sessionDate: string;
   duration: number | null;
   createdAt: string;
-  note: { id: string; goalsWorkedOn: string; observations: string; recommendations: string } | null;
+  note: { id: string; goalsWorkedOn: string; observations: string; recommendations: string; extraNotes: string | null; createdAt?: string; updatedAt?: string } | null;
   child: { id: string; firstName: string; lastName: string };
-  therapist: { id: string; firstName: string; lastName: string };
+  therapist: { id: string; firstName: string; lastName: string; avatar?: string | null; areaofexpertise?: string | null };
 }
 
 export interface SessionNoteData {
   goalsWorkedOn: string;
   observations: string;
   recommendations: string;
+  extraNotes?: string | null;
 }
 
 export const sessionsApi = {
@@ -26,7 +27,7 @@ export const sessionsApi = {
   get: (id: string) =>
     api.get<{ session: Session }>(`/sessions/${id}`).then((r) => r.data),
 
-  create: (data: { childId: string; sessionDate: string; duration?: number | null; bookingId?: string | null }) =>
+  create: (data: { childId: string; sessionDate: string; duration?: number | null; bookingId?: string | null; therapistId?: string }) =>
     api.post<{ session: Session }>("/sessions", data).then((r) => r.data),
 
   update: (id: string, data: { sessionDate?: string; duration?: number | null }) =>
@@ -36,5 +37,5 @@ export const sessionsApi = {
     api.delete(`/sessions/${id}`).then((r) => r.data),
 
   upsertNote: (id: string, data: SessionNoteData) =>
-    api.put<{ note: { id: string; goalsWorkedOn: string; observations: string; recommendations: string } }>(`/sessions/${id}/notes`, data).then((r) => r.data),
+    api.put<{ note: NonNullable<Session["note"]> }>(`/sessions/${id}/notes`, data).then((r) => r.data),
 };

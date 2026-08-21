@@ -14,7 +14,7 @@ export interface Booking {
   updatedAt: string;
   slot?: { id: string; startTime: string; endTime: string; dayOfWeek: number | null; specificDate: string | null };
   child?: { id: string; firstName: string; lastName: string };
-  therapist?: { id: string; firstName: string; lastName: string };
+  therapist?: { id: string; firstName: string; lastName: string; avatar?: string | null; areaofexpertise?: string | null };
   parent?: { id: string; firstName: string; lastName: string };
 }
 

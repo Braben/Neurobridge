@@ -20,6 +20,7 @@ exports.validate = makeValidate;
 exports.createSessionSchema = z.object({
   body: z.object({
     childId: z.string().uuid("Invalid child ID"),
+    therapistId: z.string().uuid("Invalid therapist ID").optional(),
     bookingId: z.string().uuid("Invalid booking ID").optional().nullable(),
     sessionDate: z.string().datetime({ offset: true }, "Invalid date format"),
     duration: z.number().int().positive().optional().nullable(),
@@ -39,6 +40,7 @@ exports.sessionNoteSchema = z.object({
     goalsWorkedOn: z.string().min(1).max(2000),
     observations: z.string().min(1).max(5000),
     recommendations: z.string().min(1).max(2000),
+    extraNotes: z.string().max(5000).optional().nullable(),
   }),
 });
 

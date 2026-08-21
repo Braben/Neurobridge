@@ -14,6 +14,7 @@ exports.listBookings = async (req, res, next) => {
         slot: true,
         child: { select: { id: true, firstName: true, lastName: true } },
         therapist: { select: { id: true, firstName: true, lastName: true } },
+        parent: { select: { id: true, firstName: true, lastName: true } },
       },
     });
 
@@ -35,6 +36,15 @@ exports.getBooking = async (req, res, next) => {
       },
     });
     if (!booking) return res.status(404).json({ message: "Booking not found" });
+
+    const canRead =
+      req.user.role === "ADMIN" ||
+      booking.parentId === req.user.id ||
+      booking.therapistId === req.user.id;
+    if (!canRead) {
+      return res.status(403).json({ message: "You do not have permission to view this booking" });
+    }
+
     return res.status(200).json({ booking });
   } catch (error) {
     next(error);
@@ -78,6 +88,7 @@ exports.createBooking = async (req, res, next) => {
         slot: true,
         child: { select: { id: true, firstName: true, lastName: true } },
         therapist: { select: { id: true, firstName: true, lastName: true } },
+        parent: { select: { id: true, firstName: true, lastName: true } },
       },
     });
 
@@ -106,6 +117,12 @@ exports.updateBookingStatus = async (req, res, next) => {
 
     if (req.user.role === "THERAPIST" && booking.therapistId !== req.user.id) {
       return res.status(403).json({ message: "Not your booking" });
+    }
+    if (req.user.role === "PARENT" && booking.parentId !== req.user.id) {
+      return res.status(403).json({ message: "Not your booking" });
+    }
+    if (req.user.role === "PARENT" && status !== "CANCELLED") {
+      return res.status(403).json({ message: "Parents can only cancel pending bookings from this endpoint" });
     }
 
     const allowed = validTransitions[booking.status];

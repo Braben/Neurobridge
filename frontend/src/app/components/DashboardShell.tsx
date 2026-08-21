@@ -10,6 +10,7 @@ type UserRole = "ADMIN" | "PARENT" | "THERAPIST";
 const roleRoutes: { prefix: string; roles: UserRole[] }[] = [
   { prefix: "/admin", roles: ["ADMIN"] },
   { prefix: "/availability", roles: ["THERAPIST"] },
+  { prefix: "/children/add", roles: ["PARENT"] },
   { prefix: "/subscriptions", roles: ["PARENT"] },
   { prefix: "/therapists", roles: ["ADMIN", "PARENT"] },
   { prefix: "/resources/new", roles: ["ADMIN", "THERAPIST"] },

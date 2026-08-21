@@ -4,7 +4,8 @@ const cors = require("cors");
 const morgan = require("morgan");
 const cookieParser = require("cookie-parser");
 const helmet = require("helmet"); // Security headers
-const rateLimit = require("express-rate-limit"); // Rate limiting
+const { authLimiter, globalLimiter } = require("./src/middleware/rateLimiters");
+const { sanitizeBody } = require("./src/middleware/sanitize");
 
 const authRoutes = require("./src/routes/auth.route");
 const userRoutes = require("./src/routes/user.route");
@@ -43,18 +44,11 @@ app.use(
   }),
 );
 
-// Global rate limiter — 100 requests per 15 minutes per IP
-const globalLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000,
-  max: 100,
-  standardHeaders: true,
-  legacyHeaders: false,
-  message: { message: "Too many requests, please try again later" },
-});
 app.use(globalLimiter);
 
 app.use(morgan("dev")); // Standard HTTP request logging
 app.use(express.json({ limit: "10kb" })); // Parses incoming JSON payloads (10kb limit)
+app.use(sanitizeBody);
 app.use(cookieParser()); // Parses cookies into req.cookies
 
 // --- Sample Routes ---
@@ -63,7 +57,7 @@ app.get("/api/v1/", (req, res) => {
 });
 
 // --- Modular Routes ---
-app.use("/api/v1/auth", authRoutes);
+app.use("/api/v1/auth", authLimiter, authRoutes);
 app.use("/api/v1/users", userRoutes);
 app.use("/api/v1/children", childRoutes);
 app.use("/api/v1/sessions", sessionRoutes);
