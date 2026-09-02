@@ -93,3 +93,16 @@ textarea {
   background-clip: text;
   color: transparent;
 }
+
+.admin-data-table th,
+.admin-data-table td {
+  height: 56px;
+  border-top: 1px solid #b5d3ee;
+  border-right: 1px solid #c9def0;
+  vertical-align: middle;
+}
+
+.admin-data-table th:last-child,
+.admin-data-table td:last-child {
+  border-right: 0;
+}

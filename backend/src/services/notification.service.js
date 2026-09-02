@@ -4,6 +4,36 @@
 // via socket.io so the frontend can show a toast / update the badge immediately.
 const prisma = require("../config/prisma");
 const { emitToUser } = require("../sockets");
+const { sendNotificationEmail } = require("./email.service");
+const { sendNotificationSms } = require("./sms.service");
+
+const externalNotificationsEnabled = (key) => process.env[key] === "true";
+
+const dispatchExternalNotification = async ({ userId, title, body }) => {
+  const user = await prisma.user.findUnique({
+    where: { id: userId },
+    select: { email: true, phone: true },
+  });
+
+  if (!user) return;
+
+  const deliveries = [];
+  if (user.email && externalNotificationsEnabled("EMAIL_NOTIFICATIONS_ENABLED")) {
+    deliveries.push(sendNotificationEmail(user.email, title, body));
+  }
+  if (user.phone && externalNotificationsEnabled("SMS_NOTIFICATIONS_ENABLED")) {
+    deliveries.push(sendNotificationSms(user.phone, title, body));
+  }
+
+  if (!deliveries.length) return;
+
+  const results = await Promise.allSettled(deliveries);
+  results
+    .filter((result) => result.status === "rejected")
+    .forEach((result) => {
+      console.error("External notification delivery failed:", result.reason?.message || result.reason);
+    });
+};
 
 /**
  * Creates a single notification for a user and pushes it in real-time.
@@ -20,6 +50,10 @@ const createNotification = async ({ userId, title, body }) => {
 
   // Real-time push — frontend SocketManager picks this up and dispatches to Redux
   emitToUser(userId, "notification:new", { notification });
+
+  dispatchExternalNotification({ userId, title, body }).catch((err) => {
+    console.error("Notification delivery failed:", err.message);
+  });
 
   return notification;
 };

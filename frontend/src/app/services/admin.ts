@@ -84,6 +84,8 @@ export interface AdminOverview {
 
 export const adminApi = {
   overview: () => api.get<AdminOverview>("/admin/overview").then((r) => r.data),
+  users: (params?: { role?: "ADMIN" | "PARENT" | "THERAPIST"; isApproved?: boolean }) =>
+    api.get<{ users: AdminUser[] }>("/admin/users", { params }).then((r) => r.data),
   parents: () => api.get<{ parents: AdminParent[] }>("/admin/parents").then((r) => r.data),
   therapists: () => api.get<{ therapists: AdminTherapist[] }>("/admin/therapists").then((r) => r.data),
   children: () => api.get<{ children: AdminChild[] }>("/admin/children").then((r) => r.data),
@@ -92,6 +94,12 @@ export const adminApi = {
     api.patch<{ message: string; user: AdminUser }>(`/admin/users/${id}/approve`).then((r) => r.data),
   updateUser: (id: string, data: Partial<Pick<AdminUser, "firstName" | "lastName" | "email" | "phone" | "dateOfBirth" | "areaofexpertise" | "isApproved">>) =>
     api.patch<{ message: string; user: AdminUser }>(`/admin/users/${id}`, data).then((r) => r.data),
+  inviteAdmin: (email: string) =>
+    api.post<{ message: string }>("/admin/admin-invites", { email }).then((r) => r.data),
+  getSessionFee: () =>
+    api.get<{ amount: number }>("/admin/settings/session-fee").then((r) => r.data),
+  updateSessionFee: (amount: number) =>
+    api.patch<{ message: string; amount: number }>("/admin/settings/session-fee", { amount }).then((r) => r.data),
   deleteUser: (id: string) => api.delete<{ message: string }>(`/admin/users/${id}`).then((r) => r.data),
   rescheduleBooking: (id: string, data: { specificDate: string; startTime: string; endTime: string }) =>
     api.patch<{ message: string }>(`/admin/bookings/${id}/reschedule`, data).then((r) => r.data),

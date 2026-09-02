@@ -54,7 +54,7 @@ export default function LoginPage() {
     <AuthFrame>
       {error && (
         <GlobalMessage variant="error">
-          Please ensure that all fields are filled correctly
+          {error}
         </GlobalMessage>
       )}
 

@@ -2,11 +2,12 @@
 
 import { useEffect, useMemo, useState } from "react";
 import AppButton from "../../../components/ui/AppButton";
-import { AdminBackLink, EditIcon, IconButton, TrashIcon } from "../../../components/admin/AdminChrome";
+import { AdminBackLink, AdminControls, AdminFilterSelect, EditIcon, IconButton, TrashIcon } from "../../../components/admin/AdminChrome";
 import { LoadingState } from "../../../components/ui/DashboardCards";
 import { FormField, SelectField, TextAreaField } from "../../../components/ui/FormField";
 import GlobalMessage from "../../../components/ui/GlobalMessage";
 import { Resource, resourcesApi } from "../../../services/resources";
+import { XIcon } from "../../../components/ui/Icons";
 
 const fallbackImages = [
   "/design-assets/children-classroom.jpg",
@@ -26,6 +27,9 @@ function PlayIcon() {
 
 export default function AdminContentPage() {
   const [resources, setResources] = useState<Resource[]>([]);
+  const [search, setSearch] = useState("");
+  const [typeFilter, setTypeFilter] = useState("ALL");
+  const [isAdding, setIsAdding] = useState(false);
   const [editing, setEditing] = useState<Resource | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -66,9 +70,20 @@ export default function AdminContentPage() {
     };
   }, []);
 
-  const cards = useMemo(() => resources, [resources]);
+  const cards = useMemo(() => {
+    const query = search.trim().toLowerCase();
+    return resources.filter((resource) =>
+      (typeFilter === "ALL" || resource.type === typeFilter) &&
+      (!query || [resource.title, resource.description, resource.type, resource.uploadedBy.firstName, resource.uploadedBy.lastName]
+        .filter(Boolean)
+        .join(" ")
+        .toLowerCase()
+        .includes(query)),
+    );
+  }, [resources, search, typeFilter]);
 
   const openEdit = (resource: Resource) => {
+    setIsAdding(false);
     setEditing(resource);
     setForm({
       title: resource.title,
@@ -79,28 +94,44 @@ export default function AdminContentPage() {
     });
   };
 
-  const closeEdit = () => {
+  const openAdd = () => {
+    setEditing(null);
+    setIsAdding(true);
+    setForm({ title: "", type: "ARTICLE", url: "", thumbnailUrl: "", description: "" });
+  };
+
+  const closeModal = () => {
+    setIsAdding(false);
     setEditing(null);
     setForm({ title: "", type: "ARTICLE", url: "", thumbnailUrl: "", description: "" });
   };
 
   const handleSave = async (event: React.FormEvent) => {
     event.preventDefault();
-    if (!editing) return;
+    if (!editing && !isAdding) return;
     setSaving(true);
     try {
-      await resourcesApi.update(editing.id, {
+      const payload = {
         title: form.title,
         type: form.type,
         url: form.url,
         thumbnailUrl: form.thumbnailUrl || null,
         description: form.description || undefined,
-      });
-      setMessage({ variant: "success", text: "Content updated." });
-      closeEdit();
+      };
+      if (editing) {
+        await resourcesApi.update(editing.id, payload);
+        setMessage({ variant: "success", text: "Content updated." });
+      } else {
+        await resourcesApi.create({
+          ...payload,
+          thumbnailUrl: form.thumbnailUrl || undefined,
+        });
+        setMessage({ variant: "success", text: "Content uploaded." });
+      }
+      closeModal();
       loadResources();
     } catch {
-      setMessage({ variant: "error", text: "Unable to update this content." });
+      setMessage({ variant: "error", text: `Unable to ${editing ? "update" : "upload"} this content.` });
     } finally {
       setSaving(false);
     }
@@ -124,7 +155,7 @@ export default function AdminContentPage() {
         <div />
         <h1 className="text-center text-3xl font-bold tracking-normal text-[#111111] sm:text-4xl">Content Management</h1>
         <div className="flex justify-start md:justify-end">
-          <AppButton href="/admin/content/new" variant="secondary">
+          <AppButton onClick={openAdd} variant="secondary">
             Upload New Content
           </AppButton>
         </div>
@@ -132,31 +163,78 @@ export default function AdminContentPage() {
 
       {message && <GlobalMessage variant={message.variant}>{message.text}</GlobalMessage>}
 
-      {editing && (
-        <form onSubmit={handleSave} className="grid gap-5 rounded-md border border-[#b5d3ee] bg-white p-6 shadow-sm">
-          <div className="flex items-start justify-between gap-4">
-            <h2 className="text-2xl font-bold text-[#073f63]">Edit Content</h2>
-            <AppButton variant="ghost" onClick={closeEdit}>Close</AppButton>
-          </div>
-          <div className="grid gap-5 lg:grid-cols-2">
-            <FormField label="Content Title" name="title" required value={form.title} onChange={(event) => setForm({ ...form, title: event.target.value })} />
-            <SelectField label="Choose Content Category" name="type" required value={form.type} onChange={(event) => setForm({ ...form, type: event.target.value })}>
-              <option value="ARTICLE">Article</option>
-              <option value="VIDEO">Video</option>
-              <option value="PDF">PDF</option>
-            </SelectField>
-            <FormField label="Content URL" name="url" type="url" required value={form.url} onChange={(event) => setForm({ ...form, url: event.target.value })} />
-            <FormField label="Thumbnail URL" name="thumbnailUrl" type="url" value={form.thumbnailUrl} onChange={(event) => setForm({ ...form, thumbnailUrl: event.target.value })} />
-          </div>
-          <TextAreaField label="Description" name="description" value={form.description} onChange={(event) => setForm({ ...form, description: event.target.value })} />
-          <div>
-            <AppButton type="submit" disabled={saving}>{saving ? "Saving..." : "Save Content"}</AppButton>
-          </div>
-        </form>
+      <AdminControls search={search} setSearch={setSearch} verb="Filter by">
+        <AdminFilterSelect
+          label="Filter content by type"
+          value={typeFilter}
+          onChange={setTypeFilter}
+          options={[
+            { label: "All Content", value: "ALL" },
+            { label: "Articles", value: "ARTICLE" },
+            { label: "Videos", value: "VIDEO" },
+            { label: "PDFs", value: "PDF" },
+          ]}
+        />
+      </AdminControls>
+
+      {(isAdding || editing) && (
+        <div className="fixed inset-0 z-40 flex items-center justify-center bg-[#0f2636]/45 px-4 py-8">
+          <form onSubmit={handleSave} className="max-h-[92vh] w-full max-w-4xl overflow-y-auto rounded-md bg-white p-6 shadow-2xl">
+            <div className="mb-6 flex items-start justify-between gap-4 border-b border-dashed border-[#b5d3ee] pb-5">
+              <h2 className="text-3xl font-bold tracking-normal text-[#0a3d62]">
+                {editing ? "Edit Content" : "Add New Content"}
+              </h2>
+              <button
+                type="button"
+                aria-label="Close content modal"
+                onClick={closeModal}
+                className="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-[#ffb4b4] text-[#ff7a7a] hover:bg-[#fff0f0]"
+              >
+                <XIcon className="h-5 w-5" />
+              </button>
+            </div>
+
+            <div className="grid gap-6 lg:grid-cols-[minmax(260px,0.85fr)_1fr]">
+              <div className="flex min-h-64 flex-col items-center justify-center rounded-md border border-dashed border-[#b5d3ee] bg-[#f8fbfd] p-5 text-center">
+                <svg aria-hidden="true" className="h-9 w-9 text-[#0a3d62]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 16V4m0 0 4 4m-4-4-4 4M5 20h14" />
+                </svg>
+                <p className="mt-4 max-w-48 text-xs leading-5 text-[#707070]">Upload or paste the image of the content here</p>
+                <FormField
+                  label="Thumbnail URL"
+                  name="thumbnailUrl"
+                  type="url"
+                  value={form.thumbnailUrl}
+                  onChange={(event) => setForm({ ...form, thumbnailUrl: event.target.value })}
+                  placeholder="https://..."
+                  className="mt-4"
+                />
+              </div>
+
+              <div className="grid gap-5">
+                <FormField label="Content Title" name="title" required value={form.title} onChange={(event) => setForm({ ...form, title: event.target.value })} placeholder="What's the title of the new content you want to upload" />
+                <SelectField label="Choose Content Category" name="type" required value={form.type} onChange={(event) => setForm({ ...form, type: event.target.value })}>
+                  <option value="ARTICLE">Article</option>
+                  <option value="VIDEO">Video</option>
+                  <option value="PDF">PDF</option>
+                </SelectField>
+                <FormField label="Content URL" name="url" type="url" required value={form.url} onChange={(event) => setForm({ ...form, url: event.target.value })} placeholder="https://..." />
+                <TextAreaField label="Description" name="description" value={form.description} onChange={(event) => setForm({ ...form, description: event.target.value })} placeholder="Short summary for parents and therapists" />
+                <div>
+                  <AppButton type="submit" disabled={saving}>{saving ? "Saving..." : editing ? "Save Content" : "Upload Content"}</AppButton>
+                </div>
+              </div>
+            </div>
+          </form>
+        </div>
       )}
 
       {loading ? (
         <LoadingState />
+      ) : cards.length === 0 ? (
+        <div className="border border-[#b5d3ee] bg-white px-6 py-12 text-center text-sm font-medium text-[#536471]">
+          No content found.
+        </div>
       ) : (
         <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
           {cards.map((resource, index) => {

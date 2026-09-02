@@ -38,10 +38,16 @@ export default function Home() {
       <section className="relative z-10 flex min-h-screen flex-col px-5 py-7 sm:px-8 lg:px-[clamp(48px,8vw,112px)]">
         <header className="flex justify-center sm:justify-end">
           <nav className="flex flex-wrap justify-center gap-x-8 gap-y-3 text-sm font-medium leading-5 text-white sm:text-base">
-            <Link href="/register/admin" className="underline underline-offset-4 hover:text-[#ffd56b]">
+            <Link
+              href="/register/admin"
+              className="underline underline-offset-4 hover:text-[#ffd56b]"
+            >
               Sign up as an administrator
             </Link>
-            <Link href="/login" className="underline underline-offset-4 hover:text-[#ffd56b]">
+            <Link
+              href="/login"
+              className="underline underline-offset-4 hover:text-[#ffd56b]"
+            >
               Login as an administrator
             </Link>
           </nav>
@@ -53,7 +59,7 @@ export default function Home() {
           </h1>
 
           <Image
-            src="/design-assets/logo-blue-card.png"
+            src="/design-assets/logo-transparent.png"
             alt="Neuro Bridge Africa"
             width={940}
             height={260}
@@ -79,10 +85,16 @@ export default function Home() {
         </div>
 
         <footer className="flex flex-wrap items-center justify-center gap-x-9 gap-y-3 text-sm font-medium leading-5 text-white sm:justify-end sm:text-base">
-          <Link href="/about" className="underline underline-offset-4 hover:text-[#ffd56b]">
+          <Link
+            href="/about"
+            className="underline underline-offset-4 hover:text-[#ffd56b]"
+          >
             About Neuro Bridge
           </Link>
-          <Link href="/privacy" className="underline underline-offset-4 hover:text-[#ffd56b]">
+          <Link
+            href="/privacy"
+            className="underline underline-offset-4 hover:text-[#ffd56b]"
+          >
             Privacy Policy
           </Link>
           <span>&copy; Neuro Bridge 2026</span>

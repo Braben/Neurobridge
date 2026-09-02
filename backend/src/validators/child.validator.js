@@ -1,5 +1,6 @@
 // Zod validation schemas for child endpoints
 const { z } = require("zod");
+const { dateOfBirthSchema } = require("../utils/validation");
 
 // Generic validation middleware - handles both body and params
 const makeValidate = (schema) => {
@@ -24,15 +25,17 @@ exports.createChildSchema = z.object({
   body: z.object({
     firstName: z.string().min(1, "First name is required").max(50),
     lastName: z.string().min(1, "Last name is required").max(50),
-    dateOfBirth: z.string().datetime({ offset: true }, "Invalid date format, use ISO 8601"),
+    dateOfBirth: dateOfBirthSchema("Date of birth", { maxAge: 25 }),
     gender: z.enum(["MALE", "FEMALE", "OTHER"], {
       errorMap: () => ({ message: "Gender must be MALE, FEMALE, or OTHER" }),
     }),
     diagnosis: z.string().max(500).optional().nullable(),
     coExistingConditions: z.string().max(500).optional().nullable(),
     currentMedications: z.string().max(500).optional().nullable(),
+    profileImage: z.string().url("Invalid profile image URL").max(1000).optional().nullable(),
     school: z.string().max(100).optional().nullable(),
     notes: z.string().max(1000).optional().nullable(),
+    supportMessage: z.string().max(1000).optional().nullable(),
   }),
 });
 
@@ -41,13 +44,15 @@ exports.updateChildSchema = z.object({
   body: z.object({
     firstName: z.string().min(1).max(50).optional(),
     lastName: z.string().min(1).max(50).optional(),
-    dateOfBirth: z.string().datetime({ offset: true }).optional(),
+    dateOfBirth: dateOfBirthSchema("Date of birth", { maxAge: 25 }).optional(),
     gender: z.enum(["MALE", "FEMALE", "OTHER"]).optional(),
     diagnosis: z.string().max(500).optional().nullable(),
     coExistingConditions: z.string().max(500).optional().nullable(),
     currentMedications: z.string().max(500).optional().nullable(),
+    profileImage: z.string().url("Invalid profile image URL").max(1000).optional().nullable(),
     school: z.string().max(100).optional().nullable(),
     notes: z.string().max(1000).optional().nullable(),
+    supportMessage: z.string().max(1000).optional().nullable(),
   }).refine((data) => Object.keys(data).length > 0, {
     message: "At least one field must be provided for update",
   }),

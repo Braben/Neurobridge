@@ -9,7 +9,7 @@
 // The page is rendered client-side because chart libraries require the DOM.
 
 import { useEffect, useState } from "react";
-import { useParams, useRouter } from "next/navigation";
+import { useParams, usePathname, useRouter } from "next/navigation";
 import Link from "next/link";
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
@@ -23,10 +23,14 @@ const COLORS = ["#F59E0B", "#3B82F6", "#10B981", "#6B7280"];
 
 export default function ProgressPage() {
   const { childId } = useParams<{ childId: string }>();
+  const pathname = usePathname();
   const router = useRouter();
   const { isAuthenticated } = useAppSelector((state) => state.auth);
   const [data, setData] = useState<ChildProgress | null>(null);
   const [loading, setLoading] = useState(true);
+  const childPath = pathname.startsWith("/admin/")
+    ? `/admin/children/${childId}`
+    : `/children/${childId}`;
 
   // Redirect unauthenticated users; fetch progress data on mount
   useEffect(() => {
@@ -52,7 +56,7 @@ export default function ProgressPage() {
     <div className="mx-auto max-w-6xl space-y-6 px-4 py-6">
       {/* Back navigation + child name header */}
       <div className="flex items-center gap-3">
-        <Link href={`/children/${childId}`} className="text-sm text-blue-600 hover:text-blue-500">&larr; Back</Link>
+        <Link href={childPath} className="text-sm text-blue-600 hover:text-blue-500">&larr; Back</Link>
         <h1 className="text-xl font-bold text-gray-900">
           {data.child.firstName} {data.child.lastName} — Progress
         </h1>

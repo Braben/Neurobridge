@@ -3,6 +3,29 @@
 // Files can be associated with a child and/or session for organisational context.
 import { api } from "./api";
 
+const MAX_UPLOAD_SIZE_BYTES = 10 * 1024 * 1024;
+const ALLOWED_UPLOAD_TYPES = new Set([
+  "image/jpeg",
+  "image/png",
+  "image/webp",
+  "image/gif",
+  "application/pdf",
+  "application/msword",
+  "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+  "video/mp4",
+  "video/webm",
+]);
+
+export function validateUploadFile(file: File) {
+  if (!ALLOWED_UPLOAD_TYPES.has(file.type)) {
+    return "Unsupported file type. Upload an image, PDF, Word document, MP4, or WebM file.";
+  }
+  if (file.size > MAX_UPLOAD_SIZE_BYTES) {
+    return "File is too large. Maximum upload size is 10MB.";
+  }
+  return null;
+}
+
 export interface FileAttachment {
   id: string;
   childId: string | null;
@@ -19,6 +42,9 @@ export interface FileAttachment {
 export const uploadApi = {
   // POST /upload — multipart upload (uses FormData; no Content-Type header needed)
   upload: (file: File, childId?: string, sessionId?: string) => {
+    const validationError = validateUploadFile(file);
+    if (validationError) return Promise.reject(new Error(validationError));
+
     const formData = new FormData();
     formData.append("file", file);
     if (childId) formData.append("childId", childId);

@@ -1,13 +1,13 @@
 "use client";
 
 import Image from "next/image";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useAppSelector } from "../../hooks/useRedux";
 import { therapistsApi, TherapistProfile } from "../../services/therapists";
 import { DashboardPanel, EmptyState, FilterPanel, LoadingState, ScreenHeader, StatCard } from "../../components/ui/DashboardCards";
-import { FormField } from "../../components/ui/FormField";
+import { FormField, SelectField } from "../../components/ui/FormField";
 
 export default function TherapistsPage() {
   const router = useRouter();
@@ -15,6 +15,7 @@ export default function TherapistsPage() {
   const [therapists, setTherapists] = useState<TherapistProfile[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
+  const [expertiseFilter, setExpertiseFilter] = useState("");
 
   useEffect(() => {
     if (!isAuthenticated) {
@@ -28,18 +29,26 @@ export default function TherapistsPage() {
       .finally(() => setLoading(false));
   }, [isAuthenticated, user, router]);
 
-  if (!user) return null;
-
   const assignedChildrenCount = therapists.reduce((sum, therapist) => sum + (therapist.childCount || 0), 0);
   const loggedSessionsCount = therapists.reduce((sum, therapist) => sum + (therapist.sessionCount || 0), 0);
 
-  const filtered = therapists.filter(
-    (therapist) =>
-      !search ||
-      therapist.firstName.toLowerCase().includes(search.toLowerCase()) ||
-      therapist.lastName.toLowerCase().includes(search.toLowerCase()) ||
-      (therapist.areaofexpertise && therapist.areaofexpertise.toLowerCase().includes(search.toLowerCase())),
+  const expertiseOptions = useMemo(
+    () => Array.from(new Set(therapists.map((therapist) => therapist.areaofexpertise).filter(Boolean))).sort() as string[],
+    [therapists],
   );
+
+  const filtered = useMemo(() => {
+    const query = search.trim().toLowerCase();
+    return therapists.filter((therapist) =>
+      (!expertiseFilter || therapist.areaofexpertise === expertiseFilter) &&
+      (!query ||
+        therapist.firstName.toLowerCase().includes(query) ||
+        therapist.lastName.toLowerCase().includes(query) ||
+        (therapist.areaofexpertise && therapist.areaofexpertise.toLowerCase().includes(query))),
+    );
+  }, [expertiseFilter, search, therapists]);
+
+  if (!user) return null;
 
   return (
     <div className="space-y-7">
@@ -65,6 +74,22 @@ export default function TherapistsPage() {
             placeholder="Search by name or expertise"
             className="h-12 rounded-xl"
           />
+        </div>
+        <div className="w-full sm:w-64">
+          <SelectField
+            label="Expertise"
+            name="expertiseFilter"
+            value={expertiseFilter}
+            onChange={(event) => setExpertiseFilter(event.target.value)}
+            className="h-12 rounded-xl"
+          >
+            <option value="">All Expertise</option>
+            {expertiseOptions.map((expertise) => (
+              <option key={expertise} value={expertise}>
+                {expertise}
+              </option>
+            ))}
+          </SelectField>
         </div>
       </FilterPanel>
 

@@ -1,5 +1,20 @@
 import { api } from "./api";
 
+interface ChildTherapistAssignment {
+  id: string;
+  therapistId: string;
+  assignedAt: string;
+  therapist: {
+    id: string;
+    firstName: string;
+    lastName: string;
+    avatar?: string | null;
+    areaofexpertise: string | null;
+    email?: string | null;
+    phone?: string | null;
+  };
+}
+
 export interface Child {
   id: string;
   firstName: string;
@@ -9,10 +24,13 @@ export interface Child {
   diagnosis: string | null;
   coExistingConditions: string | null;
   currentMedications: string | null;
+  profileImage: string | null;
   school: string | null;
   notes: string | null;
+  supportMessage: string | null;
   createdAt: string;
   updatedAt: string;
+  therapists?: ChildTherapistAssignment[];
 }
 
 export interface ChildDetail extends Child {
@@ -22,12 +40,7 @@ export interface ChildDetail extends Child {
     relationship: string | null;
     parent: { id: string; firstName: string; lastName: string; email: string };
   }[];
-  therapists: {
-    id: string;
-    therapistId: string;
-    assignedAt: string;
-    therapist: { id: string; firstName: string; lastName: string; areaofexpertise: string | null };
-  }[];
+  therapists: ChildTherapistAssignment[];
   intakeForm: null | {
     id: string;
     developmentalHistory: string;
@@ -61,8 +74,10 @@ export interface CreateChildData {
   diagnosis?: string;
   coExistingConditions?: string;
   currentMedications?: string;
+  profileImage?: string;
   school?: string;
   notes?: string;
+  supportMessage?: string;
 }
 
 export interface UpdateChildData {
@@ -73,8 +88,10 @@ export interface UpdateChildData {
   diagnosis?: string | null;
   coExistingConditions?: string | null;
   currentMedications?: string | null;
+  profileImage?: string | null;
   school?: string | null;
   notes?: string | null;
+  supportMessage?: string | null;
 }
 
 export const childrenApi = {

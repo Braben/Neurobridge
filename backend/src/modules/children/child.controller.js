@@ -13,16 +13,43 @@ const childResponseFields = {
   diagnosis: true,
   coExistingConditions: true,
   currentMedications: true,
+  profileImage: true,
   school: true,
   notes: true,
+  supportMessage: true,
   createdAt: true,
   updatedAt: true,
+};
+
+// Parent and therapist dashboards need a lightweight assignment summary from
+// the child list without exposing unrelated user fields.
+const childListFields = {
+  ...childResponseFields,
+  therapists: {
+    orderBy: { assignedAt: "desc" },
+    select: {
+      id: true,
+      therapistId: true,
+      assignedAt: true,
+      therapist: {
+        select: {
+          id: true,
+          firstName: true,
+          lastName: true,
+          avatar: true,
+          areaofexpertise: true,
+          email: true,
+          phone: true,
+        },
+      },
+    },
+  },
 };
 
 // Create a new child and auto-link to current parent
 exports.createChild = async (req, res, next) => {
   try {
-    const { firstName, lastName, dateOfBirth, gender, diagnosis, coExistingConditions, currentMedications, school, notes } = req.body;
+    const { firstName, lastName, dateOfBirth, gender, diagnosis, coExistingConditions, currentMedications, profileImage, school, notes, supportMessage } = req.body;
 
     const child = await prisma.child.create({
       data: {
@@ -33,8 +60,10 @@ exports.createChild = async (req, res, next) => {
         diagnosis: diagnosis || null,
         coExistingConditions: coExistingConditions || null,
         currentMedications: currentMedications || null,
+        profileImage: profileImage || null,
         school: school || null,
         notes: notes || null,
+        supportMessage: supportMessage || null,
       },
       select: childResponseFields,
     });
@@ -71,7 +100,7 @@ exports.listChildren = async (req, res, next) => {
 
     const children = await prisma.child.findMany({
       where,
-      select: childResponseFields,
+      select: childListFields,
       orderBy: { createdAt: "desc" },
     });
 
@@ -125,7 +154,7 @@ exports.getChild = async (req, res, next) => {
 exports.updateChild = async (req, res, next) => {
   try {
     const { id } = req.params;
-    const { firstName, lastName, dateOfBirth, gender, diagnosis, coExistingConditions, currentMedications, school, notes } = req.body;
+    const { firstName, lastName, dateOfBirth, gender, diagnosis, coExistingConditions, currentMedications, profileImage, school, notes, supportMessage } = req.body;
 
     const existing = await prisma.child.findFirst({
       where: { id, deletedAt: null },
@@ -148,8 +177,10 @@ exports.updateChild = async (req, res, next) => {
     if (diagnosis !== undefined) updateData.diagnosis = diagnosis;
     if (coExistingConditions !== undefined) updateData.coExistingConditions = coExistingConditions;
     if (currentMedications !== undefined) updateData.currentMedications = currentMedications;
+    if (profileImage !== undefined) updateData.profileImage = profileImage;
     if (school !== undefined) updateData.school = school;
     if (notes !== undefined) updateData.notes = notes;
+    if (supportMessage !== undefined) updateData.supportMessage = supportMessage;
 
     if (Object.keys(updateData).length === 0) {
       return res.status(400).json({ message: "No valid fields provided for update" });
@@ -195,51 +226,82 @@ exports.deleteChild = async (req, res, next) => {
   }
 };
 
-// Assign a therapist to a child (admin only)
+// Assign or change a child's therapist (admin only). The product design treats
+// Assigned Therapist as one current value, so replacing an assignment removes
+// any previous therapist links for the child before creating the new one.
 exports.assignTherapist = async (req, res, next) => {
   try {
     const { id } = req.params;
     const { therapistId } = req.body;
 
-    const child = await prisma.child.findUnique({ where: { id } });
+    const child = await prisma.child.findUnique({
+      where: { id },
+      select: {
+        id: true,
+        firstName: true,
+        lastName: true,
+        deletedAt: true,
+        parents: { select: { parentId: true } },
+        therapists: {
+          take: 1,
+          orderBy: { assignedAt: "desc" },
+          select: { id: true, therapistId: true },
+        },
+      },
+    });
     if (!child || child.deletedAt) {
       return res.status(404).json({ message: "Child not found" });
     }
 
     const therapist = await prisma.user.findUnique({
       where: { id: therapistId },
-      select: { id: true, role: true },
+      select: { id: true, firstName: true, lastName: true, role: true, isApproved: true, deletedAt: true },
     });
-    if (!therapist || therapist.role !== "THERAPIST") {
+    if (!therapist || therapist.deletedAt || therapist.role !== "THERAPIST") {
       return res.status(400).json({ message: "Invalid therapist ID" });
     }
+    if (!therapist.isApproved) {
+      return res.status(400).json({ message: "Therapist must be approved before assignment" });
+    }
 
-    const assignment = await prisma.therapistAssignment.upsert({
-      where: { childId_therapistId: { childId: id, therapistId } },
-      create: { childId: id, therapistId },
-      update: {},
-      select: { id: true, childId: true, therapistId: true, assignedAt: true },
+    const currentAssignment = child.therapists[0];
+    if (currentAssignment?.therapistId === therapistId) {
+      return res.status(200).json({
+        message: "Therapist is already assigned to this child",
+        assignment: currentAssignment,
+      });
+    }
+
+    const assignment = await prisma.$transaction(async (tx) => {
+      await tx.therapistAssignment.deleteMany({ where: { childId: id } });
+      return tx.therapistAssignment.create({
+        data: { childId: id, therapistId },
+        select: { id: true, childId: true, therapistId: true, assignedAt: true },
+      });
     });
 
-    // Real-time: notify parents that a therapist was assigned and the
-    // therapist of their new assignment. Both get a persisted notification
-    // (via createNotification) and the therapist also gets a live socket
-    // event so their dashboard can update immediately.
-    const childName = await prisma.child.findUnique({ where: { id }, select: { firstName: true, lastName: true } });
-    const therapistUser = await prisma.user.findUnique({ where: { id: therapistId }, select: { firstName: true, lastName: true } });
-    const parentLinks = await prisma.childParent.findMany({ where: { childId: id }, select: { parentId: true } });
+    const childFullName = `${child.firstName} ${child.lastName}`;
+    const therapistFullName = `${therapist.firstName} ${therapist.lastName}`;
 
-    for (const p of parentLinks) {
-      await createNotification({ userId: p.parentId, title: "Therapist Assigned", body: `${therapistUser.firstName} ${therapistUser.lastName} has been assigned to ${childName.firstName} ${childName.lastName}.` });
+    // Notify the parents and new therapist after the DB write succeeds. When
+    // changing therapists, notify the previous therapist that access changed.
+    for (const p of child.parents) {
+      await createNotification({ userId: p.parentId, title: "Therapist Assigned", body: `${therapistFullName} has been assigned to ${childFullName}.` });
     }
-    await createNotification({ userId: therapistId, title: "New Child Assignment", body: `You have been assigned to ${childName.firstName} ${childName.lastName}.` });
-    emitToUser(therapistId, "assignment:new", { childId: id, child: childName });
+    await createNotification({ userId: therapistId, title: "New Child Assignment", body: `You have been assigned to ${childFullName}.` });
+    emitToUser(therapistId, "assignment:new", { childId: id, child: { firstName: child.firstName, lastName: child.lastName } });
+
+    if (currentAssignment?.therapistId) {
+      await createNotification({
+        userId: currentAssignment.therapistId,
+        title: "Child Assignment Updated",
+        body: `${childFullName} has been reassigned to another therapist.`,
+      });
+      emitToUser(currentAssignment.therapistId, "assignment:removed", { childId: id });
+    }
 
     return res.status(200).json({ message: "Therapist assigned successfully", assignment });
   } catch (error) {
-    if (error.code === "P2002") {
-      return res.status(409).json({ message: "Therapist is already assigned to this child" });
-    }
     next(error);
   }
 };

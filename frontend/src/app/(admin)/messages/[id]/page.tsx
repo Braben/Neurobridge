@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState, useRef } from "react";
-import { useParams, useRouter } from "next/navigation";
+import { useParams, usePathname, useRouter } from "next/navigation";
 import { useAppSelector, useAppDispatch } from "../../../hooks/useRedux";
 import { messagesApi, Message } from "../../../services/messages";
 import { getSocket } from "../../../services/socket";
@@ -12,6 +12,7 @@ import { DashboardPanel, LoadingState, ScreenHeader } from "../../../components/
 export default function ConversationPage() {
   const { id } = useParams<{ id: string }>();
   const router = useRouter();
+  const pathname = usePathname();
   const dispatch = useAppDispatch();
   const { isAuthenticated, user } = useAppSelector((state) => state.auth);
   const [messages, setMessages] = useState<Message[]>([]);
@@ -67,6 +68,8 @@ export default function ConversationPage() {
 
   if (!user) return null;
 
+  const messagesBasePath = pathname.startsWith("/admin/") ? "/admin/messages" : "/messages";
+
   return (
     <div className="space-y-7">
       <ScreenHeader
@@ -74,7 +77,7 @@ export default function ConversationPage() {
         title="Conversation"
         description="Live care-team message history and replies."
         action={
-          <AppButton href="/messages" variant="ghost">
+          <AppButton href={messagesBasePath} variant="ghost">
             Back
           </AppButton>
         }

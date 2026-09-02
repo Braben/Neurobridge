@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import Link from "next/link";
 import { useAppSelector } from "../../hooks/useRedux";
 import { messagesApi, Conversation } from "../../services/messages";
@@ -10,6 +10,7 @@ import { DashboardPanel, EmptyState, LoadingState, ScreenHeader, StatusBadge } f
 
 export default function MessagesPage() {
   const router = useRouter();
+  const pathname = usePathname();
   const { isAuthenticated, user } = useAppSelector((state) => state.auth);
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [loading, setLoading] = useState(true);
@@ -39,6 +40,7 @@ export default function MessagesPage() {
 
   const getOtherParticipants = (conversation: Conversation) =>
     conversation.participants.filter((participant) => participant.user.id !== user?.id).map((participant) => participant.user);
+  const messagesBasePath = pathname.startsWith("/admin/") ? "/admin/messages" : "/messages";
 
   if (!user) return null;
 
@@ -64,7 +66,7 @@ export default function MessagesPage() {
                 return (
                   <Link
                     key={conversation.id}
-                    href={`/messages/${conversation.id}`}
+                    href={`${messagesBasePath}/${conversation.id}`}
                     className="flex items-center justify-between gap-4 px-5 py-4 transition-colors hover:bg-[#f8fbfd]"
                   >
                     <div className="min-w-0 flex-1">

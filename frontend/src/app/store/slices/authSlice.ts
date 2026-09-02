@@ -23,18 +23,40 @@ interface AuthState {
   isAuthenticated: boolean;
   requiresOtp: boolean;
   otpEmail: string | null;
+  otpIdentifier: string | null;
+  otpChannel: "EMAIL" | "SMS" | null;
   isLoading: boolean;
   error: string | null;
 }
 
 const initialState: AuthState = {
   user: null,
-  accessToken: typeof window !== "undefined" ? localStorage.getItem("accessToken") : null,
+  accessToken: null,
   isAuthenticated: false,
   requiresOtp: false,
   otpEmail: null,
-  isLoading: false,
+  otpIdentifier: null,
+  otpChannel: null,
+  isLoading: true,
   error: null,
+};
+
+const clearStoredAuth = () => {
+  if (typeof window !== "undefined") {
+    window.localStorage.removeItem("accessToken");
+  }
+};
+
+const resetAuthState = (state: AuthState) => {
+  state.user = null;
+  state.accessToken = null;
+  state.isAuthenticated = false;
+  state.requiresOtp = false;
+  state.otpEmail = null;
+  state.otpIdentifier = null;
+  state.otpChannel = null;
+  state.isLoading = false;
+  clearStoredAuth();
 };
 
 // Async thunks
@@ -69,14 +91,16 @@ export const logoutUser = createAsyncThunk("auth/logout", async () => {
   await api.post("/auth/logout");
 });
 
-export const sendOtp = createAsyncThunk("auth/sendOtp", async (email: string) => {
-  const response = await api.post("/auth/send-otp", { email });
+export const sendOtp = createAsyncThunk(
+  "auth/sendOtp",
+  async (payload: { identifier: string; channel?: "EMAIL" | "SMS" }) => {
+  const response = await api.post("/auth/send-otp", payload);
   return response.data;
 });
 
 export const verifyOtp = createAsyncThunk(
   "auth/verifyOtp",
-  async (data: { email: string; code: string }) => {
+  async (data: { identifier: string; channel?: "EMAIL" | "SMS"; code: string }) => {
     const response = await api.post("/auth/verify-otp", data);
     return response.data;
   },
@@ -92,16 +116,33 @@ const authSlice = createSlice({
   name: "auth",
   initialState,
   reducers: {
+    hydrateStoredSession: (state, action: PayloadAction<string | null>) => {
+      state.accessToken = action.payload;
+      if (!action.payload) {
+        state.isLoading = false;
+      }
+    },
     clearError: (state) => {
       state.error = null;
     },
-    setRequiresOtp: (state, action: PayloadAction<{ requiresOtp: boolean; email: string }>) => {
+    setRequiresOtp: (
+      state,
+      action: PayloadAction<{ requiresOtp: boolean; identifier: string; email?: string; channel?: "EMAIL" | "SMS" }>,
+    ) => {
       state.requiresOtp = action.payload.requiresOtp;
-      state.otpEmail = action.payload.email;
+      state.otpEmail = action.payload.email || (action.payload.channel === "EMAIL" ? action.payload.identifier : null);
+      state.otpIdentifier = action.payload.identifier;
+      state.otpChannel = action.payload.channel || (action.payload.email ? "EMAIL" : null);
     },
     clearOtpState: (state) => {
       state.requiresOtp = false;
       state.otpEmail = null;
+      state.otpIdentifier = null;
+      state.otpChannel = null;
+    },
+    clearSession: (state) => {
+      resetAuthState(state);
+      state.error = null;
     },
   },
   extraReducers: (builder) => {
@@ -116,6 +157,12 @@ const authSlice = createSlice({
       state.user = action.payload.user;
       state.requiresOtp = Boolean(action.payload.requiresOtp);
       state.otpEmail = action.payload.requiresOtp ? action.payload.user.email : null;
+      state.otpIdentifier = action.payload.requiresOtp
+        ? action.payload.otpIdentifier || action.payload.user.email || action.payload.user.phone
+        : null;
+      state.otpChannel = action.payload.requiresOtp
+        ? action.payload.otpChannel || (action.payload.user.email ? "EMAIL" : "SMS")
+        : null;
       state.isAuthenticated = !action.payload.requiresOtp;
       if (action.payload.accessToken) {
         localStorage.setItem("accessToken", action.payload.accessToken);
@@ -145,12 +192,7 @@ const authSlice = createSlice({
 
     // Logout
     builder.addCase(logoutUser.fulfilled, (state) => {
-      state.user = null;
-      state.accessToken = null;
-      state.isAuthenticated = false;
-      state.requiresOtp = false;
-      state.otpEmail = null;
-      localStorage.removeItem("accessToken");
+      resetAuthState(state);
     });
 
     // Verify OTP
@@ -158,6 +200,8 @@ const authSlice = createSlice({
       state.isAuthenticated = true;
       state.requiresOtp = false;
       state.otpEmail = null;
+      state.otpIdentifier = null;
+      state.otpChannel = null;
       if (state.user) {
         state.user.isApproved = action.payload.isApproved;
       }
@@ -167,12 +211,21 @@ const authSlice = createSlice({
     });
 
     // Fetch profile
+    builder.addCase(fetchProfile.pending, (state) => {
+      state.isLoading = true;
+      state.error = null;
+    });
     builder.addCase(fetchProfile.fulfilled, (state, action) => {
       state.user = action.payload.user;
       state.isAuthenticated = true;
+      state.isLoading = false;
+    });
+    builder.addCase(fetchProfile.rejected, (state, action) => {
+      resetAuthState(state);
+      state.error = action.error.message || "Session expired";
     });
   },
 });
 
-export const { clearError, setRequiresOtp, clearOtpState } = authSlice.actions;
+export const { clearError, setRequiresOtp, clearOtpState, clearSession, hydrateStoredSession } = authSlice.actions;
 export default authSlice.reducer;

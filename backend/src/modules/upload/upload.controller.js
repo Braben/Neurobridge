@@ -4,6 +4,20 @@
 // metadata is persisted in the FileAttachment table for audit and retrieval.
 const prisma = require("../../config/prisma");
 const { cloudinary } = require("../../config/cloudinary");
+const { z } = require("zod");
+
+const uuidSchema = z.string().uuid();
+
+function validateOptionalUuid(value, label) {
+  if (!value) return null;
+  const result = uuidSchema.safeParse(value);
+  if (!result.success) {
+    const error = new Error(`${label} must be a valid UUID`);
+    error.statusCode = 400;
+    throw error;
+  }
+  return result.data;
+}
 
 // POST /api/v1/upload
 // Accepts a multipart file upload (field name: "file") along with optional
@@ -15,12 +29,13 @@ exports.uploadFile = async (req, res, next) => {
   try {
     if (!req.file) return res.status(400).json({ message: "No file uploaded" });
 
-    const { childId, sessionId } = req.body;
+    const childId = validateOptionalUuid(req.body.childId, "Child ID");
+    const sessionId = validateOptionalUuid(req.body.sessionId, "Session ID");
 
     const attachment = await prisma.fileAttachment.create({
       data: {
-        childId: childId || null,
-        sessionId: sessionId || null,
+        childId,
+        sessionId,
         fileName: req.file.originalname,
         url: req.file.path,
         publicId: req.file.filename,
@@ -42,7 +57,8 @@ exports.uploadFile = async (req, res, next) => {
 // to a specific child or therapy session. Results are sorted newest-first.
 exports.listAttachments = async (req, res, next) => {
   try {
-    const { childId, sessionId } = req.query;
+    const childId = validateOptionalUuid(req.query.childId, "Child ID");
+    const sessionId = validateOptionalUuid(req.query.sessionId, "Session ID");
     const where = { uploadedById: req.user.id };
     if (childId) where.childId = childId;
     if (sessionId) where.sessionId = sessionId;
@@ -65,14 +81,15 @@ exports.listAttachments = async (req, res, next) => {
 // attachment does not exist or belongs to another user.
 exports.deleteAttachment = async (req, res, next) => {
   try {
+    const attachmentId = validateOptionalUuid(req.params.id, "Attachment ID");
     const attachment = await prisma.fileAttachment.findFirst({
-      where: { id: req.params.id, uploadedById: req.user.id },
+      where: { id: attachmentId, uploadedById: req.user.id },
     });
     if (!attachment) return res.status(404).json({ message: "Attachment not found" });
 
     // Remove the file from Cloudinary first to avoid orphaned cloud assets
     await cloudinary.uploader.destroy(attachment.publicId);
-    await prisma.fileAttachment.delete({ where: { id: req.params.id } });
+    await prisma.fileAttachment.delete({ where: { id: attachmentId } });
 
     return res.status(200).json({ message: "Attachment deleted" });
   } catch (error) {

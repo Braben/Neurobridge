@@ -67,7 +67,7 @@ export default function ChildrenPage() {
         ) : (
           <div className="overflow-hidden rounded-md border border-[#d7e6f2] bg-white shadow-sm">
             <div className="overflow-x-auto">
-              <table className="w-full min-w-[920px] text-left text-sm">
+              <table className="admin-data-table w-full min-w-[920px] text-left text-sm">
                 <thead className="bg-[#f6fbfd] text-xs uppercase text-[#536471]">
                   <tr>
                     <th className="px-6 py-3">Child</th>
@@ -83,7 +83,7 @@ export default function ChildrenPage() {
                     <tr key={child.id} className="hover:bg-[#f8fbfd]">
                       <td className="px-6 py-4">
                         <div className="flex items-center gap-3">
-                          <Image src="/design-assets/child-portrait.jpg" alt="" width={40} height={40} className="h-10 w-10 rounded-full object-cover" />
+                          <Image src={child.profileImage || "/design-assets/child-portrait.jpg"} alt="" width={40} height={40} className="h-10 w-10 rounded-full object-cover" />
                           <div>
                             <p className="font-semibold text-[#111827]">{child.firstName} {child.lastName}</p>
                             <p className="text-xs text-[#536471]">Profile ID: {child.id.slice(0, 8)}</p>

@@ -7,7 +7,7 @@ exports.listConversations = async (req, res, next) => {
     const conversations = await prisma.conversation.findMany({
       where: { participants: { some: { userId: req.user.id } } },
       include: {
-        participants: { include: { user: { select: { id: true, firstName: true, lastName: true, role: true, avatar: true } } } },
+        participants: { include: { user: { select: { id: true, firstName: true, lastName: true, email: true, phone: true, role: true, avatar: true } } } },
         messages: { take: 1, orderBy: { createdAt: "desc" }, select: { content: true, createdAt: true, senderId: true } },
       },
       orderBy: { createdAt: "desc" },
@@ -32,7 +32,7 @@ exports.createConversation = async (req, res, next) => {
         },
       },
       include: {
-        participants: { include: { user: { select: { id: true, firstName: true, lastName: true, role: true, avatar: true } } } },
+        participants: { include: { user: { select: { id: true, firstName: true, lastName: true, email: true, phone: true, role: true, avatar: true } } } },
       },
     });
 

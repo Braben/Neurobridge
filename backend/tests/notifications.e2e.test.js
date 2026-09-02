@@ -16,7 +16,8 @@ const parentUser = {
   lastName: "E2E",
   email: `notify-parent-${ts}@example.com`,
   phone: `+23351${ts.toString().slice(-8)}`,
-  password: "testPass123",
+  dateOfBirth: "1990-01-01",
+  password: "TestPass123!",
   role: "PARENT",
 };
 
@@ -25,7 +26,8 @@ const therapistUser = {
   lastName: "E2E",
   email: `notify-therapist-${ts}@example.com`,
   phone: `+23352${ts.toString().slice(-8)}`,
-  password: "testPass123",
+  dateOfBirth: "1990-01-01",
+  password: "TestPass123!",
   role: "THERAPIST",
   areaofexpertise: "Speech Therapy",
 };

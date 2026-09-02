@@ -1,25 +1,110 @@
-// Auth controller — handles registration, login, logout, token refresh, and OTP flows
+// Auth controller - registration, login, logout, token refresh, and OTP flows.
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const crypto = require("crypto");
 const prisma = require("../../config/prisma");
 const { generateAccessToken, generateRefreshToken } = require("../../utils/generateTokens");
 const { sendOtpEmail, sendPasswordResetEmail } = require("../../services/email.service");
+const { normalizePhone, sendOtpSms, sendPasswordResetSms } = require("../../services/sms.service");
 
-// Generates a cryptographically secure 6-digit OTP code
-const generateOtpCode = () => {
-  return crypto.randomInt(100000, 999999).toString();
+const OTP_TTL_MS = 10 * 60 * 1000;
+
+const generateOtpCode = () => crypto.randomInt(100000, 999999).toString();
+
+const normalizeEmail = (email) => {
+  const value = email?.trim().toLowerCase();
+  return value || null;
 };
 
 const splitIdentifier = ({ identifier, email, phone }) => {
   const rawIdentifier = identifier?.trim();
-  const normalizedEmail = email?.trim() || (rawIdentifier?.includes("@") ? rawIdentifier : null);
-  const normalizedPhone = phone?.trim() || (rawIdentifier && !rawIdentifier.includes("@") ? rawIdentifier : null);
+  const normalizedEmail = normalizeEmail(email) || (rawIdentifier?.includes("@") ? normalizeEmail(rawIdentifier) : null);
+  const normalizedPhone = normalizePhone(phone || (rawIdentifier && !rawIdentifier.includes("@") ? rawIdentifier : ""));
 
   return {
     email: normalizedEmail || null,
     phone: normalizedPhone || null,
   };
+};
+
+const resolveOtpTarget = ({ identifier, email, phone, channel }) => {
+  const split = splitIdentifier({ identifier, email, phone });
+  if (channel === "EMAIL" && split.email) {
+    return { identifier: split.email, channel: "EMAIL" };
+  }
+  if (channel === "SMS" && split.phone) {
+    return { identifier: split.phone, channel: "SMS" };
+  }
+  if (split.email) {
+    return { identifier: split.email, channel: "EMAIL" };
+  }
+  if (split.phone) {
+    return { identifier: split.phone, channel: "SMS" };
+  }
+  return null;
+};
+
+const otpTargetWhere = ({ identifier, channel }) => ({
+  OR: [
+    { identifier, channel },
+    ...(channel === "EMAIL" ? [{ email: identifier }] : []),
+  ],
+});
+
+const findUserByTarget = ({ identifier, channel }) => {
+  if (channel === "EMAIL") {
+    return prisma.user.findUnique({ where: { email: identifier } });
+  }
+  return prisma.user.findUnique({ where: { phone: identifier } });
+};
+
+const sendOtpToTarget = async ({ identifier, channel, code, type }) => {
+  if (channel === "EMAIL") {
+    return type === "PASSWORD_RESET"
+      ? sendPasswordResetEmail(identifier, code)
+      : sendOtpEmail(identifier, code);
+  }
+
+  return type === "PASSWORD_RESET"
+    ? sendPasswordResetSms(identifier, code)
+    : sendOtpSms(identifier, code);
+};
+
+const createOtp = async ({ identifier, channel, code, type }) => {
+  return prisma.otpCode.create({
+    data: {
+      identifier,
+      channel,
+      email: channel === "EMAIL" ? identifier : null,
+      code,
+      type,
+      expiresAt: new Date(Date.now() + OTP_TTL_MS),
+    },
+  });
+};
+
+const invalidateOtp = async ({ identifier, channel, type }) => {
+  return prisma.otpCode.updateMany({
+    where: {
+      ...otpTargetWhere({ identifier, channel }),
+      type,
+      isUsed: false,
+    },
+    data: { isUsed: true },
+  });
+};
+
+const findValidOtp = async ({ identifier, channel, code, type }) => {
+  return prisma.otpCode.findFirst({
+    where: {
+      ...otpTargetWhere({ identifier, channel }),
+      code,
+      type,
+      isUsed: false,
+      expiresAt: { gt: new Date() },
+    },
+    orderBy: { createdAt: "desc" },
+  });
 };
 
 const toUserResponse = (user) => ({
@@ -35,10 +120,6 @@ const toUserResponse = (user) => ({
   isApproved: user.isApproved,
   createdAt: user.createdAt,
 });
-
-// ──────────────────────────────────────────────
-// Registration
-// ──────────────────────────────────────────────
 
 exports.registerUser = async (req, res, next) => {
   try {
@@ -61,7 +142,6 @@ exports.registerUser = async (req, res, next) => {
       return res.status(400).json({ message: "Email or phone number is required" });
     }
 
-    // Admin registration requires a deployment-configured invite code
     if (role === "ADMIN") {
       const inviteCode = process.env.ADMIN_INVITE_CODE;
       if (!inviteCode || adminInviteCode !== inviteCode) {
@@ -69,7 +149,6 @@ exports.registerUser = async (req, res, next) => {
       }
     }
 
-    // Therapists must specify their area of expertise
     if (role === "THERAPIST" && !areaofexpertise) {
       return res.status(400).json({ message: "Therapists must provide an area of expertise" });
     }
@@ -81,7 +160,6 @@ exports.registerUser = async (req, res, next) => {
       return res.status(400).json({ message: "Date of birth must be a valid date" });
     }
 
-    // Check whether the email or phone is already taken
     const existingConditions = [];
     if (email) existingConditions.push({ email });
     if (phone) existingConditions.push({ phone });
@@ -93,12 +171,10 @@ exports.registerUser = async (req, res, next) => {
       return res.status(409).json({ message: "Email or phone already exists" });
     }
 
-    // Hash the password before storing
     const hashedPassword = await bcrypt.hash(password, Number(process.env.SALT_ROUNDS) || 10);
+    const otpTarget = resolveOtpTarget({ email, phone });
+    const requiresOtp = Boolean(otpTarget);
 
-    // Create the user record (not yet approved — OTP verification is required)
-    // Therapists additionally require admin approval after OTP verification
-    const requiresOtp = Boolean(email);
     const user = await prisma.user.create({
       data: {
         firstName,
@@ -114,27 +190,15 @@ exports.registerUser = async (req, res, next) => {
       },
     });
 
-    if (requiresOtp) {
-      // Generate an OTP code for email verification
+    if (otpTarget) {
       const otpCode = generateOtpCode();
-      const expiresAt = new Date(Date.now() + 10 * 60 * 1000);
+      await createOtp({ ...otpTarget, code: otpCode, type: "EMAIL_VERIFICATION" });
 
-      await prisma.otpCode.create({
-        data: {
-          email,
-          code: otpCode,
-          type: "EMAIL_VERIFICATION",
-          expiresAt,
-        },
-      });
-
-      // Send the OTP email (non-blocking — fire and forget)
-      sendOtpEmail(email, otpCode).catch((err) => {
-        console.error("Failed to send OTP email:", err.message);
+      sendOtpToTarget({ ...otpTarget, code: otpCode, type: "EMAIL_VERIFICATION" }).catch((err) => {
+        console.error(`Failed to send ${otpTarget.channel} OTP:`, err.message);
       });
     }
 
-    // Generate authentication tokens (temporary — user must verify OTP)
     const accessToken = generateAccessToken(user);
     const refreshToken = generateRefreshToken(user);
 
@@ -152,9 +216,11 @@ exports.registerUser = async (req, res, next) => {
 
     return res.status(201).json({
       message: requiresOtp
-        ? "Registration successful. Please verify your email with the OTP sent."
+        ? "Registration successful. Please verify your account with the OTP sent."
         : "Registration successful.",
       requiresOtp,
+      otpChannel: otpTarget?.channel || null,
+      otpIdentifier: otpTarget?.identifier || null,
       accessToken,
       user: toUserResponse(user),
     });
@@ -163,40 +229,29 @@ exports.registerUser = async (req, res, next) => {
   }
 };
 
-// ──────────────────────────────────────────────
-// Login — accepts email OR phone as identifier
-// ──────────────────────────────────────────────
-
 exports.loginUser = async (req, res, next) => {
   try {
     const { email, phone, password } = req.body;
-
-    // Look up the user by the provided identifier
-    const whereClause = email ? { email } : { phone };
+    const whereClause = email ? { email: normalizeEmail(email) } : { phone: normalizePhone(phone) };
     const user = await prisma.user.findUnique({ where: whereClause });
 
-    // Fail if the user does not exist or was soft-deleted
     if (!user || user.deletedAt) {
       return res.status(401).json({ message: "Invalid credentials" });
     }
 
-    // Verify the password
     const isPasswordValid = await bcrypt.compare(password, user.password);
     if (!isPasswordValid) {
       return res.status(401).json({ message: "Invalid credentials" });
     }
 
-    // Generate a new token pair
     const accessToken = generateAccessToken(user);
     const refreshToken = generateRefreshToken(user);
 
-    // Persist the new refresh token
     await prisma.user.update({
       where: { id: user.id },
       data: { refreshToken },
     });
 
-    // Set the refresh token cookie
     res.cookie("refreshToken", refreshToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
@@ -207,73 +262,43 @@ exports.loginUser = async (req, res, next) => {
     return res.status(200).json({
       message: "Login successful",
       accessToken,
-      user: {
-        id: user.id,
-        firstName: user.firstName,
-        lastName: user.lastName,
-        email: user.email,
-        phone: user.phone,
-        dateOfBirth: user.dateOfBirth,
-        areaofexpertise: user.areaofexpertise,
-        role: user.role,
-        avatar: user.avatar,
-        isApproved: user.isApproved,
-        createdAt: user.createdAt,
-      },
+      user: toUserResponse(user),
     });
   } catch (error) {
     next(error);
   }
 };
 
-// ──────────────────────────────────────────────
-// Password Reset — request and consume one-time reset codes
-// ──────────────────────────────────────────────
-
 exports.requestPasswordReset = async (req, res, next) => {
   try {
-    const { identifier } = req.body;
-    const { email, phone } = splitIdentifier({ identifier });
+    const requestedTarget = resolveOtpTarget(req.body);
     const genericMessage = "If an account exists, password reset instructions will be sent shortly.";
 
-    if (!email && !phone) {
+    if (!requestedTarget) {
       return res.status(400).json({ message: "Email or phone number is required" });
     }
 
-    const user = await prisma.user.findFirst({
-      where: {
-        deletedAt: null,
-        OR: [
-          ...(email ? [{ email }] : []),
-          ...(phone ? [{ phone }] : []),
-        ],
-      },
-    });
-
-    if (!user?.email) {
+    const user = await findUserByTarget(requestedTarget);
+    if (!user || user.deletedAt) {
       return res.status(200).json({ message: genericMessage });
     }
 
-    await prisma.otpCode.updateMany({
-      where: { email: user.email, type: "PASSWORD_RESET", isUsed: false },
-      data: { isUsed: true },
-    });
+    await invalidateOtp({ ...requestedTarget, type: "PASSWORD_RESET" });
 
     const code = generateOtpCode();
-    const expiresAt = new Date(Date.now() + 10 * 60 * 1000);
+    await createOtp({ ...requestedTarget, code, type: "PASSWORD_RESET" });
 
-    await prisma.otpCode.create({
-      data: {
-        email: user.email,
-        code,
-        type: "PASSWORD_RESET",
-        expiresAt,
-      },
+    try {
+      await sendOtpToTarget({ ...requestedTarget, code, type: "PASSWORD_RESET" });
+    } catch (deliveryError) {
+      console.error(`Failed to send ${requestedTarget.channel} password reset code:`, deliveryError.message);
+    }
+
+    return res.status(200).json({
+      message: genericMessage,
+      resetChannel: requestedTarget.channel,
+      resetIdentifier: requestedTarget.identifier,
     });
-
-    await sendPasswordResetEmail(user.email, code);
-
-    return res.status(200).json({ message: genericMessage });
   } catch (error) {
     next(error);
   }
@@ -281,24 +306,19 @@ exports.requestPasswordReset = async (req, res, next) => {
 
 exports.resetPassword = async (req, res, next) => {
   try {
-    const { email, code, password } = req.body;
+    const { code, password } = req.body;
+    const resetTarget = resolveOtpTarget(req.body);
 
-    const otpRecord = await prisma.otpCode.findFirst({
-      where: {
-        email,
-        code,
-        type: "PASSWORD_RESET",
-        isUsed: false,
-        expiresAt: { gt: new Date() },
-      },
-      orderBy: { createdAt: "desc" },
-    });
+    if (!resetTarget) {
+      return res.status(400).json({ message: "Email or phone number is required" });
+    }
 
+    const otpRecord = await findValidOtp({ ...resetTarget, code, type: "PASSWORD_RESET" });
     if (!otpRecord) {
       return res.status(400).json({ message: "Invalid or expired reset code" });
     }
 
-    const user = await prisma.user.findUnique({ where: { email } });
+    const user = await findUserByTarget(resetTarget);
     if (!user || user.deletedAt) {
       return res.status(400).json({ message: "Invalid or expired reset code" });
     }
@@ -322,23 +342,17 @@ exports.resetPassword = async (req, res, next) => {
   }
 };
 
-// ──────────────────────────────────────────────
-// Logout — clears the refresh token from DB and cookie
-// ──────────────────────────────────────────────
-
 exports.logoutUser = async (req, res, next) => {
   try {
     const { refreshToken } = req.cookies;
 
     if (refreshToken) {
-      // Remove the refresh token from the database
       await prisma.user.updateMany({
         where: { refreshToken },
         data: { refreshToken: null },
       });
     }
 
-    // Clear the cookie
     res.clearCookie("refreshToken", {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
@@ -351,10 +365,6 @@ exports.logoutUser = async (req, res, next) => {
   }
 };
 
-// ──────────────────────────────────────────────
-// Token Refresh — issues a new access + refresh token pair
-// ──────────────────────────────────────────────
-
 exports.refreshTokenPair = async (req, res, next) => {
   try {
     const { refreshToken } = req.cookies;
@@ -363,10 +373,7 @@ exports.refreshTokenPair = async (req, res, next) => {
       return res.status(401).json({ message: "Refresh token is required" });
     }
 
-    // Verify the refresh token signature
     const decoded = jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET);
-
-    // Confirm the token matches what is stored in the database
     const user = await prisma.user.findUnique({
       where: { id: decoded.userId },
     });
@@ -375,7 +382,6 @@ exports.refreshTokenPair = async (req, res, next) => {
       return res.status(401).json({ message: "Invalid refresh token" });
     }
 
-    // Generate a new token pair (rotates the refresh token)
     const newAccessToken = generateAccessToken(user);
     const newRefreshToken = generateRefreshToken(user);
 
@@ -403,84 +409,62 @@ exports.refreshTokenPair = async (req, res, next) => {
   }
 };
 
-// ──────────────────────────────────────────────
-// Send OTP — generates a code and emails it to the user
-// ──────────────────────────────────────────────
-
 exports.sendOtp = async (req, res, next) => {
   try {
-    const { email } = req.body;
+    const otpTarget = resolveOtpTarget(req.body);
+    if (!otpTarget) {
+      return res.status(400).json({ message: "Email or phone number is required" });
+    }
 
-    // Invalidate any previous unused OTPs for this email and type
-    await prisma.otpCode.updateMany({
-      where: { email, type: "EMAIL_VERIFICATION", isUsed: false },
-      data: { isUsed: true },
-    });
+    const user = await findUserByTarget(otpTarget);
+    if (!user || user.deletedAt) {
+      return res.status(404).json({ message: "Account not found" });
+    }
 
-    // Generate a new 6-digit code with a 10-minute expiry
+    await invalidateOtp({ ...otpTarget, type: "EMAIL_VERIFICATION" });
+
     const code = generateOtpCode();
-    const expiresAt = new Date(Date.now() + 10 * 60 * 1000);
+    await createOtp({ ...otpTarget, code, type: "EMAIL_VERIFICATION" });
+    await sendOtpToTarget({ ...otpTarget, code, type: "EMAIL_VERIFICATION" });
 
-    await prisma.otpCode.create({
-      data: {
-        email,
-        code,
-        type: "EMAIL_VERIFICATION",
-        expiresAt,
-      },
+    return res.status(200).json({
+      message: "OTP sent successfully",
+      otpChannel: otpTarget.channel,
+      otpIdentifier: otpTarget.identifier,
     });
-
-    // Dispatch the email
-    await sendOtpEmail(email, code);
-
-    return res.status(200).json({ message: "OTP sent successfully" });
   } catch (error) {
     next(error);
   }
 };
 
-// ──────────────────────────────────────────────
-// Verify OTP — validates the code and marks the user as verified
-// ──────────────────────────────────────────────
-
 exports.verifyOtp = async (req, res, next) => {
   try {
-    const { email, code } = req.body;
+    const { code } = req.body;
+    const otpTarget = resolveOtpTarget(req.body);
+    if (!otpTarget) {
+      return res.status(400).json({ message: "Email or phone number is required" });
+    }
 
-    // Find the latest unused, non-expired OTP for this email
-    const otpRecord = await prisma.otpCode.findFirst({
-      where: {
-        email,
-        code,
-        type: "EMAIL_VERIFICATION",
-        isUsed: false,
-        expiresAt: { gt: new Date() },
-      },
-      orderBy: { createdAt: "desc" },
-    });
-
+    const otpRecord = await findValidOtp({ ...otpTarget, code, type: "EMAIL_VERIFICATION" });
     if (!otpRecord) {
       return res.status(400).json({ message: "Invalid or expired OTP code" });
     }
 
-    // Mark the code as consumed
     await prisma.otpCode.update({
       where: { id: otpRecord.id },
       data: { isUsed: true, usedAt: new Date() },
     });
 
-    // Approve the user (email is now verified)
-    // Therapists still require separate admin approval
-    const user = await prisma.user.findUnique({ where: { email } });
+    const user = await findUserByTarget(otpTarget);
     if (user && (user.role === "PARENT" || user.role === "ADMIN")) {
       await prisma.user.update({
-        where: { email },
+        where: { id: user.id },
         data: { isApproved: true },
       });
     }
 
     return res.status(200).json({
-      message: "OTP verified successfully. Email confirmed.",
+      message: "OTP verified successfully. Account confirmed.",
       isApproved: user?.role === "PARENT" || user?.role === "ADMIN" ? true : false,
     });
   } catch (error) {
@@ -488,36 +472,29 @@ exports.verifyOtp = async (req, res, next) => {
   }
 };
 
-// ──────────────────────────────────────────────
-// Resend OTP — invalidates the old code and sends a fresh one
-// ──────────────────────────────────────────────
-
 exports.resendOtp = async (req, res, next) => {
   try {
-    const { email } = req.body;
+    const otpTarget = resolveOtpTarget(req.body);
+    if (!otpTarget) {
+      return res.status(400).json({ message: "Email or phone number is required" });
+    }
 
-    // Invalidate all previous unused OTPs
-    await prisma.otpCode.updateMany({
-      where: { email, type: "EMAIL_VERIFICATION", isUsed: false },
-      data: { isUsed: true },
-    });
+    const user = await findUserByTarget(otpTarget);
+    if (!user || user.deletedAt) {
+      return res.status(404).json({ message: "Account not found" });
+    }
 
-    // Generate a fresh code
+    await invalidateOtp({ ...otpTarget, type: "EMAIL_VERIFICATION" });
+
     const code = generateOtpCode();
-    const expiresAt = new Date(Date.now() + 10 * 60 * 1000);
+    await createOtp({ ...otpTarget, code, type: "EMAIL_VERIFICATION" });
+    await sendOtpToTarget({ ...otpTarget, code, type: "EMAIL_VERIFICATION" });
 
-    await prisma.otpCode.create({
-      data: {
-        email,
-        code,
-        type: "EMAIL_VERIFICATION",
-        expiresAt,
-      },
+    return res.status(200).json({
+      message: "OTP resent successfully",
+      otpChannel: otpTarget.channel,
+      otpIdentifier: otpTarget.identifier,
     });
-
-    await sendOtpEmail(email, code);
-
-    return res.status(200).json({ message: "OTP resent successfully" });
   } catch (error) {
     next(error);
   }

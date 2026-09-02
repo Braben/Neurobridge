@@ -1,4 +1,5 @@
 const { z } = require("zod");
+const { dateOfBirthSchema } = require("../utils/validation");
 
 const makeValidate = (schema) => {
   return (req, res, next) => {
@@ -28,11 +29,23 @@ exports.updateUserSchema = z.object({
     lastName: z.string().min(1).max(50).optional(),
     email: z.string().email().optional().nullable(),
     phone: z.string().min(5).max(30).optional().nullable(),
-    dateOfBirth: z.string().datetime({ offset: true }).optional().nullable(),
+    dateOfBirth: dateOfBirthSchema("Date of birth", { adult: true }).optional().nullable(),
     areaofexpertise: z.string().max(100).optional().nullable(),
     isApproved: z.boolean().optional(),
   }).refine((data) => Object.keys(data).length > 0, {
     message: "At least one field must be provided for update",
+  }),
+});
+
+exports.adminInviteSchema = z.object({
+  body: z.object({
+    email: z.string().email("Invitee email must be a valid email address").max(254),
+  }),
+});
+
+exports.sessionFeeSchema = z.object({
+  body: z.object({
+    amount: z.number().int("Session fee must be an integer amount in pesewas").min(100, "Session fee must be at least GHS 1"),
   }),
 });
 

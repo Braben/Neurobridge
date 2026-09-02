@@ -18,7 +18,7 @@ export default function AuthFrame({
           <div
             className="absolute inset-0 bg-cover bg-center"
             style={{
-              backgroundImage: "url('/design-assets/child-portrait.jpg')",
+              backgroundImage: "url('/design-assets/children-classroom.jpg')",
             }}
           />
           <div className="absolute inset-0 bg-[#2c2916]/80" />
@@ -31,7 +31,11 @@ export default function AuthFrame({
               Go Back
             </Link>
             <div className="mt-auto mb-auto space-y-10">
-              <BrandLogo compact variant="white" className="w-full max-w-[414px]" />
+              <BrandLogo
+                compact
+                variant="transparent"
+                className="w-full max-w-[414px]"
+              />
               <p className="max-w-[414px] text-xl leading-normal text-white">
                 We envision a future where inclusive education is standard
                 practice and families have access to tools that help children
@@ -48,7 +52,9 @@ export default function AuthFrame({
           <footer
             className={[
               "flex flex-wrap items-center gap-8 pb-7 text-base leading-6 text-[#0a3d62]",
-              footerMinimal ? "justify-center lg:justify-end" : "justify-center lg:justify-end",
+              footerMinimal
+                ? "justify-center lg:justify-end"
+                : "justify-center lg:justify-end",
             ].join(" ")}
           >
             {!footerMinimal && (

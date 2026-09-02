@@ -11,18 +11,18 @@ import GlobalMessage from "../../components/ui/GlobalMessage";
 export default function OtpVerificationPage() {
   const router = useRouter();
   const dispatch = useAppDispatch();
-  const { otpEmail, isLoading, error } = useAppSelector((state) => state.auth);
+  const { otpEmail, otpIdentifier, otpChannel, isLoading, error } = useAppSelector((state) => state.auth);
 
   const [code, setCode] = useState(["", "", "", "", "", ""]);
   const [resendCountdown, setResendCountdown] = useState(0);
   const resendDisabled = resendCountdown > 0;
 
-  // Redirect if no OTP email is set (user navigated here directly)
+  // Redirect if no OTP target is set (user navigated here directly)
   useEffect(() => {
-    if (!otpEmail) {
+    if (!otpIdentifier) {
       router.push("/register");
     }
-  }, [otpEmail, router]);
+  }, [otpIdentifier, router]);
 
   // Resend countdown timer
   useEffect(() => {
@@ -65,21 +65,23 @@ export default function OtpVerificationPage() {
       return;
     }
 
-    if (!otpEmail) return;
+    if (!otpIdentifier) return;
 
-    const result = await dispatch(verifyOtp({ email: otpEmail, code: otpCode }));
+    const result = await dispatch(verifyOtp({ identifier: otpIdentifier, channel: otpChannel || undefined, code: otpCode }));
     if (verifyOtp.fulfilled.match(result)) {
       router.push("/dashboard");
     }
   };
 
   const handleResend = async () => {
-    if (!otpEmail || resendDisabled) return;
+    if (!otpIdentifier || resendDisabled) return;
     setResendCountdown(30);
-    await dispatch(sendOtp(otpEmail));
+    await dispatch(sendOtp({ identifier: otpIdentifier, channel: otpChannel || undefined }));
   };
 
-  if (!otpEmail) return null;
+  if (!otpIdentifier) return null;
+
+  const targetLabel = otpEmail || otpIdentifier;
 
   return (
     <AuthFrame footerMinimal>
@@ -90,7 +92,7 @@ export default function OtpVerificationPage() {
           <h1 className="text-2xl font-bold text-[#171f27]">Verify your account</h1>
           <p className="mt-2 text-sm text-[#4b5b66]">
             We sent a 6-digit code to{" "}
-            <span className="font-semibold text-[#073f63]">{otpEmail}</span>
+            <span className="font-semibold text-[#073f63]">{targetLabel}</span>
           </p>
         </div>
 

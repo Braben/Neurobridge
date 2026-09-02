@@ -1,4 +1,6 @@
 const prisma = require("../../config/prisma");
+const { sendAdminInviteEmail } = require("../../services/email.service");
+const { getTherapySessionFeePesewas, setTherapySessionFeePesewas } = require("../../services/settings.service");
 
 const userSelect = {
   id: true,
@@ -134,6 +136,47 @@ exports.approveUser = async (req, res, next) => {
     });
 
     return res.status(200).json({ message: "Therapist approved", user: updated });
+  } catch (error) {
+    next(error);
+  }
+};
+
+exports.inviteAdmin = async (req, res, next) => {
+  try {
+    const email = req.body.email.toLowerCase();
+    const inviteCode = process.env.ADMIN_INVITE_CODE;
+
+    if (!inviteCode) {
+      return res.status(500).json({ message: "Admin invite code is not configured" });
+    }
+
+    const existingUser = await prisma.user.findUnique({ where: { email } });
+    if (existingUser && !existingUser.deletedAt) {
+      return res.status(409).json({ message: "A user with this email already exists" });
+    }
+
+    const inviterName = `${req.user.firstName || "An administrator"} ${req.user.lastName || ""}`.trim();
+    await sendAdminInviteEmail(email, inviteCode, inviterName);
+
+    return res.status(200).json({ message: "Admin invite email sent" });
+  } catch (error) {
+    next(error);
+  }
+};
+
+exports.getSessionFee = async (req, res, next) => {
+  try {
+    const amount = await getTherapySessionFeePesewas();
+    return res.status(200).json({ amount });
+  } catch (error) {
+    next(error);
+  }
+};
+
+exports.updateSessionFee = async (req, res, next) => {
+  try {
+    const setting = await setTherapySessionFeePesewas(req.body.amount, req.user.id);
+    return res.status(200).json({ message: "Therapy session fee updated", amount: Number(setting.value) });
   } catch (error) {
     next(error);
   }

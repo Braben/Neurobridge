@@ -1,11 +1,12 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAppSelector } from "../../hooks/useRedux";
 import { bookingsApi, Booking, BookingStatus } from "../../services/bookings";
 import AppButton from "../../components/ui/AppButton";
-import { DashboardPanel, EmptyState, LoadingState, ScreenHeader, StatusBadge } from "../../components/ui/DashboardCards";
+import { DashboardPanel, EmptyState, FilterPanel, LoadingState, ScreenHeader, StatusBadge } from "../../components/ui/DashboardCards";
+import { FormField, SelectField } from "../../components/ui/FormField";
 
 const STATUS_TONES: Record<BookingStatus, "gold" | "green" | "red" | "blue"> = {
   PENDING: "gold",
@@ -21,6 +22,8 @@ export default function BookingsPage() {
   const router = useRouter();
   const { isAuthenticated, user } = useAppSelector((s) => s.auth);
   const [bookings, setBookings] = useState<Booking[]>([]);
+  const [search, setSearch] = useState("");
+  const [statusFilter, setStatusFilter] = useState("");
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -39,6 +42,25 @@ export default function BookingsPage() {
     setBookings((prev) => prev.map((booking) => (booking.id === id ? { ...booking, status } : booking)));
   };
 
+  const filteredBookings = useMemo(() => {
+    const query = search.trim().toLowerCase();
+    return bookings.filter((booking) =>
+      (!statusFilter || booking.status === statusFilter) &&
+      (!query || [
+        booking.child ? `${booking.child.firstName} ${booking.child.lastName}` : "",
+        booking.therapist ? `${booking.therapist.firstName} ${booking.therapist.lastName}` : "",
+        booking.parent ? `${booking.parent.firstName} ${booking.parent.lastName}` : "",
+        booking.therapist?.areaofexpertise,
+        booking.status,
+        booking.notes,
+      ]
+        .filter(Boolean)
+        .join(" ")
+        .toLowerCase()
+        .includes(query)),
+    );
+  }, [bookings, search, statusFilter]);
+
   if (!user) return null;
 
   return (
@@ -56,19 +78,47 @@ export default function BookingsPage() {
         }
       />
 
-      <DashboardPanel title="Booking History" description={`${bookings.length} booking${bookings.length === 1 ? "" : "s"} from the backend`}>
+      <FilterPanel>
+        <div className="w-full max-w-xl">
+          <FormField
+            label="Search"
+            name="bookingSearch"
+            value={search}
+            onChange={(event) => setSearch(event.target.value)}
+            placeholder="Search child, therapist, parent, or notes"
+            className="h-12 rounded-xl"
+          />
+        </div>
+        <div className="w-full sm:w-52">
+          <SelectField
+            label="Status"
+            name="bookingStatus"
+            value={statusFilter}
+            onChange={(event) => setStatusFilter(event.target.value)}
+            className="h-12 rounded-xl"
+          >
+            <option value="">All Statuses</option>
+            <option value="PENDING">Pending</option>
+            <option value="CONFIRMED">Confirmed</option>
+            <option value="COMPLETED">Completed</option>
+            <option value="CANCELLED">Cancelled</option>
+          </SelectField>
+        </div>
+      </FilterPanel>
+
+      <DashboardPanel title="Booking History" description={`${filteredBookings.length} booking${filteredBookings.length === 1 ? "" : "s"} shown`}>
         <div className="overflow-hidden rounded-md border border-[#d7e6f2] bg-white shadow-sm">
           {loading ? (
             <LoadingState />
-          ) : bookings.length === 0 ? (
+          ) : filteredBookings.length === 0 ? (
             <EmptyState
-              title="No bookings yet"
-              message={user.role === "PARENT" ? "Book a therapy session to get started." : "Booking requests will appear here."}
+              title={bookings.length === 0 ? "No bookings yet" : "No matching bookings"}
+              message={bookings.length === 0 ? (user.role === "PARENT" ? "Book a therapy session to get started." : "Booking requests will appear here.") : "Try another search term or status filter."}
               action={user.role === "PARENT" && <AppButton href="/bookings/new">Book a Session</AppButton>}
             />
           ) : (
             <div className="overflow-x-auto">
-              <table className="w-full min-w-[900px] text-left text-sm">
+              <table className="admin-data-table w-full min-w-[900px] text-left text-sm">
                 <thead className="bg-[#f6fbfd] text-xs uppercase text-[#536471]">
                   <tr>
                     <th className="px-6 py-3">Child</th>
@@ -79,7 +129,7 @@ export default function BookingsPage() {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-[#edf4f8]">
-                  {bookings.map((booking) => (
+                  {filteredBookings.map((booking) => (
                     <tr key={booking.id} className="hover:bg-[#f8fbfd]">
                       <td className="px-6 py-4 font-semibold text-[#111827]">
                         {booking.child?.firstName} {booking.child?.lastName}

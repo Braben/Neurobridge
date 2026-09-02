@@ -16,7 +16,7 @@ export interface Transaction {
 }
 
 export const paymentsApi = {
-  initialize: (data: { amount: number; bookingId?: string }) =>
+  initialize: (data: { amount?: number; bookingId?: string }) =>
     api.post<{ authorizationUrl: string; reference: string }>("/payments/initialize", data).then((r) => r.data),
 
   verify: (reference: string) =>
@@ -24,6 +24,9 @@ export const paymentsApi = {
 
   listTransactions: () =>
     api.get<{ transactions: Transaction[] }>("/payments/transactions").then((r) => r.data),
+
+  getSessionFee: () =>
+    api.get<{ amount: number }>("/payments/session-fee").then((r) => r.data),
 
   revenueDashboard: () =>
     api.get<{

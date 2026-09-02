@@ -1,12 +1,13 @@
 "use client";
 
 import Link from "next/link";
-import type { ReactNode } from "react";
+import { useState, type ReactNode } from "react";
+import { ArrowLeftIcon, FilterIcon, SearchIcon } from "../ui/Icons";
 
 export function AdminBackLink({ href = "/dashboard" }: { href?: string }) {
   return (
     <Link href={href} className="inline-flex items-center gap-2 text-sm font-medium text-[#111827] hover:text-[#0078d4]">
-      <span aria-hidden="true">{"<-"}</span>
+      <ArrowLeftIcon className="h-4 w-4" />
       Go Back
     </Link>
   );
@@ -22,13 +23,18 @@ export function AdminTitle({
   children: ReactNode;
 }) {
   return (
-    <div className="space-y-8">
-      <AdminBackLink href={backHref} />
-      <div className="grid gap-4 md:grid-cols-[1fr_auto_1fr] md:items-center">
-        <div />
-        <h1 className="text-center text-3xl font-bold tracking-normal text-[#111111] sm:text-4xl">{children}</h1>
-        <div className="flex justify-start md:justify-end">{action}</div>
+    <div className="relative flex min-h-12 flex-col justify-center gap-4 sm:min-h-[48px]">
+      <div className="sm:absolute sm:left-0 sm:top-1/2 sm:-translate-y-1/2">
+        <AdminBackLink href={backHref} />
       </div>
+      <h1 className="mx-auto max-w-[min(100%,760px)] text-center text-3xl font-bold tracking-normal text-[#111111] sm:text-[40px] sm:leading-[48px]">
+        {children}
+      </h1>
+      {action && (
+        <div className="sm:absolute sm:right-0 sm:top-1/2 sm:-translate-y-1/2">
+          {action}
+        </div>
+      )}
     </div>
   );
 }
@@ -44,29 +50,73 @@ export function AdminControls({
   setSearch: (value: string) => void;
   verb?: string;
 }) {
+  const [filtersOpen, setFiltersOpen] = useState(false);
+
   return (
-    <div className="flex flex-wrap items-end justify-end gap-4">
+    <div className="flex flex-wrap items-center justify-end gap-3">
       <label className="relative block w-full sm:w-[360px]">
         <span className="sr-only">Search</span>
         <input
           value={search}
           onChange={(event) => setSearch(event.target.value)}
-          placeholder="Search your item..."
+          placeholder="Search your item ..."
           className="h-12 w-full rounded-xl border border-[#b5d3ee] bg-white px-4 pr-11 text-sm outline-none transition placeholder:text-[#757575] focus:border-[#0071d7] focus:ring-4 focus:ring-[#0071d7]/15"
         />
         <span className="absolute right-4 top-1/2 -translate-y-1/2 text-[#536471]" aria-hidden="true">
-          O
+          <SearchIcon className="h-5 w-5" />
         </span>
       </label>
-      <div className="flex items-center gap-2 text-lg font-semibold text-[#111827]">
-        <span>{verb}</span>
-        {children || (
-          <span className="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-[#b5d3ee] text-[#0071d4]">
-            =
+      <div className="relative">
+        <button
+          type="button"
+          aria-expanded={filtersOpen}
+          onClick={() => setFiltersOpen((open) => !open)}
+          className="flex h-12 items-center gap-2 text-lg font-semibold text-[#111827] hover:text-[#0071d4] focus:outline-none focus:ring-2 focus:ring-[#0071d7]/25"
+        >
+          <span>{verb}</span>
+          <span className="inline-flex h-8 w-8 items-center justify-center rounded-md border border-[#b5d3ee] text-[#0071d4]">
+            <FilterIcon className="h-5 w-5" />
           </span>
+        </button>
+        {children && filtersOpen && (
+          <div className="absolute right-0 z-30 mt-2 flex min-w-60 flex-col gap-3 border border-[#b5d3ee] bg-white p-3 shadow-lg">
+            {children}
+          </div>
         )}
       </div>
     </div>
+  );
+}
+
+export function AdminFilterSelect({
+  label,
+  onChange,
+  options,
+  value,
+}: {
+  label: string;
+  onChange: (value: string) => void;
+  options: { label: string; value: string }[];
+  value: string;
+}) {
+  return (
+    <label className="relative inline-flex h-10 min-w-52 items-center rounded-md border border-[#b5d3ee] bg-white text-sm font-semibold text-[#0a3d62]">
+      <span className="sr-only">{label}</span>
+      <select
+        value={value}
+        onChange={(event) => onChange(event.target.value)}
+        className="h-full w-full appearance-none rounded-md bg-transparent px-3 pr-8 outline-none focus:ring-4 focus:ring-[#0071d7]/15"
+      >
+        {options.map((option) => (
+          <option key={option.value} value={option.value}>
+            {option.label}
+          </option>
+        ))}
+      </select>
+      <span className="pointer-events-none absolute right-3 text-[#0071d4]" aria-hidden="true">
+        <FilterIcon className="h-4 w-4" />
+      </span>
+    </label>
   );
 }
 
@@ -95,7 +145,10 @@ export function AdminTable({ children, minWidth = "1000px" }: { children: ReactN
   return (
     <div className="overflow-hidden border border-[#b5d3ee] bg-white">
       <div className="overflow-x-auto">
-        <table className="w-full table-fixed text-left text-sm" style={{ minWidth }}>
+        <table
+          className="admin-data-table w-full table-fixed border-collapse text-left text-sm"
+          style={{ minWidth }}
+        >
           {children}
         </table>
       </div>
@@ -103,16 +156,96 @@ export function AdminTable({ children, minWidth = "1000px" }: { children: ReactN
   );
 }
 
-export function SelectCell({ checked = false }: { checked?: boolean }) {
+export function AdminModal({
+  children,
+  label,
+  onClose,
+  maxWidth = "max-w-[520px]",
+}: {
+  children: ReactNode;
+  label: string;
+  onClose: () => void;
+  maxWidth?: string;
+}) {
   return (
+    <div className="fixed inset-0 z-[70] flex items-center justify-center bg-[#152c47]/40 px-4 backdrop-blur-[2px]" role="dialog" aria-modal="true" aria-label={label}>
+      <div className={`w-full ${maxWidth} border border-[#b5d3ee] bg-white p-6 shadow-2xl sm:p-8`}>
+        <div className="mb-5 flex justify-end">
+          <button
+            type="button"
+            onClick={onClose}
+            aria-label={`Close ${label}`}
+            className="inline-flex h-9 w-9 items-center justify-center rounded-md border border-[#e57373] text-[#e53935] hover:bg-[#fff0f0] focus:outline-none focus:ring-2 focus:ring-[#e53935]/20"
+          >
+            X
+          </button>
+        </div>
+        {children}
+      </div>
+    </div>
+  );
+}
+
+export function AdminDetailRow({ label, value }: { label: string; value: ReactNode }) {
+  return (
+    <div className="grid gap-1 border-b border-[#d7e6f2] py-3 sm:grid-cols-[180px_1fr] sm:gap-4">
+      <dt className="text-sm font-semibold text-[#0a3d62]">{label}</dt>
+      <dd className="text-sm text-[#111827]">{value}</dd>
+    </div>
+  );
+}
+
+export function AdminFooter() {
+  return (
+    <footer className="-mx-4 mt-10 bg-[#0a3d62] px-4 py-8 text-white sm:-mx-8 sm:px-8 lg:-mx-14 lg:px-14">
+      <div className="mx-auto flex max-w-[1500px] flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
+        <p className="text-3xl font-bold tracking-normal sm:text-4xl">Neuro Bridge Africa</p>
+        <div className="flex flex-wrap items-center gap-7 text-sm font-medium">
+          <Link href="/privacy" className="hover:underline">Privacy Policy</Link>
+          <Link href="/about" className="hover:underline">About Us</Link>
+          <span>&copy; 2026 Neuro Bridge Africa</span>
+        </div>
+      </div>
+    </footer>
+  );
+}
+
+export function SelectCell({
+  checked = false,
+  indeterminate = false,
+  label = "Select row",
+  onChange,
+}: {
+  checked?: boolean;
+  indeterminate?: boolean;
+  label?: string;
+  onChange?: (checked: boolean) => void;
+}) {
+  const active = checked || indeterminate;
+  const content = (
     <span
-      className={`inline-flex h-6 w-6 items-center justify-center rounded border-2 ${
-        checked ? "border-[#0078d4] bg-[#0078d4] text-white" : "border-[#7b7b7b] bg-white"
+      className={`inline-flex h-6 w-6 items-center justify-center rounded border-2 transition ${
+        active ? "border-[#0078d4] bg-[#0078d4] text-white" : "border-[#7b7b7b] bg-white"
       }`}
       aria-hidden="true"
     >
-      {checked ? <span className="h-2.5 w-2.5 rounded-sm bg-white" /> : null}
+      {indeterminate ? <span className="h-0.5 w-3 rounded bg-white" /> : checked ? <span className="h-2.5 w-2.5 rounded-sm bg-white" /> : null}
     </span>
+  );
+
+  if (!onChange) return content;
+
+  return (
+    <button
+      type="button"
+      aria-checked={indeterminate ? "mixed" : checked}
+      aria-label={label}
+      role="checkbox"
+      onClick={() => onChange(!checked || indeterminate)}
+      className="inline-flex rounded focus:outline-none focus:ring-2 focus:ring-[#0078d4]/30"
+    >
+      {content}
+    </button>
   );
 }
 

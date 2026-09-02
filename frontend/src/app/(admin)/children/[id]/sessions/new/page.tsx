@@ -1,13 +1,14 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useParams, useRouter } from "next/navigation";
+import { useParams, usePathname, useRouter } from "next/navigation";
 import Link from "next/link";
 import { useAppSelector } from "../../../../../hooks/useRedux";
 import { sessionsApi } from "../../../../../services/sessions";
 
 export default function NewSessionPage() {
   const { id } = useParams<{ id: string }>();
+  const pathname = usePathname();
   const router = useRouter();
   const { isAuthenticated, user } = useAppSelector((state) => state.auth);
 
@@ -20,6 +21,9 @@ export default function NewSessionPage() {
   });
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
+  const sessionsPath = pathname.startsWith("/admin/")
+    ? `/admin/children/${id}/sessions`
+    : `/children/${id}/sessions`;
 
   useEffect(() => {
     if (!isAuthenticated) { router.push("/login"); return; }
@@ -50,7 +54,7 @@ export default function NewSessionPage() {
         });
       }
 
-      router.push(`/children/${id}/sessions`);
+      router.push(sessionsPath);
     } catch (err: unknown) {
       setError((err as { response?: { data?: { message?: string } } })?.response?.data?.message || "Failed to create session");
     } finally {
@@ -66,7 +70,7 @@ export default function NewSessionPage() {
     <div className="min-h-screen bg-gray-50">
       <header className="bg-white shadow">
         <div className="mx-auto flex max-w-7xl items-center px-4 py-4">
-          <Link href={`/children/${id}/sessions`} className="text-sm text-blue-600 hover:text-blue-500">&larr; Sessions</Link>
+          <Link href={sessionsPath} className="text-sm text-blue-600 hover:text-blue-500">&larr; Sessions</Link>
           <h1 className="ml-4 text-xl font-bold text-gray-900">New Session</h1>
         </div>
       </header>
@@ -109,7 +113,7 @@ export default function NewSessionPage() {
               className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50">
               {submitting ? "Saving..." : "Save Session"}
             </button>
-            <Link href={`/children/${id}/sessions`}
+            <Link href={sessionsPath}
               className="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50">
               Cancel
             </Link>

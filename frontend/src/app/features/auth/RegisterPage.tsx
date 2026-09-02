@@ -9,6 +9,7 @@ import AppButton from "../../components/ui/AppButton";
 import AuthFrame from "../../components/ui/AuthFrame";
 import { FormField, SelectField } from "../../components/ui/FormField";
 import GlobalMessage from "../../components/ui/GlobalMessage";
+import { passwordError, passwordRuleMessage, validateAdultDateOfBirth } from "../../utils/validation";
 
 type RegisterRole = "PARENT" | "THERAPIST";
 
@@ -94,12 +95,18 @@ export default function RegisterPage({
       setValidationError("Passwords do not match");
       return;
     }
-    if (formData.password.length < 6) {
-      setValidationError("Password must be at least 6 characters");
+    const passwordValidationError = passwordError(formData.password);
+    if (passwordValidationError) {
+      setValidationError(passwordValidationError);
       return;
     }
     if (!formData.dateOfBirth) {
       setValidationError("Date of birth is required");
+      return;
+    }
+    const dateValidationError = validateAdultDateOfBirth(formData.dateOfBirth);
+    if (dateValidationError) {
+      setValidationError(dateValidationError);
       return;
     }
     if (!formData.identifier.trim()) {
@@ -151,7 +158,7 @@ export default function RegisterPage({
     <AuthFrame footerMinimal>
       {(validationError || error) && (
         <GlobalMessage variant="error">
-          Please ensure that all fields are filled correctly
+          {validationError || error || "Please ensure that all fields are filled correctly"}
         </GlobalMessage>
       )}
 
@@ -262,6 +269,7 @@ export default function RegisterPage({
                   ? validationError
                   : undefined
               }
+              helpText={passwordRuleMessage}
             />
             <FormField
               label="Confirm Your Password"

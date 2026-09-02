@@ -9,6 +9,7 @@ import AppButton from "../../components/ui/AppButton";
 import AuthFrame from "../../components/ui/AuthFrame";
 import { FormField } from "../../components/ui/FormField";
 import GlobalMessage from "../../components/ui/GlobalMessage";
+import { passwordError, passwordRuleMessage } from "../../utils/validation";
 
 export default function AdminRegisterPage() {
   const router = useRouter();
@@ -44,8 +45,9 @@ export default function AdminRegisterPage() {
       setValidationError("Passwords do not match");
       return;
     }
-    if (formData.password.length < 6) {
-      setValidationError("Password must be at least 6 characters");
+    const passwordValidationError = passwordError(formData.password);
+    if (passwordValidationError) {
+      setValidationError(passwordValidationError);
       return;
     }
     if (!formData.adminInviteCode.trim()) {
@@ -75,7 +77,7 @@ export default function AdminRegisterPage() {
     <AuthFrame footerMinimal>
       {(validationError || error) && (
         <GlobalMessage variant="error">
-          Please ensure that all fields are filled correctly
+          {validationError || error || "Please ensure that all fields are filled correctly"}
         </GlobalMessage>
       )}
 
@@ -157,6 +159,7 @@ export default function AdminRegisterPage() {
                   ? validationError
                   : undefined
               }
+              helpText={passwordRuleMessage}
             />
             <FormField
               label="Confirm Your Password"

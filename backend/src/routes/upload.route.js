@@ -5,7 +5,7 @@
 const express = require("express");
 const { uploadFile, listAttachments, deleteAttachment } = require("../modules/upload/upload.controller");
 const { verifyToken } = require("../middleware/auth");
-const { upload } = require("../config/cloudinary");
+const { handleUploadError, upload } = require("../config/cloudinary");
 
 const router = express.Router();
 
@@ -14,7 +14,7 @@ router.use(verifyToken);
 
 // POST accepts multipart form-data with a single file field named "file".
 // Multer processes the upload to Cloudinary; the controller saves the result.
-router.post("/", upload.single("file"), uploadFile);
+router.post("/", upload.single("file"), handleUploadError, uploadFile);
 
 // GET lists attachments filtered by query params (childId, sessionId)
 router.get("/", listAttachments);

@@ -5,7 +5,7 @@ export interface Conversation {
   createdAt: string;
   participants: {
     id: string;
-    user: { id: string; firstName: string; lastName: string; role: string; avatar: string | null };
+    user: { id: string; firstName: string; lastName: string; email?: string | null; phone?: string | null; role: string; avatar: string | null };
   }[];
   messages: { content: string; createdAt: string; senderId: string }[];
 }

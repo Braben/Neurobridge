@@ -1,11 +1,32 @@
 const prisma = require("../../config/prisma");
 const paystack = require("../../services/paystack.service");
 const { createNotification } = require("../../services/notification.service");
+const { getTherapySessionFeePesewas } = require("../../services/settings.service");
+
+exports.getSessionFee = async (req, res, next) => {
+  try {
+    const amount = await getTherapySessionFeePesewas();
+    return res.status(200).json({ amount });
+  } catch (error) {
+    next(error);
+  }
+};
 
 exports.initializePayment = async (req, res, next) => {
   try {
     const { amount, bookingId } = req.body;
-    if (!amount || amount < 100) {
+    let payableAmount = Number(amount);
+
+    if (bookingId) {
+      const booking = await prisma.booking.findUnique({ where: { id: bookingId } });
+      if (!booking) return res.status(404).json({ message: "Booking not found" });
+      if (booking.parentId !== req.user.id && req.user.role !== "ADMIN") {
+        return res.status(403).json({ message: "You cannot pay for this booking" });
+      }
+      payableAmount = await getTherapySessionFeePesewas();
+    }
+
+    if (!payableAmount || payableAmount < 100) {
       return res.status(400).json({ message: "Amount must be at least 100 pesewas (GHS 1)" });
     }
 
@@ -16,7 +37,7 @@ exports.initializePayment = async (req, res, next) => {
 
     const response = await paystack.initializeTransaction({
       email: req.user.email,
-      amount,
+      amount: payableAmount,
       reference,
       metadata,
     });
@@ -25,7 +46,7 @@ exports.initializePayment = async (req, res, next) => {
       data: {
         userId: req.user.id,
         email: req.user.email,
-        amount,
+        amount: payableAmount,
         reference,
         status: "PENDING",
         metadata,

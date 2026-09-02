@@ -1,10 +1,11 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useParams, useRouter } from "next/navigation";
+import { useParams, usePathname, useRouter } from "next/navigation";
 import Link from "next/link";
 import { useAppDispatch, useAppSelector } from "../../../../hooks/useRedux";
 import { fetchChild, updateChild } from "../../../../store/slices/childSlice";
+import { validateChildDateOfBirth } from "../../../../utils/validation";
 
 interface ChildForm {
   firstName: string;
@@ -18,6 +19,7 @@ interface ChildForm {
 
 export default function EditChildPage() {
   const { id } = useParams<{ id: string }>();
+  const pathname = usePathname();
   const router = useRouter();
   const dispatch = useAppDispatch();
   const { isAuthenticated } = useAppSelector((state) => state.auth);
@@ -26,6 +28,9 @@ export default function EditChildPage() {
   const [formEdits, setFormEdits] = useState<Partial<ChildForm>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState("");
+  const childPath = pathname.startsWith("/admin/")
+    ? `/admin/children/${id}`
+    : `/children/${id}`;
 
   useEffect(() => {
     if (!isAuthenticated) { router.push("/login"); return; }
@@ -50,6 +55,13 @@ export default function EditChildPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
+
+    const dateValidationError = validateChildDateOfBirth(form.dateOfBirth);
+    if (dateValidationError) {
+      setError(dateValidationError);
+      return;
+    }
+
     setIsSubmitting(true);
 
     const result = await dispatch(
@@ -67,7 +79,7 @@ export default function EditChildPage() {
     setIsSubmitting(false);
 
     if (updateChild.fulfilled.match(result)) {
-      router.push(`/children/${id}`);
+      router.push(childPath);
     } else {
       setError(result.error?.message || "Failed to update child");
     }
@@ -85,7 +97,7 @@ export default function EditChildPage() {
     <div className="min-h-screen bg-gray-50">
       <header className="bg-white shadow">
         <div className="mx-auto flex max-w-7xl items-center px-4 py-4">
-          <Link href={`/children/${id}`} className="text-sm text-blue-600 hover:text-blue-500">&larr; Back</Link>
+          <Link href={childPath} className="text-sm text-blue-600 hover:text-blue-500">&larr; Back</Link>
           <h1 className="ml-4 text-xl font-bold text-gray-900">Edit {child?.firstName} {child?.lastName}</h1>
         </div>
       </header>
@@ -149,7 +161,7 @@ export default function EditChildPage() {
               className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50">
               {isSubmitting ? "Saving..." : "Save Changes"}
             </button>
-            <Link href={`/children/${id}`}
+            <Link href={childPath}
               className="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50">
               Cancel
             </Link>

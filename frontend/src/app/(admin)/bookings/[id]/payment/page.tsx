@@ -17,6 +17,7 @@ export default function PaymentPage() {
   const [booking, setBooking] = useState<Booking | null>(null);
   const [loading, setLoading] = useState(true);
   const [processing, setProcessing] = useState(Boolean(reference));
+  const [sessionFee, setSessionFee] = useState(15000);
   const [error, setError] = useState("");
   const [message, setMessage] = useState(reference ? "Verifying payment..." : "");
 
@@ -28,6 +29,7 @@ export default function PaymentPage() {
       .then((d) => setBooking(d.booking))
       .catch(() => router.push("/bookings"))
       .finally(() => setLoading(false));
+    paymentsApi.getSessionFee().then((data) => setSessionFee(data.amount)).catch(() => undefined);
   }, [isAuthenticated, user, bookingId, router]);
 
   useEffect(() => {
@@ -51,7 +53,6 @@ export default function PaymentPage() {
     setError("");
     try {
       const res = await paymentsApi.initialize({
-        amount: 15000,
         bookingId,
       });
       window.location.href = res.authorizationUrl;
@@ -63,6 +64,7 @@ export default function PaymentPage() {
 
   if (!user) return null;
   if (loading) return <div className="flex justify-center py-12"><div className="h-8 w-8 animate-spin rounded-full border-4 border-blue-600 border-t-transparent" /></div>;
+  const formattedSessionFee = `GHS ${(sessionFee / 100).toLocaleString("en-US", { minimumFractionDigits: 2 })}`;
 
   if (!booking) {
     return (
@@ -110,7 +112,7 @@ export default function PaymentPage() {
           <hr />
           <div className="flex justify-between text-base">
             <span className="font-semibold text-gray-700">Session Fee</span>
-            <span className="font-bold text-gray-900">GHS 150.00</span>
+            <span className="font-bold text-gray-900">{formattedSessionFee}</span>
           </div>
         </div>
       </div>
@@ -122,7 +124,7 @@ export default function PaymentPage() {
         disabled={processing || booking.status !== "PENDING"}
         className="w-full rounded-lg bg-blue-600 px-4 py-3 text-sm font-semibold text-white hover:bg-blue-500 disabled:opacity-50"
       >
-        {processing ? "Processing..." : `Pay GHS 150.00 with Paystack`}
+        {processing ? "Processing..." : `Pay ${formattedSessionFee} with Paystack`}
       </button>
 
       <p className="mt-3 text-center text-xs text-gray-400">

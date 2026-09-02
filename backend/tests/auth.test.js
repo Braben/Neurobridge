@@ -10,7 +10,8 @@ const testUser = {
   lastName: "User",
   email: `test-${Date.now()}@example.com`,
   phone: `+23350${Date.now().toString().slice(-8)}`,
-  password: "testPass123",
+  dateOfBirth: "1990-01-01",
+  password: "TestPass123!",
   role: "PARENT",
 };
 

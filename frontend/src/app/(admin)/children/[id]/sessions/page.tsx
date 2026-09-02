@@ -1,17 +1,24 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useParams, useRouter } from "next/navigation";
+import { useParams, usePathname, useRouter } from "next/navigation";
 import Link from "next/link";
 import { useAppSelector } from "../../../../hooks/useRedux";
 import { sessionsApi, Session } from "../../../../services/sessions";
 
 export default function SessionsPage() {
   const { id } = useParams<{ id: string }>();
+  const pathname = usePathname();
   const router = useRouter();
   const { isAuthenticated, user } = useAppSelector((state) => state.auth);
   const [sessions, setSessions] = useState<Session[]>([]);
   const [loading, setLoading] = useState(true);
+  const childPath = pathname.startsWith("/admin/")
+    ? `/admin/children/${id}`
+    : `/children/${id}`;
+  const newSessionPath = pathname.startsWith("/admin/")
+    ? `/admin/children/${id}/sessions/new`
+    : `/children/${id}/sessions/new`;
 
   useEffect(() => {
     if (!isAuthenticated) { router.push("/login"); return; }
@@ -25,11 +32,11 @@ export default function SessionsPage() {
       <header className="bg-white shadow">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-4">
           <div className="flex items-center gap-4">
-            <Link href={`/children/${id}`} className="text-sm text-blue-600 hover:text-blue-500">&larr; Child</Link>
+            <Link href={childPath} className="text-sm text-blue-600 hover:text-blue-500">&larr; Child</Link>
             <h1 className="text-xl font-bold text-gray-900">Sessions</h1>
           </div>
           {(user.role === "THERAPIST" || user.role === "ADMIN") && (
-            <Link href={`/children/${id}/sessions/new`}
+            <Link href={newSessionPath}
               className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700">
               + New Session
             </Link>
@@ -78,7 +85,7 @@ export default function SessionsPage() {
 
                 {user.role === "THERAPIST" && (
                   <div className="mt-3 flex gap-2">
-                    <Link href={`/children/${id}/sessions/new?edit=${s.id}`}
+                    <Link href={`${newSessionPath}?edit=${s.id}`}
                       className="text-xs text-blue-600 hover:text-blue-500">
                       {s.note ? "Edit Notes" : "Add Notes"}
                     </Link>

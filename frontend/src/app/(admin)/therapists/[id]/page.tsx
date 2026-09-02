@@ -7,6 +7,7 @@
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
+import Image from "next/image";
 import { useAppSelector } from "../../../hooks/useRedux";
 import { therapistsApi, TherapistProfile } from "../../../services/therapists";
 
@@ -39,7 +40,13 @@ export default function TherapistProfilePage() {
         {/* Avatar + name header — shows image or fallback initials */}
         <div className="flex items-center gap-4">
           {therapist.avatar ? (
-            <img src={therapist.avatar} alt="" className="h-16 w-16 rounded-full object-cover" />
+            <Image
+              src={therapist.avatar}
+              alt={`${therapist.firstName} ${therapist.lastName}`}
+              width={64}
+              height={64}
+              className="h-16 w-16 rounded-full object-cover"
+            />
           ) : (
             <div className="flex h-16 w-16 items-center justify-center rounded-full bg-blue-100 text-lg font-bold text-blue-600">
               {therapist.firstName[0]}{therapist.lastName[0]}

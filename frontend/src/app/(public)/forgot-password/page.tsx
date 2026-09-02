@@ -6,6 +6,7 @@ import AppButton from "../../components/ui/AppButton";
 import AuthFrame from "../../components/ui/AuthFrame";
 import { FormField } from "../../components/ui/FormField";
 import { api } from "../../services/api";
+import { passwordError, passwordRuleMessage } from "../../utils/validation";
 
 function EyeIcon({ hidden }: { hidden: boolean }) {
   return hidden ? (
@@ -75,7 +76,8 @@ const buttonClassName =
 
 export default function ForgotPasswordPage() {
   const [identifier, setIdentifier] = useState("");
-  const [resetEmail, setResetEmail] = useState("");
+  const [resetIdentifier, setResetIdentifier] = useState("");
+  const [resetChannel, setResetChannel] = useState<"EMAIL" | "SMS" | null>(null);
   const [code, setCode] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -96,10 +98,14 @@ export default function ForgotPasswordPage() {
     setIsSending(true);
 
     try {
-      const response = await api.post<{ message: string; resetEmail?: string }>("/auth/request-password-reset", {
+      const response = await api.post<{ message: string; resetIdentifier?: string; resetChannel?: "EMAIL" | "SMS" }>(
+        "/auth/request-password-reset",
+        {
         identifier,
-      });
-      setResetEmail(response.data.resetEmail || (identifier.includes("@") ? identifier : ""));
+        },
+      );
+      setResetIdentifier(response.data.resetIdentifier || identifier.trim());
+      setResetChannel(response.data.resetChannel || (identifier.includes("@") ? "EMAIL" : "SMS"));
       setSubmitted(true);
       setSuccess(resetSuccessMessage);
     } catch (requestError: unknown) {
@@ -132,11 +138,17 @@ export default function ForgotPasswordPage() {
       setResetError("Password doesn't match");
       return;
     }
+    const passwordValidationError = passwordError(password);
+    if (passwordValidationError) {
+      setResetError(passwordValidationError);
+      return;
+    }
 
     setIsResetting(true);
     try {
       await api.post<{ message: string }>("/auth/reset-password", {
-        email: resetEmail,
+        identifier: resetIdentifier,
+        channel: resetChannel || undefined,
         code,
         password,
       });
@@ -169,9 +181,9 @@ export default function ForgotPasswordPage() {
   const passwordMatches = Boolean(confirmPassword && password === confirmPassword);
   const canRequestReset = Boolean(identifier.trim()) && !isSending;
   const canSubmitNewPassword =
-    Boolean(resetEmail.trim()) &&
+    Boolean(resetIdentifier.trim()) &&
     code.length === 6 &&
-    password.length >= 6 &&
+    !passwordError(password) &&
     passwordMatches &&
     !isResetting;
 
@@ -240,15 +252,18 @@ export default function ForgotPasswordPage() {
             />
             <form className="space-y-6" onSubmit={handleResetPassword}>
               <FormField
-                label="Account Email"
-                name="resetEmail"
+                label="Account Email / Phone Number"
+                name="resetIdentifier"
                 required
-                type="email"
-                value={resetEmail}
-                onChange={(event) => setResetEmail(event.target.value)}
-                placeholder="name@example.com"
+                value={resetIdentifier}
+                onChange={(event) => {
+                  const nextValue = event.target.value;
+                  setResetIdentifier(nextValue);
+                  setResetChannel(nextValue.includes("@") ? "EMAIL" : "SMS");
+                }}
+                placeholder="name@example.com / +233..."
                 className={controlClassName}
-                helpText={!resetEmail ? "Enter the email address connected to this account." : undefined}
+                helpText={!resetIdentifier ? "Enter the email or phone number connected to this account." : undefined}
               />
               <FormField
                 label="Reset Code"
@@ -273,6 +288,7 @@ export default function ForgotPasswordPage() {
                 rightIcon={<EyeIcon hidden={!showPassword} />}
                 rightIconLabel={showPassword ? "Hide password" : "Show password"}
                 onRightIconClick={() => setShowPassword((visible) => !visible)}
+                helpText={passwordRuleMessage}
               />
               <FormField
                 label="Confirm New Password"

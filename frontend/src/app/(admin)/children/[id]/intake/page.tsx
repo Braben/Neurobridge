@@ -1,13 +1,14 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useParams, useRouter } from "next/navigation";
+import { useParams, usePathname, useRouter } from "next/navigation";
 import Link from "next/link";
 import { useAppSelector } from "../../../../hooks/useRedux";
 import { intakeApi, IntakeForm } from "../../../../services/intake";
 
 export default function IntakePage() {
   const { id } = useParams<{ id: string }>();
+  const pathname = usePathname();
   const router = useRouter();
   const { isAuthenticated, user } = useAppSelector((state) => state.auth);
 
@@ -17,6 +18,9 @@ export default function IntakePage() {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
   const [saved, setSaved] = useState(false);
+  const childPath = pathname.startsWith("/admin/")
+    ? `/admin/children/${id}`
+    : `/children/${id}`;
 
   useEffect(() => {
     if (!isAuthenticated) { router.push("/login"); return; }
@@ -56,7 +60,7 @@ export default function IntakePage() {
     <div className="min-h-screen bg-gray-50">
       <header className="bg-white shadow">
         <div className="mx-auto flex max-w-7xl items-center px-4 py-4">
-          <Link href={`/children/${id}`} className="text-sm text-blue-600 hover:text-blue-500">&larr; Child</Link>
+          <Link href={childPath} className="text-sm text-blue-600 hover:text-blue-500">&larr; Child</Link>
           <h1 className="ml-4 text-xl font-bold text-gray-900">Intake Form</h1>
           {existing && <span className="ml-3 rounded-full bg-green-100 px-2 py-0.5 text-xs font-medium text-green-700">Completed</span>}
         </div>
@@ -98,7 +102,7 @@ export default function IntakePage() {
                 className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50">
                 {submitting ? "Saving..." : existing ? "Update Intake Form" : "Save Intake Form"}
               </button>
-              <Link href={`/children/${id}`}
+              <Link href={childPath}
                 className="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50">
                 Cancel
               </Link>

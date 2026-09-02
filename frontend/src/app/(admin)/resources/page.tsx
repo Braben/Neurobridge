@@ -100,7 +100,7 @@ export default function ResourcesPage() {
             <EmptyState title="No resources found" message="Published content will appear here once it is added." />
           ) : (
             <div className="overflow-x-auto">
-              <table className="w-full min-w-[820px] text-left text-sm">
+              <table className="admin-data-table w-full min-w-[820px] text-left text-sm">
                 <thead className="bg-[#f6fbfd] text-xs uppercase text-[#536471]">
                   <tr>
                     <th className="px-6 py-3">Title</th>

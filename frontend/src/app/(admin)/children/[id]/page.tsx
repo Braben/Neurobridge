@@ -1,14 +1,17 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { useParams, useRouter } from "next/navigation";
+import { useParams, usePathname, useRouter } from "next/navigation";
 import Link from "next/link";
 import { useAppDispatch, useAppSelector } from "../../../hooks/useRedux";
 import { fetchChild, deleteChild } from "../../../store/slices/childSlice";
-import { uploadApi, FileAttachment } from "../../../services/upload";
+import { adminApi, AdminTherapist } from "../../../services/admin";
+import { childrenApi } from "../../../services/children";
+import { uploadApi, FileAttachment, validateUploadFile } from "../../../services/upload";
 
 export default function ChildDetailPage() {
   const { id } = useParams<{ id: string }>();
+  const pathname = usePathname();
   const router = useRouter();
   const dispatch = useAppDispatch();
   const { isAuthenticated, user } = useAppSelector((state) => state.auth);
@@ -17,7 +20,20 @@ export default function ChildDetailPage() {
   // Phase 2: file attachment state — must be BEFORE any early return
   const [attachments, setAttachments] = useState<FileAttachment[]>([]);
   const [uploading, setUploading] = useState(false);
+  const [uploadError, setUploadError] = useState("");
+  const [therapists, setTherapists] = useState<AdminTherapist[]>([]);
+  const [selectedTherapistId, setSelectedTherapistId] = useState("");
+  const [assigningTherapist, setAssigningTherapist] = useState(false);
+  const [assignmentMessage, setAssignmentMessage] = useState("");
+  const [assignmentError, setAssignmentError] = useState("");
   const fileRef = useRef<HTMLInputElement>(null);
+  const isAdminRoute = pathname.startsWith("/admin/");
+  const childrenIndexPath = isAdminRoute ? "/admin/children" : "/children";
+  const childPath = isAdminRoute ? `/admin/children/${id}` : `/children/${id}`;
+  const childEditPath = isAdminRoute ? `/admin/children/${id}/edit` : `/children/${id}/edit`;
+  const childSessionsPath = isAdminRoute ? `/admin/children/${id}/sessions` : `/children/${id}/sessions`;
+  const childIntakePath = isAdminRoute ? `/admin/children/${id}/intake` : `/children/${id}/intake`;
+  const childProgressPath = isAdminRoute ? `/admin/progress/${id}` : `/progress/${id}`;
 
   useEffect(() => {
     if (!isAuthenticated) { router.push("/login"); return; }
@@ -29,10 +45,54 @@ export default function ChildDetailPage() {
     uploadApi.list({ childId: id }).then((d) => setAttachments(d.attachments)).catch(() => {});
   }, [id]);
 
+  useEffect(() => {
+    if (!isAuthenticated || user?.role !== "ADMIN") return;
+    let active = true;
+    adminApi
+      .therapists()
+      .then((data) => {
+        if (!active) return;
+        setTherapists(data.therapists.filter((therapist) => therapist.isApproved));
+      })
+      .catch(() => {
+        if (active) setAssignmentError("Unable to load approved therapists for assignment.");
+      });
+    return () => {
+      active = false;
+    };
+  }, [isAuthenticated, user?.role]);
+
   const handleDelete = async () => {
     if (!window.confirm("Delete this child? This cannot be undone.")) return;
     await dispatch(deleteChild(id));
-    router.push("/children");
+    router.push(childrenIndexPath);
+  };
+
+  const handleAssignTherapist = async () => {
+    if (!child) return;
+    if (!selectedTherapistId) {
+      setAssignmentError("Select a therapist before assigning.");
+      return;
+    }
+
+    setAssignmentMessage("");
+    setAssignmentError("");
+    setAssigningTherapist(true);
+    try {
+      await childrenApi.assignTherapist(id, selectedTherapistId);
+      await dispatch(fetchChild(id));
+      const assigned = therapists.find((therapist) => therapist.id === selectedTherapistId);
+      setAssignmentMessage(
+        assigned
+          ? `${assigned.fullName} has been assigned to ${child.firstName} ${child.lastName}.`
+          : "Therapist assigned successfully.",
+      );
+      setSelectedTherapistId("");
+    } catch {
+      setAssignmentError("Unable to assign this therapist. Confirm the therapist is valid and try again.");
+    } finally {
+      setAssigningTherapist(false);
+    }
   };
 
   if (!user || !child) return null;
@@ -50,7 +110,7 @@ export default function ChildDetailPage() {
       <div className="flex min-h-screen items-center justify-center bg-gray-50">
         <div className="rounded-xl bg-white p-8 text-center shadow">
           <p className="text-red-600">{error}</p>
-          <Link href="/children" className="mt-4 inline-block text-sm text-blue-600 hover:text-blue-500">&larr; Back to Children</Link>
+          <Link href={childrenIndexPath} className="mt-4 inline-block text-sm text-blue-600 hover:text-blue-500">&larr; Back to Children</Link>
         </div>
       </div>
     );
@@ -61,13 +121,19 @@ export default function ChildDetailPage() {
   const handleUpload = async () => {
     const file = fileRef.current?.files?.[0];
     if (!file) return;
+    const validationError = validateUploadFile(file);
+    if (validationError) {
+      setUploadError(validationError);
+      return;
+    }
+    setUploadError("");
     setUploading(true);
     try {
       const res = await uploadApi.upload(file, id);
       setAttachments((prev) => [res.attachment, ...prev]);
       if (fileRef.current) fileRef.current.value = "";
-    } catch {
-      // File upload failed silently — the user can retry
+    } catch (error) {
+      setUploadError(error instanceof Error ? error.message : "Unable to upload this file. Please try again.");
     } finally {
       setUploading(false);
     }
@@ -81,12 +147,12 @@ export default function ChildDetailPage() {
 
   // Navigation tabs — now includes Progress (charts) and Files (attachments)
   const navLinks = [
-    { href: `/children/${id}/sessions`, label: "Sessions", count: child.sessions.length },
-    { href: `/children/${id}/intake`, label: "Intake Form", active: !!child.intakeForm },
-    { href: `/children/${id}#goals`, label: "Goals", count: child.goals.length },
-    { href: `/children/${id}#behaviours`, label: "Behaviours", count: child.behaviours.length },
-    { href: `/progress/${id}`, label: "Progress" },
-    { href: `/children/${id}#files`, label: "Files", count: attachments.length },
+    { href: childSessionsPath, label: "Sessions", count: child.sessions.length },
+    { href: childIntakePath, label: "Intake Form", active: !!child.intakeForm },
+    { href: `${childPath}#goals`, label: "Goals", count: child.goals.length },
+    { href: `${childPath}#behaviours`, label: "Behaviours", count: child.behaviours.length },
+    { href: childProgressPath, label: "Progress" },
+    { href: `${childPath}#files`, label: "Files", count: attachments.length },
   ];
 
   return (
@@ -94,11 +160,11 @@ export default function ChildDetailPage() {
       <header className="bg-white shadow">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-4">
           <div className="flex items-center gap-4">
-            <Link href="/children" className="text-sm text-blue-600 hover:text-blue-500">&larr; Children</Link>
+            <Link href={childrenIndexPath} className="text-sm text-blue-600 hover:text-blue-500">&larr; Children</Link>
             <h1 className="text-xl font-bold text-gray-900">{child.firstName} {child.lastName}</h1>
           </div>
           <div className="flex gap-2">
-            <Link href={`/children/${child.id}/edit`} className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700">Edit</Link>
+            <Link href={childEditPath} className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700">Edit</Link>
             <button onClick={handleDelete} className="rounded-lg bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700">Delete</button>
           </div>
         </div>
@@ -157,9 +223,17 @@ export default function ChildDetailPage() {
         )}
 
         {/* Therapists */}
-        {child.therapists.length > 0 && (
-          <div className="rounded-xl bg-white p-6 shadow">
-            <h2 className="mb-4 text-lg font-semibold text-gray-900">Therapists</h2>
+        <div className="rounded-xl bg-white p-6 shadow">
+          <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+            <h2 className="text-lg font-semibold text-gray-900">Therapists</h2>
+            {user.role === "ADMIN" && (
+              <span className="rounded-full bg-blue-50 px-3 py-1 text-xs font-medium text-blue-700">
+                Admin Assignment
+              </span>
+            )}
+          </div>
+
+          {child.therapists.length > 0 ? (
             <div className="space-y-2">
               {child.therapists.map((t) => (
                 <div key={t.id} className="flex items-center justify-between rounded-lg bg-gray-50 p-3">
@@ -171,8 +245,47 @@ export default function ChildDetailPage() {
                 </div>
               ))}
             </div>
-          </div>
-        )}
+          ) : (
+            <p className="rounded-lg bg-gray-50 p-3 text-sm text-gray-500">No therapist assigned yet.</p>
+          )}
+
+          {user.role === "ADMIN" && (
+            <div className="mt-5 space-y-3 border-t border-gray-100 pt-5">
+              <label className="block text-sm font-medium text-gray-700">
+                Assign an approved therapist
+                <select
+                  value={selectedTherapistId}
+                  onChange={(event) => {
+                    setSelectedTherapistId(event.target.value);
+                    setAssignmentError("");
+                    setAssignmentMessage("");
+                  }}
+                  className="mt-2 h-11 w-full rounded-lg border border-gray-300 bg-white px-3 text-sm text-gray-900 outline-none focus:border-blue-600 focus:ring-4 focus:ring-blue-100"
+                >
+                  <option value="">Select therapist</option>
+                  {therapists.map((therapist) => (
+                    <option key={therapist.id} value={therapist.id}>
+                      {therapist.fullName} - {therapist.areaofexpertise || "Therapist"}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              {therapists.length === 0 && !assignmentError && (
+                <p className="text-sm text-gray-500">No approved therapists are available yet.</p>
+              )}
+              {assignmentMessage && <p className="text-sm font-medium text-green-700">{assignmentMessage}</p>}
+              {assignmentError && <p className="text-sm font-medium text-red-600">{assignmentError}</p>}
+              <button
+                type="button"
+                onClick={handleAssignTherapist}
+                disabled={!selectedTherapistId || assigningTherapist}
+                className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:cursor-not-allowed disabled:bg-gray-300"
+              >
+                {assigningTherapist ? "Assigning..." : "Assign Therapist"}
+              </button>
+            </div>
+          )}
+        </div>
 
         {/* Goals Section */}
         <div id="goals" className="rounded-xl bg-white p-6 shadow">
@@ -206,7 +319,7 @@ export default function ChildDetailPage() {
         <div className="rounded-xl bg-white p-6 shadow">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-lg font-semibold text-gray-900">Recent Sessions</h2>
-            <Link href={`/children/${id}/sessions`} className="text-sm text-blue-600 hover:text-blue-500">View all &rarr;</Link>
+            <Link href={childSessionsPath} className="text-sm text-blue-600 hover:text-blue-500">View all &rarr;</Link>
           </div>
           {child.sessions.length === 0 ? (
             <p className="text-sm text-gray-400 italic">No sessions recorded yet.</p>
@@ -233,6 +346,7 @@ export default function ChildDetailPage() {
               {uploading ? "Uploading..." : "Upload"}
             </button>
           </div>
+          {uploadError && <p className="mb-4 text-sm font-medium text-red-600">{uploadError}</p>}
           {/* Attachment list — each entry is a clickable link + delete button */}
           {attachments.length === 0 ? (
             <p className="text-sm text-gray-400 italic">No files uploaded.</p>

@@ -27,6 +27,7 @@ import GlobalMessage from "../../components/ui/GlobalMessage";
 import RoleDashboard from "../../components/role-dashboard/RoleDashboard";
 import { useAppDispatch, useAppSelector } from "../../hooks/useRedux";
 import { api } from "../../services/api";
+import { adminApi, AdminChild, AdminParent, AdminTherapist } from "../../services/admin";
 import { Booking, BookingStatus, bookingsApi } from "../../services/bookings";
 import { paymentsApi, Transaction } from "../../services/payments";
 import { Resource, resourcesApi } from "../../services/resources";
@@ -116,6 +117,33 @@ function firstNameLabel(firstName?: string) {
   return firstName?.trim() || "there";
 }
 
+function fullName(person?: { firstName?: string; lastName?: string; fullName?: string }) {
+  return person?.fullName || `${person?.firstName || ""} ${person?.lastName || ""}`.trim() || "N/A";
+}
+
+function formatShortDate(value?: string | null) {
+  if (!value) return "N/A";
+  return new Date(value).toLocaleDateString("en-GB").replace(/\//g, "-");
+}
+
+function adminResourceImage(resource: Resource, index: number) {
+  if (resource.thumbnailUrl) return resource.thumbnailUrl;
+  return index % 2 === 0 ? "/design-assets/children-classroom.jpg" : "/design-assets/therapy-room.jpg";
+}
+
+const adminDashboardRoutes = {
+  users: "/admin/users",
+  parents: "/admin/parents",
+  therapists: "/admin/therapists",
+  children: "/admin/children",
+  sessions: "/admin/sessions",
+  content: "/admin/content",
+  revenue: "/admin/revenue",
+  messages: "/admin/messages",
+  notifications: "/admin/notifications",
+  complaints: "/admin/complaints",
+};
+
 export default function Dashboard() {
   const router = useRouter();
   const dispatch = useAppDispatch();
@@ -124,6 +152,9 @@ export default function Dashboard() {
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [resources, setResources] = useState<Resource[]>([]);
   const [sessions, setSessions] = useState<Session[]>([]);
+  const [adminParents, setAdminParents] = useState<AdminParent[]>([]);
+  const [adminTherapists, setAdminTherapists] = useState<AdminTherapist[]>([]);
+  const [adminChildren, setAdminChildren] = useState<AdminChild[]>([]);
   const [adminStats, setAdminStats] = useState<AdminStats | null>(null);
   const [revenue, setRevenue] = useState<RevenueDashboard | null>(null);
   const [dashboardLoading, setDashboardLoading] = useState(true);
@@ -160,17 +191,26 @@ export default function Dashboard() {
         setSessions(sessionResult.sessions);
 
         if (role === "ADMIN") {
-          const [statsResult, revenueResult] = await Promise.all([
+          const [statsResult, revenueResult, parentResult, therapistResult, childResult] = await Promise.all([
             api.get<{ stats: AdminStats }>("/admin/stats").then((response) => response.data),
             paymentsApi.revenueDashboard(),
+            adminApi.parents(),
+            adminApi.therapists(),
+            adminApi.children(),
           ]);
 
           if (!active) return;
           setAdminStats(statsResult.stats);
           setRevenue(revenueResult);
+          setAdminParents(parentResult.parents);
+          setAdminTherapists(therapistResult.therapists);
+          setAdminChildren(childResult.children);
         } else {
           setAdminStats(null);
           setRevenue(null);
+          setAdminParents([]);
+          setAdminTherapists([]);
+          setAdminChildren([]);
         }
       } catch {
         if (!active) return;
@@ -213,15 +253,16 @@ export default function Dashboard() {
 
   if (user.role === "ADMIN") {
     const totalUsers = revenue?.totalUsers ?? ((adminStats?.totalParents || 0) + (adminStats?.totalTherapists || 0));
+    const successfulTransactions = revenue?.recentTransactions.filter((transaction) => transaction.status === "SUCCESS") || [];
 
     return (
-      <div className="space-y-10">
-        <section>
-          <h1 className="text-4xl font-bold tracking-normal text-[#111827]">
-            Welcome back <span className="text-[#073f63]">&quot;{firstName}&quot;</span> to your admin dashboard
+      <div className="mx-auto w-full max-w-[1500px] space-y-10">
+        <section className="border-b border-[#9dc7df] pb-8">
+          <h1 className="text-[32px] font-medium leading-tight tracking-normal text-[#111111] sm:text-[44px]">
+            Welcome back <span className="text-[#0a3d62]">&quot;{firstName}&quot;</span> to your admin dashboard
           </h1>
-          <p className="mt-4 max-w-5xl text-base text-[#3f4f5c]">
-            Monitor platform growth, therapist approvals, bookings, resources, and revenue from the live backend data.
+          <p className="mt-4 max-w-6xl text-base leading-7 text-[#111111]">
+            Find out all the information about Neuro Bridge and how the platform is helping to drive business across the different user base of the system.
           </p>
         </section>
 
@@ -231,22 +272,36 @@ export default function Dashboard() {
           </GlobalMessage>
         )}
 
-        <DashboardPanel title="Overview" description="Live system totals from admin, booking, child, and payment APIs.">
+        <DashboardPanel title="Overview" description="Here's a summary of the impact and revenue statistics of Neuro Bridge">
           {dashboardLoading ? (
             <LoadingState />
           ) : (
-            <div className="grid gap-6 lg:grid-cols-4">
-              <StatCard value={totalUsers} label="Users registered" action={<Link href="/admin/parents">See all users</Link>} />
-              <StatCard value={adminStats?.totalChildren || children.length} label="Children profiles" accent="teal" action={<Link href="/admin/children">View children</Link>} />
-              <StatCard value={adminStats?.totalSessions || sessions.length} label="Therapy sessions" accent="green" action={<Link href="/admin/sessions">View bookings</Link>} />
-              <StatCard value={formatCurrencyFromPesewas(revenue?.revenue.total || 0)} label="Total revenue" accent="gold" action={<Link href="/admin/revenue">View revenue</Link>} />
+            <div className="grid gap-8 lg:grid-cols-3">
+              <StatCard
+                value={totalUsers}
+                label="Users Registered"
+                trend={`(+${Math.max(adminParents.length + adminTherapists.length - totalUsers, 0)} today)`}
+                action={<Link href={adminDashboardRoutes.users}>See All Platform Users -&gt;</Link>}
+              />
+              <StatCard
+                value={adminStats?.totalSessions || sessions.length}
+                label="Therapy Sessions So Far"
+                trend={`(+${bookings.filter((booking) => booking.status === "CONFIRMED").length} this week)`}
+                action={<Link href={adminDashboardRoutes.sessions}>View Therapy &amp; Session Management -&gt;</Link>}
+              />
+              <StatCard
+                value={formatCurrencyFromPesewas(revenue?.revenue.total || 0)}
+                label="In Earnings So Far"
+                trend={`(+${formatCurrencyFromPesewas(revenue?.revenue.monthly || 0)} this month)`}
+                action={<Link href={adminDashboardRoutes.revenue}>View Revenue Income History -&gt;</Link>}
+              />
             </div>
           )}
         </DashboardPanel>
 
         <div className="grid gap-10 xl:grid-cols-2">
-          <DashboardPanel title="User Roles" description="Current registered care network by role.">
-            <div className="h-72 w-full rounded-md border border-[#d7e6f2] bg-white p-4 shadow-sm">
+          <DashboardPanel title="User Accounts" description="Breakdown of parents, therapists, and child profiles currently in the system.">
+            <div className="h-80 w-full border border-[#b5d3ee] bg-white p-4">
               <ResponsiveContainer>
                 <BarChart
                   data={[
@@ -259,21 +314,21 @@ export default function Dashboard() {
                   <XAxis dataKey="role" axisLine={false} tickLine={false} />
                   <YAxis allowDecimals={false} axisLine={false} tickLine={false} />
                   <Tooltip />
-                  <Bar dataKey="count" fill="#0078d4" radius={[4, 4, 0, 0]} />
+                  <Bar dataKey="count" fill="#0078d4" radius={[3, 3, 0, 0]} />
                 </BarChart>
               </ResponsiveContainer>
             </div>
           </DashboardPanel>
 
-          <DashboardPanel title="Booking Pipeline" description="Live booking status totals.">
-            <div className="h-72 w-full rounded-md border border-[#d7e6f2] bg-white p-4 shadow-sm">
+          <DashboardPanel title="Therapists' Bookings" description="How booked therapy sessions are moving through the platform.">
+            <div className="h-80 w-full border border-[#b5d3ee] bg-white p-4">
               <ResponsiveContainer>
                 <BarChart data={bookingChart}>
                   <CartesianGrid stroke="#edf4f8" />
                   <XAxis dataKey="status" axisLine={false} tickLine={false} />
                   <YAxis allowDecimals={false} axisLine={false} tickLine={false} />
                   <Tooltip />
-                  <Bar dataKey="count" fill="#0da8b8" radius={[4, 4, 0, 0]} />
+                  <Bar dataKey="count" fill="#0a3d62" radius={[3, 3, 0, 0]} />
                 </BarChart>
               </ResponsiveContainer>
             </div>
@@ -282,10 +337,10 @@ export default function Dashboard() {
 
         <DashboardPanel
           title="Revenue Metrics"
-          description={`This month: ${formatCurrencyFromPesewas(revenue?.revenue.monthly || 0)} across ${revenue?.activeSubscriptions || 0} active subscriptions.`}
-          action={<Link href="/admin/revenue" className="font-semibold text-[#0078d4]">See payment history</Link>}
+          description="Monthly income generated from payments and active subscription activity."
+          action={<Link href={adminDashboardRoutes.revenue} className="font-semibold text-[#0078d4]">See Revenue Income History</Link>}
         >
-          <div className="h-80 w-full rounded-md border border-[#d7e6f2] bg-white p-4 shadow-sm">
+          <div className="h-80 w-full border border-[#b5d3ee] bg-white p-4">
             <ResponsiveContainer>
               <AreaChart data={revenueChart}>
                 <defs>
@@ -304,37 +359,195 @@ export default function Dashboard() {
           </div>
         </DashboardPanel>
 
-        <div className="grid gap-10 xl:grid-cols-2">
-          <DashboardPanel title="Admin Queue" description="Items that need operations attention.">
-            <div className="grid gap-4 sm:grid-cols-2">
-              <StatCard value={adminStats?.pendingTherapists || 0} label="Therapists awaiting approval" accent="gold" action={<Link href="/admin/therapists">Review users</Link>} />
-              <StatCard value={resources.length} label="Published resources" accent="teal" action={<Link href="/admin/content">Open resources</Link>} />
+        <DashboardPanel
+          title="Parents' Accounts"
+          action={<Link href={adminDashboardRoutes.parents} className="text-sm font-semibold text-[#0078d4]">See All</Link>}
+        >
+          <div className="overflow-hidden border border-[#b5d3ee] bg-white">
+            <div className="overflow-x-auto">
+              <table className="admin-data-table w-full min-w-[980px] table-fixed text-left text-sm">
+                <thead className="bg-[#f6fbfd] text-[#111827]">
+                  <tr>
+                    <th className="w-64 px-4 py-4">Parent&apos;s Full Name</th>
+                    <th className="w-56 px-4 py-4">Email / Phone Number</th>
+                    <th className="px-4 py-4">Children&apos;s Name(s)</th>
+                    <th className="w-40 px-4 py-4">Account Status</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-[#b5d3ee]">
+                  {adminParents.slice(0, 5).map((parent, index) => (
+                    <tr key={parent.id} className={index === 1 ? "bg-[#f0f3f5]" : "hover:bg-[#f8fbfd]"}>
+                      <td className="px-4 py-4 font-medium text-[#111827]">{parent.fullName}</td>
+                      <td className="px-4 py-4">{parent.email || parent.phone || "N/A"}</td>
+                      <td className="px-4 py-4">
+                        <span className="line-clamp-1">
+                          {parent.children.map((child) => `${child.firstName} ${child.lastName}`).join(", ") || "No child profiles"}
+                        </span>
+                      </td>
+                      <td className="px-4 py-4">
+                        <StatusBadge tone={parent.accountStatus === "ACTIVE" ? "green" : parent.accountStatus === "DORMANT" ? "gold" : "red"}>
+                          {parent.accountStatus || "INACTIVE"}
+                        </StatusBadge>
+                      </td>
+                    </tr>
+                  ))}
+                  {adminParents.length === 0 && (
+                    <tr>
+                      <td className="px-4 py-8 text-center text-[#536471]" colSpan={4}>No parent accounts yet.</td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
             </div>
+          </div>
+        </DashboardPanel>
+
+        <DashboardPanel
+          title="Therapists Accounts and Their Bookings"
+          action={<Link href={adminDashboardRoutes.therapists} className="text-sm font-semibold text-[#0078d4]">See All</Link>}
+        >
+          <div className="overflow-hidden border border-[#b5d3ee] bg-white">
+            <div className="overflow-x-auto">
+              <table className="admin-data-table w-full min-w-[980px] table-fixed text-left text-sm">
+                <thead className="bg-[#f6fbfd] text-[#111827]">
+                  <tr>
+                    <th className="w-64 px-4 py-4">Therapist&apos;s Full Name</th>
+                    <th className="w-56 px-4 py-4">Email / Phone Number</th>
+                    <th className="px-4 py-4">Assigned Child(ren)&apos;s Name(s)</th>
+                    <th className="w-44 px-4 py-4">No of Assigned Children</th>
+                    <th className="w-40 px-4 py-4">Number of Bookings</th>
+                    <th className="w-32 px-4 py-4">Approval</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-[#b5d3ee]">
+                  {adminTherapists.slice(0, 5).map((therapist, index) => (
+                    <tr key={therapist.id} className={index === 1 ? "bg-[#f0f3f5]" : "hover:bg-[#f8fbfd]"}>
+                      <td className="px-4 py-4 font-medium text-[#111827]">{therapist.fullName}</td>
+                      <td className="px-4 py-4">{therapist.email || therapist.phone || "N/A"}</td>
+                      <td className="px-4 py-4">
+                        <span className="line-clamp-1">
+                          {therapist.assignedChildren.map((child) => `${child.firstName} ${child.lastName}`).join(", ") || "No assigned children"}
+                        </span>
+                      </td>
+                      <td className="px-4 py-4">{therapist.assignedChildrenCount}</td>
+                      <td className="px-4 py-4">{therapist.bookingsCount}</td>
+                      <td className="px-4 py-4">
+                        <StatusBadge tone={therapist.isApproved ? "green" : "gold"}>{therapist.isApproved ? "Approved" : "Pending"}</StatusBadge>
+                      </td>
+                    </tr>
+                  ))}
+                  {adminTherapists.length === 0 && (
+                    <tr>
+                      <td className="px-4 py-8 text-center text-[#536471]" colSpan={6}>No therapist accounts yet.</td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </DashboardPanel>
+
+        <DashboardPanel
+          title="All Children's Data on NeuroBridge"
+          action={<Link href={adminDashboardRoutes.children} className="text-sm font-semibold text-[#0078d4]">See All</Link>}
+        >
+          <div className="overflow-hidden border border-[#b5d3ee] bg-white">
+            <div className="overflow-x-auto">
+              <table className="admin-data-table w-full min-w-[1200px] table-fixed text-left text-sm">
+                <thead className="bg-[#f6fbfd] text-[#111827]">
+                  <tr>
+                    <th className="w-20 px-4 py-4">ID</th>
+                    <th className="w-56 px-4 py-4">Child&apos;s Name and Age</th>
+                    <th className="w-56 px-4 py-4">Parent&apos;s Name</th>
+                    <th className="w-44 px-4 py-4">Main Diagnosis</th>
+                    <th className="w-56 px-4 py-4">Co-Existing Conditions</th>
+                    <th className="w-52 px-4 py-4">Current Medications</th>
+                    <th className="px-4 py-4">Developmental History Summary</th>
+                    <th className="w-56 px-4 py-4">Assigned Therapist</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-[#b5d3ee]">
+                  {adminChildren.slice(0, 5).map((child, index) => (
+                    <tr key={child.id} className={index === 1 ? "bg-[#f0f3f5]" : "hover:bg-[#f8fbfd]"}>
+                      <td className="px-4 py-4">{child.shortId}</td>
+                      <td className="px-4 py-4">
+                        <p className="font-medium text-[#111827]">{child.fullName}</p>
+                        <p className="text-xs text-[#707070]">{child.age ?? "N/A"} years old</p>
+                      </td>
+                      <td className="px-4 py-4">{child.parents.map((parent) => parent.fullName).join(", ") || "Unassigned"}</td>
+                      <td className="px-4 py-4">{child.diagnosis || "N/A"}</td>
+                      <td className="px-4 py-4">{child.coExistingConditions || "N/A"}</td>
+                      <td className="px-4 py-4">{child.currentMedications || "N/A"}</td>
+                      <td className="px-4 py-4"><span className="line-clamp-2">{child.developmentalHistorySummary || "N/A"}</span></td>
+                      <td className="px-4 py-4">{child.therapists.map((therapist) => therapist.fullName).join(", ") || "Unassigned"}</td>
+                    </tr>
+                  ))}
+                  {adminChildren.length === 0 && (
+                    <tr>
+                      <td className="px-4 py-8 text-center text-[#536471]" colSpan={8}>No child profiles yet.</td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </DashboardPanel>
+
+        <div className="grid gap-10 xl:grid-cols-[minmax(0,1.1fr)_minmax(360px,0.9fr)]">
+          <DashboardPanel
+            title="Content Management"
+            action={<Link href={adminDashboardRoutes.content} className="text-sm font-semibold text-[#0078d4]">See All</Link>}
+          >
+            {resources.length === 0 ? (
+              <EmptyState title="No content yet" message="Uploaded learning content will appear here." />
+            ) : (
+              <div className="grid gap-5 md:grid-cols-3">
+                {resources.slice(0, 3).map((resource, index) => (
+                  <Link key={resource.id} href={adminDashboardRoutes.content} className="group overflow-hidden border border-[#b5d3ee] bg-white">
+                    <div className="relative h-40">
+                      <Image
+                        src={adminResourceImage(resource, index)}
+                        alt=""
+                        fill
+                        sizes="(max-width: 768px) 100vw, 33vw"
+                        className="object-cover brightness-75 transition group-hover:scale-105"
+                      />
+                      {resource.type === "VIDEO" && (
+                        <span className="absolute inset-0 m-auto flex h-12 w-16 items-center justify-center rounded-xl bg-white text-[#111111]">
+                          <span className="ml-1 h-0 w-0 border-y-[8px] border-l-[13px] border-y-transparent border-l-[#111111]" />
+                        </span>
+                      )}
+                    </div>
+                    <p className="p-4 text-sm font-semibold leading-6 text-[#111111]">{resource.title}</p>
+                  </Link>
+                ))}
+              </div>
+            )}
           </DashboardPanel>
 
-          <DashboardPanel title="Recent Payments" description="Latest successful payment records.">
-            {!revenue?.recentTransactions.length ? (
+          <DashboardPanel title="Revenue Income History" action={<Link href={adminDashboardRoutes.revenue} className="text-sm font-semibold text-[#0078d4]">See All</Link>}>
+            {!successfulTransactions.length ? (
               <EmptyState title="No payments yet" message="Successful platform payments will appear here once transactions are verified." />
             ) : (
-              <div className="overflow-hidden rounded-md border border-[#d7e6f2] bg-white shadow-sm">
-                <table className="w-full min-w-[560px] text-left text-sm">
-                  <thead className="bg-[#f6fbfd] text-xs uppercase text-[#536471]">
+              <div className="overflow-hidden border border-[#b5d3ee] bg-white">
+                <table className="admin-data-table w-full min-w-[520px] text-left text-sm">
+                  <thead className="bg-[#f6fbfd] text-[#111827]">
                     <tr>
-                      <th className="px-5 py-3">User</th>
-                      <th className="px-5 py-3">Amount</th>
-                      <th className="px-5 py-3">Status</th>
+                      <th className="px-4 py-4">User</th>
+                      <th className="px-4 py-4">Date</th>
+                      <th className="px-4 py-4">Amount</th>
+                      <th className="px-4 py-4">Status</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-[#edf4f8]">
-                    {revenue.recentTransactions.slice(0, 5).map((transaction) => (
+                  <tbody className="divide-y divide-[#b5d3ee]">
+                    {successfulTransactions.slice(0, 5).map((transaction) => (
                       <tr key={transaction.id}>
-                        <td className="px-5 py-4 font-semibold text-[#111827]">
-                          {transaction.user ? `${transaction.user.firstName} ${transaction.user.lastName}` : transaction.email}
+                        <td className="px-4 py-4 font-semibold text-[#111827]">
+                          {transaction.user ? fullName(transaction.user) : transaction.email}
                         </td>
-                        <td className="px-5 py-4 text-[#536471]">{formatCurrencyFromPesewas(transaction.amount)}</td>
-                        <td className="px-5 py-4">
-                          <StatusBadge tone="green">{transaction.status}</StatusBadge>
-                        </td>
+                        <td className="px-4 py-4">{formatShortDate(transaction.paidAt || transaction.createdAt)}</td>
+                        <td className="px-4 py-4">{formatCurrencyFromPesewas(transaction.amount)}</td>
+                        <td className="px-4 py-4"><StatusBadge tone="green">{transaction.status}</StatusBadge></td>
                       </tr>
                     ))}
                   </tbody>
@@ -412,7 +625,7 @@ export default function Dashboard() {
             />
           ) : (
             <div className="overflow-hidden rounded-md border border-[#d7e6f2] bg-white shadow-sm">
-              <table className="w-full min-w-[720px] text-left text-sm">
+              <table className="admin-data-table w-full min-w-[720px] text-left text-sm">
                 <thead className="bg-[#f6fbfd] text-xs uppercase text-[#536471]">
                   <tr>
                     <th className="px-5 py-3">Name</th>
@@ -435,7 +648,7 @@ export default function Dashboard() {
                       <td className="px-5 py-4 text-[#536471]">{child.diagnosis || "Pending"}</td>
                       <td className="px-5 py-4 text-[#536471]">{child.school || "Not provided"}</td>
                       <td className="px-5 py-4">
-                        <Link href={`/children/${child.id}`} className="font-semibold text-[#0078d4] hover:underline">
+                        <Link href={`/admin/children/${child.id}`} className="font-semibold text-[#0078d4] hover:underline">
                           View Profile
                         </Link>
                       </td>
@@ -506,7 +719,7 @@ export default function Dashboard() {
             <EmptyState title="No booking records" message="Booking activity will appear here once sessions are requested." />
           ) : (
             <div className="overflow-hidden rounded-md border border-[#d7e6f2] bg-white shadow-sm">
-              <table className="w-full min-w-[520px] text-left text-sm">
+              <table className="admin-data-table w-full min-w-[520px] text-left text-sm">
                 <thead className="bg-[#f6fbfd] text-xs uppercase text-[#536471]">
                   <tr>
                     <th className="px-5 py-3">Child</th>

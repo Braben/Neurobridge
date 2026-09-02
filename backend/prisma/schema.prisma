@@ -34,6 +34,11 @@ enum OtpType {
   PASSWORD_RESET     // Sent for forgotten password recovery
 }
 
+enum OtpChannel {
+  EMAIL
+  SMS
+}
+
 //////////////////////////////////////////////////
 // USERS
 //////////////////////////////////////////////////
@@ -104,8 +109,10 @@ model Child {
   diagnosis            String?
   coExistingConditions String?
   currentMedications   String?
+  profileImage         String?
   school               String?
   notes                String?
+  supportMessage       String?
   createdAt            DateTime  @default(now())
   updatedAt            DateTime  @updatedAt
   deletedAt            DateTime?
@@ -153,7 +160,9 @@ model TherapistAssignment {
   child     Child @relation(fields: [childId], references: [id])
   therapist User  @relation(fields: [therapistId], references: [id])
 
+  @@unique([childId])
   @@unique([childId, therapistId])
+  @@index([therapistId])
 }
 
 //////////////////////////////////////////////////
@@ -314,18 +323,21 @@ model Message {
 //////////////////////////////////////////////////
 
 model OtpCode {
-  id        String   @id @default(uuid()) // Primary key
-  email     String                        // Recipient email address
-  code      String                        // 6-digit OTP code
-  type      OtpType                       // Purpose: EMAIL_VERIFICATION or PASSWORD_RESET
-  expiresAt DateTime                      // TTL — codes expire after 10 minutes
-  isUsed    Boolean  @default(false)      // Whether the code has been consumed
-  createdAt DateTime @default(now())      // Timestamp when the code was generated
-  usedAt    DateTime?                      // Timestamp when the code was consumed
+  id         String     @id @default(uuid()) // Primary key
+  email      String?                         // Legacy recipient email address retained for existing rows
+  identifier String                          // Normalized recipient email or phone number
+  channel    OtpChannel @default(EMAIL)      // Delivery channel for the code
+  code       String                          // 6-digit OTP code
+  type       OtpType                         // Purpose: EMAIL_VERIFICATION or PASSWORD_RESET
+  expiresAt  DateTime                        // TTL — codes expire after 10 minutes
+  isUsed     Boolean    @default(false)      // Whether the code has been consumed
+  createdAt  DateTime   @default(now())      // Timestamp when the code was generated
+  usedAt     DateTime?                       // Timestamp when the code was consumed
 
-  @@index([email])          // Fast lookup of all codes sent to an email
-  @@index([code])           // Fast lookup by code value during verification
-  @@index([email, type])    // Composite index for "get latest valid code of type X for email Y"
+  @@index([email])                       // Fast lookup of legacy email codes
+  @@index([identifier])                  // Fast lookup of all codes sent to an identifier
+  @@index([code])                        // Fast lookup by code value during verification
+  @@index([identifier, channel, type])   // Composite lookup for latest valid code by channel
 }
 
 //////////////////////////////////////////////////
@@ -523,4 +535,15 @@ model UserSubscription {
 
   @@index([userId])
   @@index([status])
+}
+
+model AppSetting {
+  key         String   @id
+  value       String
+  description String?
+  updatedById String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([updatedById])
 }

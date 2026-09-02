@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import AppButton from "../../../components/ui/AppButton";
 import {
   AdminControls,
+  AdminFilterSelect,
   AdminTable,
   AdminTitle,
   IconButton,
@@ -35,6 +36,9 @@ function paymentTone(status: PaymentState): "green" | "gold" | "red" {
 export default function AdminSessionsPage() {
   const [sessions, setSessions] = useState<AdminTherapySession[]>([]);
   const [search, setSearch] = useState("");
+  const [paymentFilter, setPaymentFilter] = useState("ALL");
+  const [bookingFilter, setBookingFilter] = useState("ALL");
+  const [selectedSessionIds, setSelectedSessionIds] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeSession, setActiveSession] = useState<AdminTherapySession | null>(null);
   const [specificDate, setSpecificDate] = useState("");
@@ -72,22 +76,39 @@ export default function AdminSessionsPage() {
 
   const filtered = useMemo(() => {
     const query = search.trim().toLowerCase();
-    if (!query) return sessions;
     return sessions.filter((session) =>
-      [
-        session.child.fullName,
-        session.therapist.fullName,
-        session.sessionType,
-        session.paymentStatus,
-        session.bookingStatus,
-        session.notePreview,
-      ]
-        .filter(Boolean)
-        .join(" ")
-        .toLowerCase()
-        .includes(query),
+      (paymentFilter === "ALL" || session.paymentStatus === paymentFilter) &&
+      (bookingFilter === "ALL" || session.bookingStatus === bookingFilter) &&
+      (!query || [
+          session.child.fullName,
+          session.therapist.fullName,
+          session.sessionType,
+          session.paymentStatus,
+          session.bookingStatus,
+          session.notePreview,
+        ]
+          .filter(Boolean)
+          .join(" ")
+          .toLowerCase()
+          .includes(query)),
     );
-  }, [sessions, search]);
+  }, [bookingFilter, paymentFilter, sessions, search]);
+
+  const visibleSessionIds = useMemo(() => filtered.map((session) => session.id), [filtered]);
+  const selectedVisibleCount = visibleSessionIds.filter((id) => selectedSessionIds.includes(id)).length;
+  const allVisibleSelected = visibleSessionIds.length > 0 && selectedVisibleCount === visibleSessionIds.length;
+  const someVisibleSelected = selectedVisibleCount > 0 && !allVisibleSelected;
+
+  const toggleAllVisible = () => {
+    setSelectedSessionIds((current) => {
+      if (allVisibleSelected) return current.filter((id) => !visibleSessionIds.includes(id));
+      return Array.from(new Set([...current, ...visibleSessionIds]));
+    });
+  };
+
+  const toggleSession = (id: string) => {
+    setSelectedSessionIds((current) => current.includes(id) ? current.filter((item) => item !== id) : [...current, id]);
+  };
 
   const openReschedule = (session: AdminTherapySession) => {
     const date = new Date(session.sessionDate).toISOString().slice(0, 10);
@@ -145,7 +166,34 @@ export default function AdminSessionsPage() {
         </form>
       )}
 
-      <AdminControls search={search} setSearch={setSearch} />
+      <AdminControls search={search} setSearch={setSearch}>
+        <AdminFilterSelect
+          label="Filter sessions by payment status"
+          value={paymentFilter}
+          onChange={setPaymentFilter}
+          options={[
+            { label: "All Payments", value: "ALL" },
+            { label: "Paid", value: "PAID" },
+            { label: "Pending", value: "PENDING" },
+            { label: "Unpaid", value: "UNPAID" },
+          ]}
+        />
+        <AdminFilterSelect
+          label="Filter sessions by booking status"
+          value={bookingFilter}
+          onChange={setBookingFilter}
+          options={[
+            { label: "All Bookings", value: "ALL" },
+            { label: "Pending", value: "PENDING" },
+            { label: "Confirmed", value: "CONFIRMED" },
+            { label: "Completed", value: "COMPLETED" },
+            { label: "Cancelled", value: "CANCELLED" },
+          ]}
+        />
+      </AdminControls>
+      {selectedSessionIds.length > 0 && (
+        <p className="text-sm font-semibold text-[#0a3d62]">{selectedSessionIds.length} session row(s) selected</p>
+      )}
 
       {loading ? (
         <LoadingState />
@@ -153,7 +201,14 @@ export default function AdminSessionsPage() {
         <AdminTable minWidth="1280px">
           <thead className="bg-[#f6fbfd] text-[#111827]">
             <tr>
-              <th className="w-14 px-4 py-4"><SelectCell /></th>
+              <th className="w-14 px-4 py-4">
+                <SelectCell
+                  checked={allVisibleSelected}
+                  indeterminate={someVisibleSelected}
+                  label="Select all visible sessions"
+                  onChange={toggleAllVisible}
+                />
+              </th>
               <th className="w-64 px-4 py-4">Child&apos;s Name and Age</th>
               <th className="w-56 px-4 py-4">Assigned Therapist</th>
               <th className="w-56 px-4 py-4">Session Date & Time</th>
@@ -164,11 +219,14 @@ export default function AdminSessionsPage() {
             </tr>
           </thead>
           <tbody className="divide-y divide-[#b5d3ee]">
-            {filtered.map((session, index) => {
+            {filtered.map((session) => {
               const dateParts = formatSessionDate(session.sessionDate);
+              const selected = selectedSessionIds.includes(session.id);
               return (
-                <tr key={session.id} className={index === 1 ? "bg-[#d9d9d9]" : "hover:bg-[#f8fbfd]"}>
-                  <td className="px-4 py-4"><SelectCell checked={index === 1} /></td>
+                <tr key={session.id} className={selected ? "bg-[#d9d9d9]" : "hover:bg-[#f8fbfd]"}>
+                  <td className="px-4 py-4">
+                    <SelectCell checked={selected} label={`Select session for ${session.child.fullName}`} onChange={() => toggleSession(session.id)} />
+                  </td>
                   <td className="px-4 py-4">
                     <div className="flex items-center gap-3">
                       <InitialAvatar name={session.child.fullName} />
@@ -208,6 +266,11 @@ export default function AdminSessionsPage() {
                 </tr>
               );
             })}
+            {filtered.length === 0 && (
+              <tr>
+                <td colSpan={8} className="px-4 py-8 text-center text-[#536471]">No therapy sessions found.</td>
+              </tr>
+            )}
           </tbody>
         </AdminTable>
       )}

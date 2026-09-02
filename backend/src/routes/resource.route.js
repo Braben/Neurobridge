@@ -4,6 +4,13 @@
 const express = require("express");
 const { listResources, getResource, createResource, updateResource, deleteResource } = require("../modules/resources/resource.controller");
 const { verifyToken, authorize } = require("../middleware/auth");
+const {
+  createResourceSchema,
+  resourceIdParamSchema,
+  resourceListSchema,
+  updateResourceSchema,
+  validate,
+} = require("../validators/resource.validator");
 
 const router = express.Router();
 
@@ -11,14 +18,14 @@ const router = express.Router();
 router.use(verifyToken);
 
 // Public (authenticated) — any logged-in user can list and view resources
-router.get("/", listResources);
-router.get("/:id", getResource);
+router.get("/", validate(resourceListSchema), listResources);
+router.get("/:id", validate(resourceIdParamSchema), getResource);
 
 // Write operations — only staff roles may create or edit resources
-router.post("/", authorize("ADMIN", "THERAPIST"), createResource);
-router.put("/:id", authorize("ADMIN", "THERAPIST"), updateResource);
+router.post("/", authorize("ADMIN", "THERAPIST"), validate(createResourceSchema), createResource);
+router.put("/:id", authorize("ADMIN", "THERAPIST"), validate(updateResourceSchema), updateResource);
 
 // Deletion — only ADMIN may permanently remove resources
-router.delete("/:id", authorize("ADMIN"), deleteResource);
+router.delete("/:id", authorize("ADMIN"), validate(resourceIdParamSchema), deleteResource);
 
 module.exports = router;

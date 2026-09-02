@@ -40,7 +40,7 @@ import Image from "next/image";
 interface BrandLogoProps {
   className?: string;
   compact?: boolean;
-  variant?: "blue" | "white";
+  variant?: "blue" | "white" | "transparent";
 }
 
 export default function BrandLogo({
@@ -51,6 +51,8 @@ export default function BrandLogo({
   const src =
     variant === "white"
       ? "/design-assets/logo-white-card.png"
+      : variant === "transparent"
+        ? "/design-assets/logo-transparent.png"
       : compact
         ? "/design-assets/logo-transparent.png"
         : "/design-assets/logo-blue-card.png";
