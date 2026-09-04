@@ -4,6 +4,7 @@ const cors = require("cors");
 const morgan = require("morgan");
 const cookieParser = require("cookie-parser");
 const helmet = require("helmet"); // Security headers
+const { corsOptions } = require("./src/config/cors");
 const { authLimiter, globalLimiter } = require("./src/middleware/rateLimiters");
 const { sanitizeBody } = require("./src/middleware/sanitize");
 
@@ -36,13 +37,8 @@ const app = express();
 // --- Middleware Stack ---
 app.use(helmet()); // Sets secure HTTP headers (X-Frame-Options, CSP, etc.)
 
-// Restrict CORS to the frontend origin in production
-app.use(
-  cors({
-    origin: process.env.FRONTEND_URL || "http://localhost:3000",
-    credentials: true,
-  }),
-);
+// Restrict CORS to the configured frontend origin(s).
+app.use(cors(corsOptions));
 
 app.use(globalLimiter);
 

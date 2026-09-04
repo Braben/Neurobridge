@@ -38,7 +38,13 @@ yarn-error.log*
 .env*
 /backend/.env*
 /frontend/.env*
+!.env.example
+!/backend/.env.example
+!/frontend/.env.example
 
+# local credential notes
+projectDOCs/CREDENTIALS.txt
+projectDOCs/CREDENTILS.txt
 
 # Windows reserved names
 nul

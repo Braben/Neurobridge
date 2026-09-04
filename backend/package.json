@@ -3,6 +3,7 @@
   "name": "Neurobridge-backend",
   "main": "server.js",
   "scripts": {
+    "build": "prisma generate",
     "start": "node server.js",
     "dev": "node --watch server.js",
     "seed": "node prisma/seed.js",
@@ -10,7 +11,8 @@
     "test:watch": "vitest",
     "prisma:generate": "prisma generate",
     "prisma:validate": "prisma validate",
-    "prisma:migrate": "prisma migrate dev"
+    "prisma:migrate": "prisma migrate dev",
+    "prisma:migrate:deploy": "prisma migrate deploy"
   },
   "prisma": {
     "seed": "node prisma/seed.js"

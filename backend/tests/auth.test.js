@@ -2,7 +2,8 @@
 // Run with: npx vitest run
 import { describe, it, expect, beforeAll, afterAll } from "vitest";
 
-const API_URL = "http://localhost:5100/api/v1";
+const TEST_PORT = process.env.TEST_PORT || 5100;
+const API_URL = process.env.TEST_API_URL || `http://localhost:${TEST_PORT}/api/v1`;
 
 // Test user credentials
 const testUser = {

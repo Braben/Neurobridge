@@ -1,7 +1,7 @@
 // Axios instance with JWT interceptors for automatic token management
 import axios from "axios";
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5100/api/v1";
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api/v1";
 
 const getStoredAccessToken = () => {
   if (typeof window === "undefined") return null;

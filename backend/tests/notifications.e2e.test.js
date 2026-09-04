@@ -1,10 +1,11 @@
 // End-to-end tests for notification API + real-time socket events
-// Requires server to be running on PORT 5100
+// The Vitest setup file starts the API on TEST_PORT before these tests run.
 import { describe, it, expect, beforeAll, afterAll } from "vitest";
 import { io as ioc } from "socket.io-client";
 
-const API_URL = "http://localhost:5100/api/v1";
-const WS_URL = "http://localhost:5100";
+const TEST_PORT = process.env.TEST_PORT || 5100;
+const API_URL = process.env.TEST_API_URL || `http://localhost:${TEST_PORT}/api/v1`;
+const WS_URL = process.env.TEST_WS_URL || `http://localhost:${TEST_PORT}`;
 
 // Unique timestamps to avoid collisions
 const ts = Date.now();
@@ -49,6 +50,21 @@ const authFetch = (url, token, options = {}) =>
   });
 
 const wait = (ms) => new Promise((r) => setTimeout(r, ms));
+
+const waitForSocketEvent = (socket, event, timeoutMs = 10000) =>
+  new Promise((resolve, reject) => {
+    const timer = setTimeout(() => {
+      socket.off(event, handleEvent);
+      reject(new Error(`Timed out waiting for ${event}`));
+    }, timeoutMs);
+
+    const handleEvent = (data) => {
+      clearTimeout(timer);
+      resolve(data);
+    };
+
+    socket.once(event, handleEvent);
+  });
 
 describe("Notifications E2E — API & Real-Time", () => {
   // ── Setup: register users, create child, assign, log session ──
@@ -234,36 +250,38 @@ describe("Notifications E2E — API & Real-Time", () => {
       forceNew: true,
     });
 
-    // Wait for connection
-    await new Promise((resolve, reject) => {
-      socket.on("connect", resolve);
-      socket.on("connect_error", reject);
-      setTimeout(() => reject(new Error("Socket connection timeout")), 5000);
-    });
+    try {
+      // Wait for connection
+      await new Promise((resolve, reject) => {
+        const timer = setTimeout(() => reject(new Error("Socket connection timeout")), 10000);
+        socket.on("connect", () => {
+          clearTimeout(timer);
+          resolve();
+        });
+        socket.on("connect_error", reject);
+      });
 
-    // Set up a promise to catch the first notification:new event
-    const notificationPromise = new Promise((resolve, reject) => {
-      socket.once("notification:new", (data) => resolve(data));
-      setTimeout(() => reject(new Error("Timed out waiting for notification:new")), 5000);
-    });
+      // Set up a promise to catch the first notification:new event
+      const notificationPromise = waitForSocketEvent(socket, "notification:new");
 
-    // Trigger a notification by creating another session
-    const sessionRes = await authFetch(`${API_URL}/sessions`, therapistToken, {
-      method: "POST",
-      body: JSON.stringify({
-        childId,
-        sessionDate: new Date().toISOString(),
-        duration: 30,
-      }),
-    });
-    expect(sessionRes.status).toBe(201);
+      // Trigger a notification by creating another session
+      const sessionRes = await authFetch(`${API_URL}/sessions`, therapistToken, {
+        method: "POST",
+        body: JSON.stringify({
+          childId,
+          sessionDate: new Date().toISOString(),
+          duration: 30,
+        }),
+      });
+      expect(sessionRes.status).toBe(201);
 
-    // Wait for the socket event
-    const eventData = await notificationPromise;
-    expect(eventData).toHaveProperty("notification");
-    expect(eventData.notification.title).toBe("New Session Logged");
-
-    socket.disconnect();
+      // Wait for the socket event
+      const eventData = await notificationPromise;
+      expect(eventData).toHaveProperty("notification");
+      expect(eventData.notification.title).toBe("New Session Logged");
+    } finally {
+      socket.disconnect();
+    }
   }, 15000);
 
   // ──────────────────────────────────────────────
@@ -276,31 +294,33 @@ describe("Notifications E2E — API & Real-Time", () => {
       forceNew: true,
     });
 
-    await new Promise((resolve, reject) => {
-      socket.on("connect", resolve);
-      socket.on("connect_error", reject);
-      setTimeout(() => reject(new Error("Socket connection timeout")), 5000);
-    });
+    try {
+      await new Promise((resolve, reject) => {
+        const timer = setTimeout(() => reject(new Error("Socket connection timeout")), 10000);
+        socket.on("connect", () => {
+          clearTimeout(timer);
+          resolve();
+        });
+        socket.on("connect_error", reject);
+      });
 
-    const sessionPromise = new Promise((resolve, reject) => {
-      socket.once("session:created", (data) => resolve(data));
-      setTimeout(() => reject(new Error("Timed out waiting for session:created")), 5000);
-    });
+      const sessionPromise = waitForSocketEvent(socket, "session:created");
 
-    const sessionRes = await authFetch(`${API_URL}/sessions`, therapistToken, {
-      method: "POST",
-      body: JSON.stringify({
-        childId,
-        sessionDate: new Date().toISOString(),
-        duration: 30,
-      }),
-    });
-    expect(sessionRes.status).toBe(201);
+      const sessionRes = await authFetch(`${API_URL}/sessions`, therapistToken, {
+        method: "POST",
+        body: JSON.stringify({
+          childId,
+          sessionDate: new Date().toISOString(),
+          duration: 30,
+        }),
+      });
+      expect(sessionRes.status).toBe(201);
 
-    const eventData = await sessionPromise;
-    expect(eventData).toHaveProperty("session");
-    expect(eventData.session.childId).toBe(childId);
-
-    socket.disconnect();
+      const eventData = await sessionPromise;
+      expect(eventData).toHaveProperty("session");
+      expect(eventData.session.childId).toBe(childId);
+    } finally {
+      socket.disconnect();
+    }
   }, 15000);
 });

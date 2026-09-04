@@ -3,6 +3,7 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const crypto = require("crypto");
 const prisma = require("../../config/prisma");
+const { clearRefreshTokenCookieOptions, refreshTokenCookieOptions } = require("../../config/cookies");
 const { generateAccessToken, generateRefreshToken } = require("../../utils/generateTokens");
 const { sendOtpEmail, sendPasswordResetEmail } = require("../../services/email.service");
 const { normalizePhone, sendOtpSms, sendPasswordResetSms } = require("../../services/sms.service");
@@ -207,12 +208,7 @@ exports.registerUser = async (req, res, next) => {
       data: { refreshToken },
     });
 
-    res.cookie("refreshToken", refreshToken, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "strict",
-      maxAge: 7 * 24 * 60 * 60 * 1000,
-    });
+    res.cookie("refreshToken", refreshToken, refreshTokenCookieOptions);
 
     return res.status(201).json({
       message: requiresOtp
@@ -252,12 +248,7 @@ exports.loginUser = async (req, res, next) => {
       data: { refreshToken },
     });
 
-    res.cookie("refreshToken", refreshToken, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "strict",
-      maxAge: 7 * 24 * 60 * 60 * 1000,
-    });
+    res.cookie("refreshToken", refreshToken, refreshTokenCookieOptions);
 
     return res.status(200).json({
       message: "Login successful",
@@ -353,11 +344,7 @@ exports.logoutUser = async (req, res, next) => {
       });
     }
 
-    res.clearCookie("refreshToken", {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "strict",
-    });
+    res.clearCookie("refreshToken", clearRefreshTokenCookieOptions);
 
     return res.status(200).json({ message: "Logged out successfully" });
   } catch (error) {
@@ -390,12 +377,7 @@ exports.refreshTokenPair = async (req, res, next) => {
       data: { refreshToken: newRefreshToken },
     });
 
-    res.cookie("refreshToken", newRefreshToken, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "strict",
-      maxAge: 7 * 24 * 60 * 60 * 1000,
-    });
+    res.cookie("refreshToken", newRefreshToken, refreshTokenCookieOptions);
 
     return res.status(200).json({
       message: "Token refreshed successfully",

@@ -4,8 +4,10 @@
 // users without the frontend polling.
 const { Server } = require("socket.io");
 const { authenticateSocket } = require("./auth");
+const { allowedOrigins } = require("../config/cors");
 
-let io = null;
+const socketState = globalThis.__neurobridgeSocketState || { io: null };
+globalThis.__neurobridgeSocketState = socketState;
 
 /**
  * Attaches a Socket.io server to the raw HTTP server.
@@ -14,9 +16,11 @@ let io = null;
  * @returns {import("socket.io").Server}
  */
 const initSocket = (server) => {
-  io = new Server(server, {
+  if (socketState.io) return socketState.io;
+
+  socketState.io = new Server(server, {
     cors: {
-      origin: process.env.FRONTEND_URL || "http://localhost:3000",
+      origin: allowedOrigins,
       credentials: true,
     },
     pingInterval: 25000,
@@ -24,9 +28,9 @@ const initSocket = (server) => {
   });
 
   // Every connection runs through JWT auth before being accepted
-  io.use(authenticateSocket);
+  socketState.io.use(authenticateSocket);
 
-  io.on("connection", (socket) => {
+  socketState.io.on("connection", (socket) => {
     const user = socket.user;
 
     // Join a private room named after the user's ID so emitToUser works
@@ -39,7 +43,7 @@ const initSocket = (server) => {
   });
 
   console.log("[socket] Socket.io initialized");
-  return io;
+  return socketState.io;
 };
 
 /**
@@ -47,8 +51,15 @@ const initSocket = (server) => {
  * Throws if initSocket hasn't been called yet.
  */
 const getIO = () => {
-  if (!io) throw new Error("Socket.io not initialized");
-  return io;
+  if (!socketState.io) throw new Error("Socket.io not initialized");
+  return socketState.io;
+};
+
+const closeSocket = async () => {
+  if (!socketState.io) return;
+
+  await new Promise((resolve) => socketState.io.close(() => resolve()));
+  socketState.io = null;
 };
 
 /**
@@ -59,8 +70,8 @@ const getIO = () => {
  * @param {*} data
  */
 const emitToUser = (userId, event, data) => {
-  if (!io) return;
-  io.to(`user:${userId}`).emit(event, data);
+  if (!socketState.io) return;
+  socketState.io.to(`user:${userId}`).emit(event, data);
 };
 
 /**
@@ -70,9 +81,9 @@ const emitToUser = (userId, event, data) => {
  * @param {*} data
  */
 const emitToUsers = (userIds, event, data) => {
-  if (!io) return;
+  if (!socketState.io) return;
   const rooms = userIds.map((id) => `user:${id}`);
-  io.to(rooms).emit(event, data);
+  socketState.io.to(rooms).emit(event, data);
 };
 
-module.exports = { initSocket, getIO, emitToUser, emitToUsers };
+module.exports = { initSocket, getIO, closeSocket, emitToUser, emitToUsers };
