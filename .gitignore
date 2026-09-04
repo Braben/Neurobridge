@@ -20,6 +20,7 @@
 # next.js
 /.next/
 /out/
+/frontend/.next/
 
 # production
 /build
@@ -55,3 +56,6 @@ nul
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+/design-assets
+
