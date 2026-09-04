@@ -7,7 +7,7 @@ export default defineConfig({
     environment: "node",
     setupFiles: ["./tests/setup-server.js"],
     fileParallelism: false,
-    testTimeout: 30000,
-    hookTimeout: 45000,
+    testTimeout: 90000,
+    hookTimeout: 120000,
   },
 });

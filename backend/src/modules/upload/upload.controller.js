@@ -22,8 +22,8 @@ function validateOptionalUuid(value, label) {
 // POST /api/v1/upload
 // Accepts a multipart file upload (field name: "file") along with optional
 // childId and sessionId query params to associate the file with a child or
-// session record. The multer middleware (configured in cloudinary.js) handles
-// uploading to Cloudinary; this controller persists the returned metadata.
+// session record. The upload middleware stores the file in Cloudinary; this
+// controller persists the returned metadata.
 // Returns 400 if no file is present in the request.
 exports.uploadFile = async (req, res, next) => {
   try {

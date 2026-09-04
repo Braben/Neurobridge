@@ -1,9 +1,7 @@
 // Cloudinary configuration for file uploads
 // Provides both the configured Cloudinary SDK instance and a multer middleware
-// wired to Cloudinary storage so route handlers can accept multipart file uploads
-// and have them automatically stored in the cloud.
+// that accepts multipart uploads in memory before streaming them to Cloudinary.
 const cloudinary = require("cloudinary").v2;
-const { CloudinaryStorage } = require("multer-storage-cloudinary");
 const multer = require("multer");
 const path = require("path");
 
@@ -28,18 +26,7 @@ cloudinary.config({
   api_secret: process.env.CLOUDINARY_API_SECRET,
 });
 
-// Configure multer-storage-cloudinary so uploaded files are stored under the
-// "neurobridge" folder in Cloudinary. The resource_type is set to "auto" so
-// Cloudinary automatically detects whether the file is an image, video, or raw.
-// allowed_formats restricts what file types are accepted at the middleware level.
-const storage = new CloudinaryStorage({
-  cloudinary,
-  params: {
-    folder: "neurobridge",
-    allowed_formats: Object.values(ALLOWED_UPLOADS).flat(),
-    resource_type: "auto",
-  },
-});
+const storage = multer.memoryStorage();
 
 function fileFilter(_req, file, cb) {
   const allowedExtensions = ALLOWED_UPLOADS[file.mimetype];
@@ -68,9 +55,41 @@ function handleUploadError(error, _req, res, next) {
   return next(error);
 }
 
+const streamUpload = (file) =>
+  new Promise((resolve, reject) => {
+    const stream = cloudinary.uploader.upload_stream(
+      {
+        folder: "neurobridge",
+        resource_type: "auto",
+        allowed_formats: Object.values(ALLOWED_UPLOADS).flat(),
+      },
+      (error, result) => {
+        if (error) return reject(error);
+        return resolve(result);
+      },
+    );
+
+    stream.end(file.buffer);
+  });
+
+async function uploadToCloudinary(req, _res, next) {
+  try {
+    if (!req.file) return next();
+
+    const result = await streamUpload(req.file);
+    req.file.path = result.secure_url || result.url;
+    req.file.filename = result.public_id;
+    req.file.cloudinary = result;
+
+    return next();
+  } catch (error) {
+    return next(error);
+  }
+}
+
 // Multer instance with MIME/extension checks and a 10 MB file-size cap.
 // Route handlers can use upload.single("file") to accept a single file under
 // the "file" field name.
 const upload = multer({ fileFilter, storage, limits: { fileSize: MAX_UPLOAD_SIZE_BYTES } });
 
-module.exports = { cloudinary, handleUploadError, upload };
+module.exports = { cloudinary, handleUploadError, upload, uploadToCloudinary };
