@@ -1,11 +1,23 @@
 const prisma = require("../../config/prisma");
 
+function childAccessWhere(user, childId) {
+  const where = { id: childId, deletedAt: null };
+
+  if (user.role === "PARENT") {
+    where.parents = { some: { parentId: user.id } };
+  } else if (user.role === "THERAPIST") {
+    where.therapists = { some: { therapistId: user.id } };
+  }
+
+  return where;
+}
+
 exports.getIntakeForm = async (req, res, next) => {
   try {
     const { childId } = req.params;
 
     const child = await prisma.child.findFirst({
-      where: { id: childId, deletedAt: null, parents: { some: { parentId: req.user.id } } },
+      where: childAccessWhere(req.user, childId),
       select: { id: true },
     });
     if (!child) return res.status(404).json({ message: "Child not found" });
@@ -23,7 +35,7 @@ exports.upsertIntakeForm = async (req, res, next) => {
     const { developmentalHistory, behaviourConcerns, parentGoals } = req.body;
 
     const child = await prisma.child.findFirst({
-      where: { id: childId, deletedAt: null, parents: { some: { parentId: req.user.id } } },
+      where: childAccessWhere(req.user, childId),
       select: { id: true },
     });
     if (!child) return res.status(404).json({ message: "Child not found" });

@@ -11,8 +11,8 @@ router.use(verifyToken);
 router.get("/", listSessions);
 router.post("/", authorize("THERAPIST", "ADMIN"), writeLimiter, validate(createSessionSchema), createSession);
 router.get("/:id", validate(sessionIdParamSchema), getSession);
-router.patch("/:id", authorize("THERAPIST"), writeLimiter, validate(updateSessionSchema), updateSession);
+router.patch("/:id", authorize("THERAPIST", "ADMIN"), writeLimiter, validate(updateSessionSchema), updateSession);
 router.delete("/:id", authorize("THERAPIST", "ADMIN"), writeLimiter, validate(sessionIdParamSchema), deleteSession);
-router.put("/:id/notes", authorize("THERAPIST"), writeLimiter, validate(sessionNoteSchema), upsertSessionNote);
+router.put("/:id/notes", authorize("THERAPIST", "ADMIN"), writeLimiter, validate(sessionNoteSchema), upsertSessionNote);
 
 module.exports = router;

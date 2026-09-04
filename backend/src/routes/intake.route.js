@@ -7,6 +7,6 @@ const router = express.Router();
 router.use(verifyToken);
 
 router.get("/:childId", getIntakeForm);
-router.put("/:childId", authorize("PARENT"), upsertIntakeForm);
+router.put("/:childId", authorize("PARENT", "ADMIN"), upsertIntakeForm);
 
 module.exports = router;

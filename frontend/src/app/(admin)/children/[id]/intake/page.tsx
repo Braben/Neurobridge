@@ -24,16 +24,36 @@ export default function IntakePage() {
 
   useEffect(() => {
     if (!isAuthenticated) { router.push("/login"); return; }
-    intakeApi.get(id).then((d) => {
-      if (d.intake) {
-        setExisting(d.intake);
-        setForm({
-          developmentalHistory: d.intake.developmentalHistory,
-          behaviourConcerns: d.intake.behaviourConcerns,
-          parentGoals: d.intake.parentGoals,
-        });
-      }
-    }).finally(() => setLoading(false));
+    let active = true;
+
+    intakeApi
+      .get(id)
+      .then((d) => {
+        if (!active) return;
+        setError("");
+        if (d.intake) {
+          setExisting(d.intake);
+          setForm({
+            developmentalHistory: d.intake.developmentalHistory,
+            behaviourConcerns: d.intake.behaviourConcerns,
+            parentGoals: d.intake.parentGoals,
+          });
+        } else {
+          setExisting(null);
+        }
+      })
+      .catch((err: unknown) => {
+        if (!active) return;
+        const status = (err as { response?: { status?: number } })?.response?.status;
+        setError(status === 404 ? "This child profile could not be found or you do not have access to it." : "Unable to load this intake form.");
+      })
+      .finally(() => {
+        if (active) setLoading(false);
+      });
+
+    return () => {
+      active = false;
+    };
   }, [isAuthenticated, id, router]);
 
   const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {

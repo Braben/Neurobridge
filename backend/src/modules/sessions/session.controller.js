@@ -115,7 +115,7 @@ exports.updateSession = async (req, res, next) => {
     const { sessionDate, duration } = req.body;
 
     const existing = await prisma.session.findFirst({
-      where: { id, therapistId: req.user.id },
+      where: req.user.role === "ADMIN" ? { id } : { id, therapistId: req.user.id },
     });
     if (!existing) return res.status(404).json({ message: "Session not found or not yours" });
 
@@ -167,7 +167,7 @@ exports.upsertSessionNote = async (req, res, next) => {
     const { goalsWorkedOn, observations, recommendations, extraNotes } = req.body;
 
     const existingSession = await prisma.session.findFirst({
-      where: { id, therapistId: req.user.id },
+      where: req.user.role === "ADMIN" ? { id } : { id, therapistId: req.user.id },
     });
     if (!existingSession) return res.status(404).json({ message: "Session not found or not yours" });
 

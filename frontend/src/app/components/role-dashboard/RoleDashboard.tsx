@@ -147,9 +147,11 @@ function SidebarProfile({
     { href: "#session-notes", label: "Add Session Notes" },
   ];
   const links = roleLabel === "Parent" ? parentLinks : therapistLinks;
+  const widthClass = roleLabel === "Therapist" ? "w-[408px]" : "w-[296px]";
+  const paddingClass = roleLabel === "Therapist" ? "px-10" : "px-8";
 
   return (
-    <aside className="sticky top-0 hidden min-h-screen w-[296px] shrink-0 flex-col justify-between bg-[#e0ffff] px-8 py-14 lg:flex">
+    <aside className={`sticky top-0 hidden min-h-screen shrink-0 flex-col justify-between bg-[#e0ffff] py-14 lg:flex ${widthClass} ${paddingClass}`}>
       <Link href="/dashboard" aria-label="Neuro Bridge Africa dashboard">
         <Image src="/design-assets/logo-transparent.png" alt="Neuro Bridge Africa" width={210} height={64} className="h-auto w-40" />
       </Link>
@@ -713,13 +715,19 @@ function TherapistChildSummary({
   child,
   index,
   onOpen,
+  onNext,
+  onPrevious,
+  total,
 }: {
   child: Child;
   index: number;
   onOpen: (child: Child) => void;
+  onNext: () => void;
+  onPrevious: () => void;
+  total: number;
 }) {
   return (
-    <div className="rounded-2xl border border-[#b5d3ee] bg-[#f5f5f5] p-4">
+    <div className="border border-[#b5d3ee] bg-[#f5f5f5] p-4">
       <div className="grid gap-6 md:grid-cols-[251px_1fr]">
         <Image
           src={localAvatar(child.profileImage)}
@@ -766,9 +774,29 @@ function TherapistChildSummary({
           </div>
         </div>
       </div>
-      <p className="mt-4 text-right text-sm font-medium text-[#111]">
-        {index + 1}-{index + 1} /{index + 1}
-      </p>
+      <div className="mt-6 flex justify-end">
+        <div className="flex items-center gap-2 text-sm font-medium text-[#111]">
+          <span>{index + 1}-{index + 1} /{total}</span>
+          <button
+            type="button"
+            onClick={onPrevious}
+            aria-label="Previous assigned child"
+            disabled={total < 2}
+            className="flex h-6 w-6 items-center justify-center text-[#0a3d62] disabled:opacity-35"
+          >
+            &lt;
+          </button>
+          <button
+            type="button"
+            onClick={onNext}
+            aria-label="Next assigned child"
+            disabled={total < 2}
+            className="flex h-6 w-6 items-center justify-center text-[#0a3d62] disabled:opacity-35"
+          >
+            &gt;
+          </button>
+        </div>
+      </div>
     </div>
   );
 }
@@ -799,9 +827,20 @@ function TherapistChildProfileModal({
   child: Child;
   onClose: () => void;
 }) {
+  const fields = [
+    ["Name", fullName(child)],
+    ["Age", childAge(child.dateOfBirth)],
+    ["Gender", child.gender.toLowerCase()],
+    ["School", child.school || "Not provided"],
+    ["Main Diagnosis", childProfileText(child, "diagnosis")],
+    ["Co-existing Conditions", childProfileText(child, "coExistingConditions")],
+    ["Current Medications", childProfileText(child, "currentMedications")],
+    ["Developmental History Summary", childProfileText(child, "notes")],
+  ];
+
   return (
     <div className="fixed inset-0 z-50 grid place-items-center bg-[#152c47]/40 px-4 backdrop-blur-sm">
-      <section className="w-full max-w-4xl rounded-2xl border border-[#b5d3ee] bg-[#f5f5f5] p-6 shadow-2xl sm:p-10">
+      <section className="max-h-[90vh] w-full max-w-5xl overflow-y-auto border border-[#b5d3ee] bg-[#f5f5f5] p-6 shadow-2xl sm:p-10">
         <div className="mb-8 flex items-center justify-between gap-4">
           <h2 className="text-3xl font-semibold tracking-normal text-[#0a3d62]">Child&apos;s Full Profile</h2>
           <button
@@ -813,7 +852,23 @@ function TherapistChildProfileModal({
             <XIcon className="h-5 w-5" />
           </button>
         </div>
-        <TherapistChildSummary child={child} index={0} onOpen={() => undefined} />
+        <div className="grid gap-8 lg:grid-cols-[251px_1fr]">
+          <Image
+            src={localAvatar(child.profileImage)}
+            alt=""
+            width={251}
+            height={342}
+            className="h-[342px] w-full max-w-[251px] object-cover"
+          />
+          <dl className="grid gap-x-8 gap-y-6 sm:grid-cols-2">
+            {fields.map(([label, value]) => (
+              <div key={label} className={label === "Developmental History Summary" ? "sm:col-span-2" : undefined}>
+                <dt className="text-xl font-medium text-[#111]">{label}</dt>
+                <dd className="mt-2 text-sm leading-6 text-[#111]">{value}</dd>
+              </div>
+            ))}
+          </dl>
+        </div>
       </section>
     </div>
   );
@@ -901,7 +956,7 @@ function TherapistRecentNotes({
   }
 
   return (
-    <div className="rounded-2xl border border-[#0a3d62] p-5">
+    <div className="border border-[#0a3d62] bg-white p-5">
       <div className="space-y-4">
         {sessions.slice(0, 2).map((session) => <NoteCard key={session.id} session={session} viewer="therapist" />)}
       </div>
@@ -1069,6 +1124,7 @@ function TherapistDashboard({ bookings, childProfiles, sessions, user }: RoleDas
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   const [showNoteModal, setShowNoteModal] = useState(false);
   const [activeChild, setActiveChild] = useState<Child | null>(null);
+  const [activeChildIndex, setActiveChildIndex] = useState(0);
   const [savedMessage, setSavedMessage] = useState("");
 
   // The API already scopes children/bookings for the therapist. These sets keep
@@ -1085,7 +1141,16 @@ function TherapistDashboard({ bookings, childProfiles, sessions, user }: RoleDas
       .sort((a, b) => new Date(b.sessionDate).getTime() - new Date(a.sessionDate).getTime()),
     [assignedChildIds, localSessions],
   );
-  const recentChild = childProfiles[0];
+  const recentChild = childProfiles[activeChildIndex] || childProfiles[0];
+  const notesTableHref = recentChild ? `/children/${recentChild.id}/sessions` : "/children";
+
+  function showNextChild() {
+    setActiveChildIndex((current) => (childProfiles.length ? (current + 1) % childProfiles.length : 0));
+  }
+
+  function showPreviousChild() {
+    setActiveChildIndex((current) => (childProfiles.length ? (current - 1 + childProfiles.length) % childProfiles.length : 0));
+  }
 
   async function handleLogout() {
     setIsLoggingOut(true);
@@ -1108,16 +1173,16 @@ function TherapistDashboard({ bookings, childProfiles, sessions, user }: RoleDas
       />
       <main className="min-w-0 flex-1 px-5 py-8 sm:px-8 lg:px-14 lg:py-14">
         <TherapistDashboardTopbar />
-        <div className="mx-auto mt-10 max-w-[1040px] space-y-12">
+        <div className="mx-auto mt-10 max-w-[955px] space-y-12">
           <section id="welcome" className="space-y-4">
             <h1 className="max-w-4xl text-[32px] font-medium leading-tight tracking-normal text-[#111] md:text-5xl">
-              Welcome back <span className="text-[#0a3d62]">&quot;{user.firstName}&quot;</span> to your therapist dashboard
+              Welcome to Neuro Bridge Africa, <span className="text-[#0a3d62]">&quot;{user.firstName}&quot;</span>
             </h1>
             <p className="max-w-4xl text-sm leading-6 text-[#111]">
               Find more information about your booking schedule. View your assigned children for therapeutic works. Add session notes to be seen by the parents of the children assigned to you.
             </p>
             <div className="flex flex-wrap gap-4">
-              <AppButton href="#bookings">View Your Bookings</AppButton>
+              <AppButton href="#bookings">See Bookings</AppButton>
               <AppButton type="button" onClick={() => setShowNoteModal(true)} variant="secondary">Add Session Notes</AppButton>
             </div>
             {savedMessage && <p className="rounded-xl bg-[#eaf8ee] px-4 py-3 text-sm font-semibold text-[#2e7d32]">{savedMessage}</p>}
@@ -1131,7 +1196,14 @@ function TherapistDashboard({ bookings, childProfiles, sessions, user }: RoleDas
             {!recentChild ? (
               <TherapistEmptyAssignedChildren />
             ) : (
-              <TherapistChildSummary child={recentChild} index={0} onOpen={setActiveChild} />
+              <TherapistChildSummary
+                child={recentChild}
+                index={activeChildIndex}
+                onNext={showNextChild}
+                onOpen={setActiveChild}
+                onPrevious={showPreviousChild}
+                total={childProfiles.length}
+              />
             )}
           </section>
 
@@ -1156,7 +1228,7 @@ function TherapistDashboard({ bookings, childProfiles, sessions, user }: RoleDas
             </button>
             <div className="flex items-end justify-between gap-4">
               <h3 className="text-2xl font-semibold tracking-normal text-[#111]">Recent Session Notes</h3>
-              <Link href="/children" className="font-semibold text-[#0071d7] hover:underline">See Full Table</Link>
+              <Link href={notesTableHref} className="font-semibold text-[#0071d7] hover:underline">See Full Table</Link>
             </div>
             <TherapistRecentNotes sessions={notedSessions} />
           </section>
