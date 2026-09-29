@@ -2,14 +2,14 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { useAppDispatch, useAppSelector } from "../../hooks/useRedux";
-import { registerUser, clearError } from "../../store/slices/authSlice";
+import { useAppDispatch, useAppSelector } from "@/app/hooks/useRedux";
+import { registerUser, clearError } from "@/app/store/slices/authSlice";
 import Link from "next/link";
-import AppButton from "../../components/ui/AppButton";
-import AuthFrame from "../../components/ui/AuthFrame";
-import { FormField, SelectField } from "../../components/ui/FormField";
-import GlobalMessage from "../../components/ui/GlobalMessage";
-import { passwordError, passwordRuleMessage, validateAdultDateOfBirth } from "../../utils/validation";
+import AppButton from "@/components/ui/AppButton";
+import AuthFrame from "@/components/layouts/AuthFrame";
+import { FormField, SelectField } from "@/components/ui/FormField";
+import GlobalMessage from "@/app/components/ui/GlobalMessage";
+import { passwordError, passwordRuleMessage, validateAdultDateOfBirth } from "@/app/utils/validation";
 
 type RegisterRole = "PARENT" | "THERAPIST";
 
@@ -29,14 +29,15 @@ const expertiseOptions = [
 ];
 
 function EyeIcon({ hidden }: { hidden: boolean }) {
+  // Keep the visibility glyph at the Figma 24px icon size.
   return hidden ? (
-    <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
+    <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
       <path strokeLinecap="round" strokeLinejoin="round" d="m3 3 18 18" />
       <path strokeLinecap="round" strokeLinejoin="round" d="M10.6 10.6a2 2 0 0 0 2.8 2.8" />
       <path strokeLinecap="round" strokeLinejoin="round" d="M9.2 5.4A9.7 9.7 0 0 1 12 5c6 0 9.75 7 9.75 7a17 17 0 0 1-2.5 3.3M6.5 6.9C3.8 8.6 2.25 12 2.25 12s3.75 7 9.75 7c1.5 0 2.9-.4 4.1-1" />
     </svg>
   ) : (
-    <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
+    <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
       <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 12s3.75-6.75 9.75-6.75S21.75 12 21.75 12s-3.75 6.75-9.75 6.75S2.25 12 2.25 12Z" />
       <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
     </svg>

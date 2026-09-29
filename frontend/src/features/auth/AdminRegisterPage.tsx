@@ -2,14 +2,14 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { useAppDispatch, useAppSelector } from "../../hooks/useRedux";
-import { registerUser, clearError } from "../../store/slices/authSlice";
+import { useAppDispatch, useAppSelector } from "@/app/hooks/useRedux";
+import { registerUser, clearError } from "@/app/store/slices/authSlice";
 import Link from "next/link";
-import AppButton from "../../components/ui/AppButton";
-import AuthFrame from "../../components/ui/AuthFrame";
-import { FormField } from "../../components/ui/FormField";
-import GlobalMessage from "../../components/ui/GlobalMessage";
-import { passwordError, passwordRuleMessage } from "../../utils/validation";
+import AppButton from "@/components/ui/AppButton";
+import AuthFrame from "@/components/layouts/AuthFrame";
+import { FormField } from "@/components/ui/FormField";
+import GlobalMessage from "@/app/components/ui/GlobalMessage";
+import { passwordError, passwordRuleMessage } from "@/app/utils/validation";
 
 export default function AdminRegisterPage() {
   const router = useRouter();
@@ -81,7 +81,8 @@ export default function AdminRegisterPage() {
         </GlobalMessage>
       )}
 
-      <div className="mx-auto w-full max-w-2xl">
+      {/* Keep two-column admin fields aligned to the Figma 746px auth form width. */}
+      <div className="mx-auto w-full max-w-[746px]">
         <div className="mb-8">
           <h1 className="text-2xl font-bold text-[#171f27]">
             Sign Up as an administrator to{" "}

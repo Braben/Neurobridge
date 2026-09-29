@@ -1,0 +1,41 @@
+@layer theme, base, components, utilities; /* Preserve control styles when route CSS loads before the global Tailwind reset. */
+/* Keep Figma field geometry below explicit screen-level Tailwind overrides in the cascade. */
+@layer components {
+  .field { min-width: 0; width: 100%; } /* Let the enclosing 361px or fluid form column set field width. */
+  .label { display: block; color: var(--nba-black); font-size: var(--nba-body-2-size); line-height: var(--nba-body-2-line); font-weight: var(--nba-weight-regular); } /* Reference label: 16px/24px regular. */
+  .required { color: var(--nba-danger); } /* Use the shared validation color for the required marker. */
+  .controlWrap { position: relative; } /* Keep password and information icons attached to the field. */
+  .control {
+    box-sizing: border-box; /* Include borders inside the reference dimensions. */
+    margin-top: var(--nba-field-label-gap); /* Match the 12px label-to-control gap. */
+    width: 100%; /* Fill the form's specified field column. */
+    min-width: 0; /* Permit mobile grid tracks to shrink without overflow. */
+    height: var(--nba-control-height); /* Reference text/select control height: 60px. */
+    border: 1px solid var(--nba-field-border); /* Default Figma pale-blue border. */
+    border-radius: var(--nba-control-radius); /* Reference corner radius: 16px. */
+    padding: 0 var(--nba-control-padding); /* Reference horizontal inset: 16px. */
+    background-color: var(--nba-grey-100); /* Reference default neutral fill. */
+    color: var(--nba-blue-primary); /* Filled input text uses the component's primary color. */
+    font-size: var(--nba-body-2-size); /* Reference control text: 16px. */
+    line-height: var(--nba-body-2-line); /* Reference control line height: 24px. */
+    font-weight: var(--nba-weight-medium); /* Reference control text weight: 500. */
+    letter-spacing: 0; /* Preserve neutral field character spacing. */
+    outline: none; /* Supply an explicit accessible focus-visible treatment below. */
+  }
+  .control::placeholder { color: var(--nba-neutral); opacity: 1; } /* Match the reference placeholder rather than the browser's translucent default. */
+  .control:focus { border-color: var(--nba-blue-primary); background-color: transparent; } /* The active field uses primary blue, not the button pressed blue. */
+  .control:focus-visible { outline: 2px solid var(--nba-focus-ring); outline-offset: 2px; } /* Add a keyboard focus affordance without changing field geometry. */
+  .field[data-status="error"] .control { border-color: var(--nba-danger); color: var(--nba-danger); background-color: transparent; } /* Keep validation styling even while the invalid field is focused. */
+  .field[data-status="success"] .control { border-color: var(--nba-success); } /* Preserve existing successful validation feedback. */
+  .control:disabled { background-color: var(--nba-grey-200); cursor: not-allowed; } /* Keep native disabled behavior visually apparent. */
+  .message { margin-top: var(--nba-field-message-gap); color: var(--nba-grey-700); font-size: var(--nba-body-4-size); line-height: var(--nba-body-4-line); } /* Reference helper/error text: 12px/16px, separated by 8px. */
+  .field[data-status="error"] .message { color: var(--nba-danger); } /* Pair validation text with the invalid border. */
+  .field[data-status="success"] .message { color: var(--nba-success); } /* Pair success text with its status border. */
+  .withIcon { padding-right: 56px; } /* Reserve the exact 24px icon and 16px trailing inset. */
+  .icon, .iconAction { position: absolute; right: 16px; top: calc(50% + 6px); transform: translateY(-50%); display: grid; place-items: center; width: 24px; height: 24px; color: var(--nba-blue-primary); } /* Center the fixed icon slot below the label gap. */
+  .iconAction:focus-visible { outline: 2px solid var(--nba-blue-focused); outline-offset: 3px; } /* Make icon controls keyboard discoverable. */
+  .iconAction:disabled { color: var(--nba-neutral); cursor: not-allowed; } /* Prevent active-looking actions in disabled inputs. */
+  .select { appearance: none; padding-right: 56px; background-image: url("/design-assets/icons/caret-down.svg"); background-repeat: no-repeat; background-size: 24px 24px; background-position: right 16px center; } /* Render the original Figma dropdown asset at its intended size. */
+  .textarea { display: block; height: var(--nba-textarea-height); min-height: var(--nba-textarea-height); padding: 12px; resize: vertical; } /* Match the 120px multiline reference without disabling native resizing. */
+  @media (forced-colors: active) { .select { appearance: auto; background-image: none; } } /* Preserve the system's visible dropdown affordance in high-contrast mode. */
+}

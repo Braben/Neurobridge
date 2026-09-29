@@ -1,0 +1,132 @@
+/* Verified against Neuro Bridge nodes 19:144, 35:41, 35:63 and 43:169 on 2026-09-17. */
+:root {
+  /* Default application canvas. */
+  --background: #fafafa;
+  /* Default text. */
+  --foreground: #111111;
+  /* Primary buttons and active field borders; 35:41 and 43:169. */
+  --nba-blue-primary: #0a3d62;
+  /* Pressed/focused button component fill; takes precedence over palette prose. */
+  --nba-blue-focused: #0071d7;
+  /* Disabled primary fill and default field border. */
+  --nba-blue-disabled: #b5d3ee;
+  /* Deep blue swatch 24:25. */
+  --nba-deep-blue-400: #376083;
+  /* Deep blue swatch 24:26. */
+  --nba-deep-blue-300: #6085a6;
+  /* Deep blue swatch 24:27. */
+  --nba-deep-blue-200: #8aabc9;
+  /* Deep blue swatch 24:29. */
+  --nba-deep-blue-50: #e8f9ff;
+  /* Bright blue palette accent, not the bound pressed-button fill. */
+  --nba-bright-blue-400: #1e90ff;
+  /* Bright blue palette swatch. */
+  --nba-bright-blue-200: #69b5ff;
+  /* Light blue workflow-panel end color. */
+  --nba-bright-blue-100: #9fceff;
+  /* Secondary semantic color. */
+  --nba-teal: #008080;
+  /* Turquoise palette accent. */
+  --nba-teal-200: #40e0d0;
+  /* Light teal palette swatch. */
+  --nba-teal-100: #99d6d5;
+  /* Pale teal palette swatch. */
+  --nba-teal-50: #d5fffe;
+  /* Gold swatch 24:31; the nearby prose mistakenly names a blue hex. */
+  --nba-gold-500: #ffd700;
+  /* Gold swatch 24:32. */
+  --nba-gold-300: #ffb84d;
+  /* Gold swatch 24:33. */
+  --nba-gold-50: #fff5cc;
+  /* Success feedback. */
+  --nba-success: #2e7d32;
+  /* Validation and destructive feedback. */
+  --nba-danger: #e53935;
+  /* Placeholder text and disabled secondary buttons; 35:63. */
+  --nba-neutral: #757575;
+  /* Figma neutral white. */
+  --nba-white: #fafafa;
+  /* Figma neutral black. */
+  --nba-black: #111111;
+  /* Existing neutral surface. */
+  --nba-grey-50: #fafafa;
+  /* Default field background. */
+  --nba-grey-100: #f5f5f5;
+  /* Disabled field background. */
+  --nba-grey-200: #eeeeee;
+  /* Neutral divider. */
+  --nba-grey-300: #e0e0e0;
+  /* Supporting text. */
+  --nba-grey-700: #616161;
+  /* Preserved existing token pending screen audit. */
+  --nba-deep-gold: #2c2916;
+  /* Hero and workflow light-blue surface. */
+  --nba-hero-blue: #e0f4ff;
+  /* Keyboard focus affordance; implementation accessibility token. */
+  --nba-focus-ring: rgb(0 113 215 / 0.22);
+  /* Legacy field-border alias. */
+  --nba-field-border: var(--nba-blue-disabled);
+  /* Text fields and small/medium/large buttons. */
+  --nba-control-height: 60px;
+  /* Text fields and buttons. */
+  --nba-control-radius: 16px;
+  /* Text-field horizontal inset. */
+  --nba-control-padding: 16px;
+  /* Button content inset. */
+  --nba-button-padding: 12px;
+  /* Small button width; 35:50. */
+  --nba-button-sm: 158px;
+  /* Medium button width; 35:57. */
+  --nba-button-md: 237px;
+  /* Large button width; 35:43. */
+  --nba-button-lg: 361px;
+  /* Standalone text-field reference width; container may override. */
+  --nba-field-width: 361px;
+  /* Distance from label to field. */
+  --nba-field-label-gap: 12px;
+  /* Distance from field to help/error text. */
+  --nba-field-message-gap: 8px;
+  /* Multiline field reference height. */
+  --nba-textarea-height: 120px;
+  /* Primary body and button labels. */
+  --nba-body-1-size: 18px;
+  /* Primary body and button line height. */
+  --nba-body-1-line: 28px;
+  /* Field labels and input values. */
+  --nba-body-2-size: 16px;
+  /* Field label and input line height. */
+  --nba-body-2-line: 24px;
+  /* Field validation feedback. */
+  --nba-body-4-size: 12px;
+  /* Validation feedback line height. */
+  --nba-body-4-line: 16px;
+  /* Landing title reference, not a universal page heading. */
+  --nba-title-1-size: 72px;
+  /* Landing title line height. */
+  --nba-title-1-line: 88px;
+  /* Regular text weight. */
+  --nba-weight-regular: 400;
+  /* Button and field-value weight. */
+  --nba-weight-medium: 500;
+  /* Section labels and workflow titles. */
+  --nba-weight-semibold: 600;
+  /* Emphasized labels. */
+  --nba-weight-bold: 700;
+  /* Shared small spacing. */
+  --nba-space-2: 8px;
+  /* Field label spacing. */
+  --nba-space-3: 12px;
+  /* Control inset and icon gap. */
+  --nba-space-4: 16px;
+  /* Card inset and form grid gap. */
+  --nba-space-6: 24px;
+  /* Audience heading/body gap. */
+  --nba-space-8: 32px;
+  /* Section heading/content gap. */
+  --nba-space-10: 40px;
+  /* Workflow step gap. */
+  --nba-space-12: 48px;
+  /* Landing section separation. */
+  --nba-space-15: 60px;
+}
+

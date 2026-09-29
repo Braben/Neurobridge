@@ -1,8 +1,8 @@
 // Axios instance with JWT interceptors for automatic token management
 import axios from "axios";
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api/v1";
-
+const API_BASE_URL =
+  process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api/v1";
 const getStoredAccessToken = () => {
   if (typeof window === "undefined") return null;
   return window.localStorage.getItem("accessToken");
@@ -15,7 +15,8 @@ const clearStoredAccessToken = () => {
 };
 
 const redirectToLogin = () => {
-  if (typeof window === "undefined" || window.location.pathname === "/login") return;
+  if (typeof window === "undefined" || window.location.pathname === "/login")
+    return;
   window.location.replace("/login");
 };
 
@@ -68,10 +69,18 @@ api.interceptors.response.use(
       requestUrl.includes("/auth/verify-otp") ||
       requestUrl.includes("/auth/send-otp") ||
       requestUrl.includes("/auth/resend-otp") ||
+      // Treat reset-code requests as public auth attempts.
+      requestUrl.includes("/auth/request-password-reset") ||
+      // Treat password reset submissions as public auth attempts.
+      requestUrl.includes("/auth/reset-password") ||
       requestUrl.includes("/auth/refresh");
 
     // If 401 and not a refresh request itself, try refreshing
-    if (error.response?.status === 401 && !originalRequest._retry && !isAuthAttempt) {
+    if (
+      error.response?.status === 401 &&
+      !originalRequest._retry &&
+      !isAuthAttempt
+    ) {
       if (isRefreshing) {
         // Queue the request while refresh is in progress
         return new Promise((resolve, reject) => {
@@ -86,7 +95,11 @@ api.interceptors.response.use(
       isRefreshing = true;
 
       try {
-        const response = await axios.post(`${API_BASE_URL}/auth/refresh`, {}, { withCredentials: true });
+        const response = await axios.post(
+          `${API_BASE_URL}/auth/refresh`,
+          {},
+          { withCredentials: true },
+        );
         const newToken = response.data.accessToken;
         if (typeof window !== "undefined") {
           window.localStorage.setItem("accessToken", newToken);

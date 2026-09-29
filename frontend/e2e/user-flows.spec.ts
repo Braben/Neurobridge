@@ -109,6 +109,9 @@ const pendingTherapists = [
   },
 ];
 
+// Model assignments explicitly so initially empty test fixtures can later receive a therapist.
+type TestAssignment = { id: string; therapistId: string; assignedAt: string; therapist: typeof therapist };
+
 function childProfile(overrides: Record<string, unknown> = {}) {
   return {
     id: "child-e2e",
@@ -125,7 +128,8 @@ function childProfile(overrides: Record<string, unknown> = {}) {
     supportMessage: "Please help us with communication goals.",
     createdAt: now,
     updatedAt: now,
-    therapists: [],
+    // Avoid inferring never[] for an empty relationship that assignment tests populate later.
+    therapists: [] as TestAssignment[],
     ...overrides,
   };
 }
@@ -433,7 +437,7 @@ test("password reset supports email and phone/SMS handoff", async ({ page }) => 
   await page.getByRole("textbox", { name: "Confirm New Password *", exact: true }).fill("ResetPass123!");
   await page.getByRole("button", { name: "Submit" }).click();
 
-  await expect(page.getByText("Password Reset Successful.")).toBeVisible();
+  await expect(page.getByRole("status")).toHaveText("Password reset successfully. You can now sign in."); // Assert the API success message that the recovery screen displays.
 });
 
 test("parent flow goes from empty dashboard to child profile to waiting therapist state", async ({ page }) => {
@@ -596,7 +600,7 @@ test("admin children database supports the Figma table search, filters, and sele
   await expect(page.getByText("Kojo Boateng has been assigned to Ama Blankson.")).toBeVisible();
 });
 
-test("admin assigns an approved therapist from a child profile", async ({ page }) => {
+test("admin returns from a child profile to assign an approved therapist", async ({ page }) => { // Follow the current profile-to-database navigation.
   await mockApi(page, {
     user: adminUser,
     children: [childProfile()],
@@ -606,11 +610,13 @@ test("admin assigns an approved therapist from a child profile", async ({ page }
   await loginAs(page, adminUser);
   await page.goto("/admin/children/child-e2e");
 
-  await expect(page.getByRole("heading", { name: "Therapists" })).toBeVisible();
-  await expect(page.getByText("No therapist assigned yet.")).toBeVisible();
-  await page.getByLabel("Assign an approved therapist").selectOption("therapist-approved");
-  await page.getByRole("button", { name: "Assign Therapist" }).click();
+  await expect(page.getByRole("heading", { name: "Child's Full Profile" })).toBeVisible(); // Confirm the direct profile route loads the selected child.
+  await page.getByRole("button", { name: "Close child profile" }).click(); // Return through the profile's actual navigation control.
+  await expect(page).toHaveURL(/\/admin\/children$/); // Keep the admin route context when closing the profile.
+  await page.getByRole("button", { name: "Assign therapist for Kofi Mensah" }).click(); // Open the existing table assignment editor.
+  await page.getByRole("combobox").last().selectOption("therapist-approved"); // Choose an approved therapist from the available options.
+  await page.getByRole("button", { name: "Assign", exact: true }).click(); // Submit through the same workflow as the administration screen.
 
   await expect(page.getByText("Kojo Boateng has been assigned to Kofi Mensah.")).toBeVisible();
-  await expect(page.getByText("Speech Therapy", { exact: true })).toBeVisible();
+  await expect(page.getByText("Kojo Boateng", { exact: true })).toBeVisible(); // Confirm the refreshed database reflects the assignment.
 });

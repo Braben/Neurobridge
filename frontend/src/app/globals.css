@@ -1,28 +1,5 @@
 @import "tailwindcss";
 
-:root {
-  --background: #fafafa;
-  --foreground: #111111;
-  --nba-blue-primary: #0a3d62;
-  --nba-blue-focused: #0071d7;
-  --nba-blue-disabled: #b5d3ee;
-  --nba-teal: #008080;
-  --nba-success: #2e7d32;
-  --nba-danger: #e53935;
-  --nba-neutral: #757575;
-  --nba-white: #fafafa;
-  --nba-black: #111111;
-  --nba-grey-50: #fafafa;
-  --nba-grey-100: #f5f5f5;
-  --nba-grey-200: #eeeeee;
-  --nba-grey-300: #e0e0e0;
-  --nba-grey-700: #616161;
-  --nba-deep-gold: #2c2916;
-  --nba-hero-blue: #e0f4ff;
-  --nba-focus-ring: rgb(0 113 215 / 0.22);
-  --nba-field-border: #b5d3ee;
-}
-
 /* Neuro Bridge Africa Figma token bridge */
 @theme {
   --color-background: var(--background);
@@ -30,21 +7,25 @@
   --font-sans: var(--font-plus-jakarta);
   --font-mono: var(--font-geist-mono);
 
-  --color-brand-50: #e0f4ff;
-  --color-brand-100: #9fceff;
-  --color-brand-200: #69b5ff;
+  /* Keep existing utility names while resolving their colors from shared tokens. */
+  --color-brand-50: var(--nba-hero-blue);
+  --color-brand-100: var(--nba-bright-blue-100);
+  --color-brand-200: var(--nba-bright-blue-200);
   --color-brand-300: #66b4ff;
-  --color-brand-400: #1e90ff;
-  --color-brand-500: #0071d7;
+  /* Distinguish the palette accent from the component pressed-state color. */
+  --color-brand-400: var(--nba-bright-blue-400);
+  --color-brand-500: var(--nba-blue-focused);
   --color-brand-600: #0053af;
   --color-brand-700: #1d3d62;
   --color-brand-800: #152c47;
-  --color-brand-900: #0a3d62;
+  /* Use the same primary value in both Tailwind utilities and component styles. */
+  --color-brand-900: var(--nba-blue-primary);
   --color-brand-950: #000b3b;
 
-  --color-accent-500: #008080;
-  --color-danger-500: #e53935;
-  --color-success-500: #2e7d32;
+  /* Preserve semantic utility names for existing feature screens. */
+  --color-accent-500: var(--nba-teal);
+  --color-danger-500: var(--nba-danger);
+  --color-success-500: var(--nba-success);
 
   --color-ink-50: #fafafa;
   --color-ink-100: #f5f5f5;
@@ -73,7 +54,8 @@ button,
 input,
 select,
 textarea {
-  font: inherit;
+  /* Inherit only the family: a font shorthand overrides Tailwind size and weight utilities. */
+  font-family: inherit;
 }
 
 .nba-hero-gradient {

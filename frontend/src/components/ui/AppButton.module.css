@@ -1,0 +1,46 @@
+@layer theme, base, components, utilities; /* Establish reset-before-components ordering even when Next loads this module first. */
+/* The components layer lets explicit screen utilities override layout without fighting specificity. */
+@layer components {
+  /* Reference geometry from 35:41 and 35:63, shared by anchors and native buttons. */
+  .button {
+    display: inline-flex; /* Keep icons and labels on one aligned row. */
+    align-items: center; /* Vertically center the control content. */
+    justify-content: center; /* Match the Figma centered label. */
+    gap: var(--nba-space-2); /* Maintain the icon-label separation. */
+    box-sizing: border-box; /* Include the border in the 60px height. */
+    flex-shrink: 0; /* Do not silently shrink a reference button in a flex row. */
+    width: var(--nba-button-md); /* Use the medium component by default. */
+    max-width: 100%; /* Constrain a reference width inside narrow mobile columns. */
+    height: var(--nba-control-height); /* Keep all three Figma sizes at 60px. */
+    padding: var(--nba-button-padding); /* Match the 12px inset. */
+    border: 1px solid transparent; /* Reserve the same border geometry for every variant. */
+    border-radius: var(--nba-control-radius); /* Match the 16px corners. */
+    background: var(--nba-blue-primary); /* Default primary background. */
+    color: var(--nba-white); /* Default primary foreground. */
+    font-size: var(--nba-body-1-size); /* Match the 18px button label. */
+    line-height: var(--nba-body-1-line); /* Match the 28px line height. */
+    font-weight: var(--nba-weight-medium); /* Match the 500 weight. */
+    letter-spacing: 0; /* Keep the component typography spacing neutral. */
+    text-align: center; /* Align wrapped labels predictably. */
+    text-decoration: none; /* Avoid native anchor underlines on button links. */
+    cursor: pointer; /* Indicate an available command. */
+    transition: background-color 150ms, border-color 150ms, color 150ms; /* Never animate control dimensions. */
+  }
+  .button[data-size="sm"] { width: var(--nba-button-sm); } /* Figma small: 158px. */
+  .button[data-size="lg"] { width: var(--nba-button-lg); } /* Figma large: 361px. */
+  .button[data-size="content"] { width: auto; } /* Explicit compatibility option for compact tool surfaces. */
+  .button[data-full-width="true"] { width: 100%; } /* Form-column override takes precedence over reference widths. */
+  .button:is(:hover, :focus-visible, :active):not(:disabled):not([aria-disabled="true"]) { background: var(--nba-blue-focused); } /* Use the bound focused/pressed component color. */
+  .button:focus-visible { outline: 2px solid var(--nba-blue-focused); outline-offset: 3px; } /* Keep keyboard focus visible beyond the fill change. */
+  .button:is(:disabled, [aria-disabled="true"]) { background: var(--nba-blue-disabled); cursor: not-allowed; } /* Preserve the exact disabled fill without opacity blending. */
+  .button[data-variant="secondary"] { border-color: var(--nba-blue-primary); background: transparent; color: var(--nba-blue-primary); } /* Figma outlined secondary default. */
+  .button[data-variant="secondary"]:is(:hover, :focus-visible, :active):not(:disabled):not([aria-disabled="true"]) { border-color: var(--nba-blue-focused); background: transparent; color: var(--nba-blue-focused); } /* Figma secondary pressed state. */
+  .button[data-variant="secondary"]:is(:disabled, [aria-disabled="true"]) { border-color: var(--nba-neutral); background: transparent; color: var(--nba-neutral); } /* Figma secondary disabled state is gray, not pale blue. */
+  .button[data-variant="outline"] { border-color: var(--nba-blue-disabled); background: var(--nba-grey-100); color: var(--nba-blue-primary); } /* Retain the legacy outline family during screen migration. */
+  .button[data-variant="ghost"] { background: transparent; color: var(--nba-blue-primary); } /* Retain quiet existing navigation commands. */
+  .button:is([data-variant="ghost"], [data-variant="outline"]):is(:hover, :focus-visible, :active):not(:disabled):not([aria-disabled="true"]) { background: var(--nba-hero-blue); color: var(--nba-blue-focused); } /* Preserve readable compatibility hover states. */
+  .button[data-variant="danger"] { background: var(--nba-danger); } /* Preserve destructive actions pending their component audit. */
+  .button[data-variant="danger"]:is(:hover, :focus-visible, :active):not(:disabled):not([aria-disabled="true"]) { background: var(--nba-danger); outline-color: var(--nba-danger); } /* Keep destructive feedback distinct from primary actions. */
+  .button:is([data-variant="ghost"], [data-variant="outline"], [data-variant="danger"]):is(:disabled, [aria-disabled="true"]) { background: var(--nba-grey-200); border-color: var(--nba-grey-300); color: var(--nba-neutral); } /* Keep compatibility variants visibly unavailable. */
+  .label { min-width: 0; overflow-wrap: anywhere; } /* Let long translated labels wrap inside the fixed control. */
+}

@@ -3,6 +3,8 @@ import { Geist_Mono, Plus_Jakarta_Sans } from "next/font/google";
 import { Providers } from "./providers";
 import Navbar from "./components/Navbar";
 import DashboardShell from "./components/DashboardShell";
+// Load tokens as a root stylesheet so Tailwind import expansion cannot discard a later CSS import.
+import "@/styles/tokens.css";
 import "./globals.css";
 
 const plusJakarta = Plus_Jakarta_Sans({

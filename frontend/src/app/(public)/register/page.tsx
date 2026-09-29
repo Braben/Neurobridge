@@ -1,4 +1,4 @@
-import RegisterPage from "../../features/auth/RegisterPage";
+import RegisterPage from "@/features/auth/RegisterPage";
 
 type RegisterRole = "PARENT" | "THERAPIST";
 

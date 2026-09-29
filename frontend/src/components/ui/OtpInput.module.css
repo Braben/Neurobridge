@@ -1,0 +1,12 @@
+@layer theme, base, components, utilities; /* Keep Tailwind resets before this component regardless of chunk order. */
+@layer components { /* Allow explicit screen utilities to override layout intentionally. */
+  .group { border: 0; padding: 0; margin: 0; width: var(--nba-field-width); max-width: 100%; min-width: 0; } /* Figma row: 361px, constrained on small screens. */
+  .row { display: grid; grid-template-columns: repeat(6, minmax(0, 48px)); justify-content: space-between; gap: 8px; } /* Preserve 48px cells on desktop and equal non-overflowing tracks on mobile. */
+  .digit { box-sizing: border-box; width: 100%; min-width: 0; aspect-ratio: 1; padding: 8px; border: 1px solid var(--nba-blue-disabled); border-radius: 8px; background: var(--nba-white); color: var(--nba-blue-focused); font-size: var(--nba-body-2-size); line-height: var(--nba-body-2-line); font-weight: var(--nba-weight-regular); letter-spacing: 0; text-align: center; outline: none; } /* Reference 43:105: square cells, neutral canvas, 16px regular digits. */
+  .digit::placeholder { color: var(--nba-neutral); opacity: 1; } /* Preserve the exact neutral default glyph. */
+  .digit:not(:placeholder-shown), .digit:focus { border-color: var(--nba-blue-focused); } /* Use the filled/focused blue state. */
+  .digit:focus-visible { outline: 2px solid var(--nba-focus-ring); outline-offset: 2px; } /* Keep keyboard focus visible without shifting layout. */
+  .group[data-invalid="true"] .digit { border-color: var(--nba-danger); color: var(--nba-danger); } /* Match the red verification-error cells in 60:1438. */
+  .digit:disabled { cursor: wait; } /* Keep dimensions and colors stable while verification is pending. */
+  .visuallyHidden { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; border: 0; } /* Retain accessible labels without introducing design-only visible copy. */
+} /* Finish the scoped control layer. */
