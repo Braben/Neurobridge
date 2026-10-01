@@ -1,0 +1,18 @@
+@layer theme, base, components, utilities; /* Preserve component precedence in the bundled stylesheet. */
+@layer components { /* Keep contact geometry isolated. */
+  .content { width: 100%; max-width: 797px; min-width: 0; color: var(--nba-black); } /* Match the source content width. */
+  .heading { margin-bottom: 40px; } /* Match the source heading-to-form gap. */
+  .heading h1 { font-size: 32px; line-height: 38px; font-weight: 500; overflow-wrap: anywhere; } /* Preserve fixed source typography. */
+  .heading p { max-width: 682px; margin-top: 16px; font-size: 18px; line-height: 28px; font-weight: 500; } /* Match the source description's three-line measure. */
+  .heading strong { font-weight: 700; } /* Retain the source callout emphasis. */
+  .form { display: flex; flex-direction: column; gap: 24px; width: 100%; max-width: 361px; min-height: 480px; } /* Match the source control stack. */
+  .message { position: relative; } /* Anchor the source resize glyph at the textarea corner. */
+  .message::after { content: ""; width: 24px; height: 24px; position: absolute; bottom: 5px; right: 4px; pointer-events: none; background: url('/design-assets/icons/contact-resize.svg') center / 24px 24px no-repeat; } /* Include the source textarea's 12px inset when positioning the resize slot. */
+  .message textarea::-webkit-resizer { background: transparent; } /* Keep native resizing active beneath the source decoration. */
+  .error { display: flex; gap: 8px; padding: 16px; margin-bottom: 24px; background: var(--nba-danger); color: var(--nba-white); border-radius: 12px; overflow-wrap: anywhere; } /* Reserve layout space for actual failures. */
+  .error img { flex-shrink: 0; } /* Preserve the original warning icon dimensions. */
+  .success { display: flex; flex-direction: column; gap: 24px; max-width: 361px; } /* Keep the receipt and follow-up action on the control rail. */
+  .spinner { animation: contact-spin 1s linear infinite; } /* Show pending state with the original loading asset. */
+  @keyframes contact-spin { to { transform: rotate(360deg); } } /* Complete the loading rotation. */
+  @media (prefers-reduced-motion: reduce) { .spinner { animation: none; } } /* Respect motion preferences. */
+} /* Finish contact styling. */

@@ -9,7 +9,7 @@ export interface Session {
   duration: number | null;
   createdAt: string;
   note: { id: string; goalsWorkedOn: string; observations: string; recommendations: string; extraNotes: string | null; createdAt?: string; updatedAt?: string } | null;
-  child: { id: string; firstName: string; lastName: string };
+  child: { id: string; firstName: string; lastName: string; dateOfBirth?: string; profileImage?: string | null; parents?: { parent: { id: string; firstName: string; lastName: string } }[] }; // Include the safe child/parent projection used by the therapist's cross-child table.
   therapist: { id: string; firstName: string; lastName: string; avatar?: string | null; areaofexpertise?: string | null };
 }
 

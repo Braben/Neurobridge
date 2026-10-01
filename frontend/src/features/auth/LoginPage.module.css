@@ -1,0 +1,22 @@
+@layer theme, base, components, utilities; /* Preserve shared reset and component precedence. */
+@layer components { /* Keep signin-specific rules isolated from other authentication screens. */
+  .content { width: 100%; min-width: 0; color: var(--nba-black); } /* Share the left rail without constraining the heading to field width. */
+  .heading { display: flex; flex-direction: column; gap: 16px; margin-bottom: 40px; } /* Match the source heading stack. */
+  .welcome { font-size: 24px; line-height: 30px; font-weight: 500; overflow-wrap: anywhere; } /* Match the welcome line while allowing narrow-screen wrapping. */
+  .title { font-size: 32px; line-height: 38px; font-weight: 500; overflow-wrap: anywhere; } /* Keep source typography fixed rather than scaling it with viewport width. */
+  .accent, .signupLink { color: var(--nba-teal); } /* Use the source's shared teal accent. */
+  .form { display: flex; flex-direction: column; gap: 24px; width: 100%; max-width: 361px; } /* Match the control column and vertical separation. */
+  .form input { text-overflow: ellipsis; } /* Avoid clipping through placeholder letters when the reference copy cannot fit on a narrow phone. */
+  .form .filled:not(:disabled) { border-color: var(--nba-blue-primary); background-color: transparent; } /* Preserve the filled-state field appearance after blur without overriding request locks. */
+  .passwordArea { display: flex; flex-direction: column; gap: 8px; min-width: 0; } /* Treat the password and recovery link as one 120px default component. */
+  .recovery { align-self: flex-end; font-size: 12px; line-height: 16px; font-weight: 400; } /* Align recovery text to the field's right edge. */
+  .recovery:hover { text-decoration: underline; } /* Make the link's interactive state visible. */
+  .signup { width: 100%; max-width: 361px; margin-top: 16px; font-size: 16px; line-height: 24px; font-weight: 500; } /* Keep signup copy aligned beneath the button. */
+  .signupLink { text-decoration: underline; text-underline-offset: 2px; } /* Preserve the reference's always-underlined link. */
+  .feedback { position: fixed; z-index: 50; top: 32px; right: 40px; max-width: calc(100vw - 40px); display: flex; align-items: center; gap: 8px; padding: 16px; border-radius: 12px; background: var(--nba-danger); color: var(--nba-white); font-size: 16px; line-height: 24px; overflow-wrap: anywhere; } /* Adapt the source warning surface to the actual response length. */
+  .feedback img { flex-shrink: 0; } /* Never squeeze the original warning asset. */
+  .spinner { animation: signin-spin 1s linear infinite; flex-shrink: 0; } /* Rotate the native 24px loading loop without shifting the action. */
+  @keyframes signin-spin { to { transform: rotate(360deg); } } /* Complete one loading rotation. */
+  @media (prefers-reduced-motion: reduce) { .spinner { animation: none; } } /* Keep the pending label visible without motion when requested. */
+  @media (max-width: 639px) { .feedback { position: static; width: 100%; max-width: none; margin-bottom: 24px; } } /* Reserve real mobile space so long server messages cannot obscure the heading or controls. */
+} /* Finish signin presentation. */

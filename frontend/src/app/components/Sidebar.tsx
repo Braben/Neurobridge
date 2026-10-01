@@ -1,8 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { useAppSelector } from "../hooks/useRedux";
+import Image from "next/image";
+import { usePathname, useRouter } from "next/navigation";
+import { useAppDispatch, useAppSelector } from "../hooks/useRedux";
+import { logoutUser } from "../store/slices/authSlice";
 import BrandLogo from "./ui/BrandLogo";
 
 interface NavItem {
@@ -29,9 +31,107 @@ const icons: Record<string, string> = {
 
 export default function Sidebar() {
   const pathname = usePathname();
+  const router = useRouter();
+  const dispatch = useAppDispatch();
   const { user } = useAppSelector((s) => s.auth);
 
   if (!user) return null;
+
+  // Keep therapist workspace navigation identical to the Figma side-menu frame.
+  if (user.role === "THERAPIST") {
+    // Point the session-note action at the dashboard section when the dashboard is open.
+    const sessionNotesHref = "/dashboard#session-notes"; // Return to the actual note-entry section from every therapist route.
+
+    // Define the board menu order and active routes for therapist screens.
+    const therapistMenuItems = [
+      { href: sessionNotesHref, label: "Add Session Notes", icon: icons.Sessions },
+      { href: "/children", label: "Assigned Children", icon: icons.Children },
+      { href: "/dashboard", label: "Welcome", icon: icons.Dashboard },
+    ];
+
+    // Keep the side menu's logout action connected to the existing auth flow.
+    const handleTherapistLogout = async () => {
+      await dispatch(logoutUser());
+      router.push("/login");
+    };
+
+    // Render the 408px desktop side menu defined by the therapist Figma frame.
+    return (
+      <aside className="hidden w-[408px] shrink-0 flex-col bg-[#e0ffff] px-10 pb-14 pt-14 lg:flex lg:min-h-screen lg:sticky lg:top-0">
+        {/* Push the profile, menu, and board logo to the lower side-menu region. */}
+        <div className="flex min-h-0 flex-1 flex-col justify-end">
+          {/* Match the board's 86px avatar, 24px profile gap, and role tag treatment. */}
+          <div className="flex items-center gap-6 pr-2 py-2">
+            <Image
+              src={user.avatar || "/design-assets/child-portrait.jpg"}
+              alt=""
+              width={86}
+              height={86}
+              className="h-[86px] w-[86px] shrink-0 rounded-full object-cover"
+            />
+            <div className="min-w-0">
+              <p className="truncate text-base font-semibold leading-[22px] text-[#111111]">
+                {`${user.firstName || ""} ${user.lastName || ""}`.trim() || "Therapist"}
+              </p>
+              <p className="truncate text-base font-normal leading-6 text-[#111111]">
+                {user.email || user.phone || "No contact"}
+              </p>
+              <span className="mt-1 inline-flex rounded-[12px] bg-[#69b5ff] px-2 py-1 text-xs leading-4 text-[#111111]">
+                Therapist
+              </span>
+            </div>
+          </div>
+
+          {/* Match the board's 266px menu width, 24px item gaps, and active state radius. */}
+          <nav className="mt-12 flex w-[266px] flex-col gap-6">
+            {/* Keep logout above the separator as shown in the Figma menu. */}
+            <button
+              type="button"
+              onClick={handleTherapistLogout}
+              className="flex h-10 w-full items-center gap-2 rounded-[4px] px-3 text-left text-xl font-normal leading-7 text-[#0a3d62] hover:bg-white/60"
+            >
+              <svg className="h-6 w-6 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.7} aria-hidden="true">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M9 5H5a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h4m5-4 3-3m0 0-3-3m3 3H9" />
+              </svg>
+              Logout
+            </button>
+
+            {/* Use the board's separator treatment between logout and workspace sections. */}
+            <div className="h-px w-[266px] bg-[#95cad3]" aria-hidden="true" />
+
+            {/* Render the three board-defined therapist destinations. */}
+            {therapistMenuItems.map((item) => {
+              // Mark the dashboard, children, and session-note destinations active by route.
+              const active = item.href === "/dashboard"
+                ? pathname === "/dashboard"
+                : item.label === "Assigned Children"
+                  ? pathname.startsWith("/children")
+                  : false;
+
+              // Render a fixed-width board menu item with a 24px icon.
+              return (
+                <Link
+                  key={item.label}
+                  href={item.href}
+                  className={`flex min-h-10 w-[266px] items-center gap-2 rounded-[4px] px-3 py-2 text-base font-normal leading-6 text-[#0a3d62] ${active ? "rounded-[12px] bg-[#0a3d62] text-[#fafafa]" : "hover:bg-white/70"}`}
+                >
+                  <svg className="h-6 w-6 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={active ? 2 : 1.5} aria-hidden="true">
+                    <path strokeLinecap="round" strokeLinejoin="round" d={item.icon} />
+                  </svg>
+                  {item.label}
+                </Link>
+              );
+            })}
+          </nav>
+
+          {/* Keep the board logo slot at its fixed 328px by 87px dimensions. */}
+          <div className="mt-12 flex h-[87px] w-[328px] items-center justify-center">
+            <BrandLogo compact variant="transparent" className="w-[328px]" />
+          </div>
+        </div>
+      </aside>
+    );
+  }
 
   const navItems: NavItem[] = [
     { href: "/dashboard", label: "Dashboard", icon: icons.Dashboard },
@@ -39,11 +139,9 @@ export default function Sidebar() {
     ...(user.role === "ADMIN" || user.role === "PARENT"
       ? [{ href: "/therapists" as const, label: "Therapists" as const, icon: icons.Therapists }]
       : []),
-    ...(user.role === "PARENT" || user.role === "THERAPIST" || user.role === "ADMIN"
+    // Keep the generic sidebar branch limited to parent and admin users after therapist routing returns above.
+    ...(user.role === "PARENT" || user.role === "ADMIN"
       ? [{ href: "/bookings" as const, label: "Bookings" as const, icon: icons.Bookings }]
-      : []),
-    ...(user.role === "THERAPIST"
-      ? [{ href: "/availability" as const, label: "Availability" as const, icon: icons.Availability }]
       : []),
     { href: "/messages", label: "Messages", icon: icons.Messages },
     { href: "/resources", label: "Resources", icon: icons.Resources },

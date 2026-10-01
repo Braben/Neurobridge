@@ -5,7 +5,10 @@ const { notifyChildParents } = require("../../services/notification.service");
 const sessionFields = {
   id: true, childId: true, therapistId: true, bookingId: true, sessionDate: true, duration: true, createdAt: true,
   note: { select: { id: true, goalsWorkedOn: true, observations: true, recommendations: true, extraNotes: true, createdAt: true, updatedAt: true } },
-  child: { select: { id: true, firstName: true, lastName: true } },
+  child: { select: { // Project only the child details needed by the authorized session table.
+    id: true, firstName: true, lastName: true, dateOfBirth: true, profileImage: true, // Supply real names, age, and avatar without loading intake or medical details.
+    parents: { select: { parent: { select: { id: true, firstName: true, lastName: true } } }, orderBy: { parentId: "asc" } }, // Keep caregiver names deterministic and exclude credentials/contact fields.
+  } }, // Preserve the existing outer session ownership predicates for every response.
   therapist: { select: { id: true, firstName: true, lastName: true, avatar: true, areaofexpertise: true } },
   booking: { select: { id: true, status: true } },
 };

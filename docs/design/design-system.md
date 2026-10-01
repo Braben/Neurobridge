@@ -13,6 +13,7 @@ Source file: [NEURO-BRIDGE](https://www.figma.com/design/FdXaHn8UCA6N8I9yLqZ5fE/
 | Dropdown caret | `211:999` inside `43:169` | `frontend/public/design-assets/icons/caret-down.svg` |
 | OTP default/error cells | `43:105` within `59:1339`; `60:1438` | `frontend/src/components/ui/OtpInput.tsx` (inspected 2026-09-18) |
 | Shared auth panel and OTP composition | `59:1339`, `60:1438`, `60:1485` | `AuthFrame` and `OtpVerificationPage`; see `authentication-reference.md` (inspected 2026-09-29) |
+| Signin and password visibility | `53:1167`, `1037:11324`, `58:585`, `43:230` | `LoginPage`; see `signin-reference.md` (inspected 2026-09-29) |
 
 ## Geometry And Typography
 
@@ -51,4 +52,4 @@ Run `npm run dev -- --port 3100` from `frontend`, then open `http://localhost:31
 
 `e2e/auth-otp.spec.ts` checks keyboard editing, leading-zero paste/autofill, pending request locks, error/retry behavior, and desktop/mobile OTP geometry. `e2e/auth-visual.spec.ts` additionally checks the source frame's default OTP rail, original logo crop, arrow, footer, local assets, resend failure recovery, elapsed-time countdown, and pre-hydration input protection. The shared side panel and default OTP composition have been visually reviewed; the other authentication form compositions remain separate audits.
 
-The next component pass must inspect password icons, checkboxes, radio buttons, toggles, dialogs, tables, and navigation before implementing their exact variants. Use this same source ledger for each family.
+Signin, parent/therapist signup, and reset-password now use original default/hidden/visible password icons, with geometry and interaction coverage in the login, register, and recovery-contact tests. The next component pass must inspect the remaining password variants, checkboxes, radio buttons, toggles, dialogs, tables, and navigation before implementing their exact variants. Use this same source ledger for each family.

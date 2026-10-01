@@ -15,6 +15,8 @@ import { notificationsApi } from "../services/notifications";
 import { useState, useRef, useEffect } from "react";
 import AppButton from "./ui/AppButton";
 import BrandLogo from "./ui/BrandLogo";
+// Keep the development-only component review canvas free of role navigation.
+import { isDesignSystemPreview } from "@/lib/design-system-preview";
 import { BellIcon, CediIcon, ChevronDownIcon, MenuIcon, MessageCircleIcon, PlusIcon, TableIcon, XIcon } from "./ui/Icons";
 
 export default function Navbar() {
@@ -43,8 +45,11 @@ export default function Navbar() {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  const authPages = ["/", "/login", "/register", "/register/admin", "/verify-otp", "/forgot-password"];
-  if (!isAuthenticated || !user || authPages.includes(pathname)) return null;
+  const authPages = ["/", "/contact", "/login", "/register", "/register/admin", "/verify-otp", "/forgot-password", "/reset-password"]; // Preserve the standalone contact design for signed-in users too.
+  // The preview predicate is false in production builds.
+  if (!isAuthenticated || !user || authPages.includes(pathname) || isDesignSystemPreview(pathname)) return null;
+  // Let therapist workspace routes use the Figma side-menu shell without a second global navbar.
+  if (user.role === "THERAPIST") return null;
   if ((pathname === "/dashboard" && user.role !== "ADMIN") || pathname.startsWith("/children/add")) return null;
 
   const messagesPath = user.role === "ADMIN" ? "/admin/messages" : "/messages";

@@ -1,0 +1,16 @@
+@layer theme, base, components, utilities; /* Keep source geometry stable across development and production stylesheets. */
+@layer components { /* Scope recovery presentation to auth features. */
+  .content { position: relative; width: 100%; min-width: 0; color: var(--nba-black); } /* Let descriptive copy span the available rail and anchor supplementary recovery links. */
+  .recoveryTitle { font-size: 24px; line-height: 30px; font-weight: 600; } /* Match the forgot-password title. */
+  .resetTitle { font-size: 32px; line-height: 38px; font-weight: 500; overflow-wrap: anywhere; } /* Match the create-password title. */
+  .description { margin-top: 16px; font-size: 18px; line-height: 28px; font-weight: 500; overflow-wrap: anywhere; } /* Preserve the source heading stack. */
+  .form { display: flex; flex-direction: column; gap: 24px; width: 100%; max-width: 361px; } /* Keep all controls on the source 361px column. */
+  .form input { text-overflow: ellipsis; } /* Protect narrow-screen placeholder geometry. */
+  .support { width: 100%; max-width: 361px; margin-top: 16px; font-size: 16px; line-height: 24px; font-weight: 500; } /* Match the source secondary link position. */
+  .feedback { display: flex; align-items: flex-start; gap: 8px; margin-bottom: 24px; padding: 16px; border-radius: 12px; background: var(--nba-danger); color: var(--nba-white); overflow-wrap: anywhere; } /* Display genuine server feedback without hiding fields. */
+  .feedback img { flex-shrink: 0; } /* Preserve the original 24px warning asset. */
+  .spinner { animation: recovery-spin 1s linear infinite; } /* Keep pending feedback at a stable size. */
+  @keyframes recovery-spin { to { transform: rotate(360deg); } } /* Complete one loading rotation. */
+  @media (prefers-reduced-motion: reduce) { .spinner { animation: none; } } /* Respect reduced-motion preferences. */
+  @media (min-width: 1024px) { .resetSupport { position: absolute; top: 100%; left: 0; } } /* Keep optional recovery links from shifting the source password frame. */
+} /* Finish recovery-specific styles. */

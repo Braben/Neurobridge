@@ -268,10 +268,11 @@ exports.requestPasswordReset = async (req, res, next) => {
     if (!requestedTarget) {
       return res.status(400).json({ message: "Email or phone number is required" });
     }
+    const resetResponse = { message: genericMessage, resetChannel: requestedTarget.channel, resetIdentifier: requestedTarget.identifier }; // Reflect only submitted contact data, never account existence.
 
     const user = await findUserByTarget(requestedTarget);
     if (!user || user.deletedAt) {
-      return res.status(200).json({ message: genericMessage });
+      return res.status(200).json(resetResponse); // Keep the response shape identical for absent and deleted accounts.
     }
 
     await invalidateOtp({ ...requestedTarget, type: "PASSWORD_RESET" });
@@ -285,11 +286,7 @@ exports.requestPasswordReset = async (req, res, next) => {
       console.error(`Failed to send ${requestedTarget.channel} password reset code:`, deliveryError.message);
     }
 
-    return res.status(200).json({
-      message: genericMessage,
-      resetChannel: requestedTarget.channel,
-      resetIdentifier: requestedTarget.identifier,
-    });
+    return res.status(200).json(resetResponse); // Return the same metadata for every valid target.
   } catch (error) {
     next(error);
   }
@@ -316,16 +313,21 @@ exports.resetPassword = async (req, res, next) => {
 
     const hashedPassword = await bcrypt.hash(password, Number(process.env.SALT_ROUNDS) || 10);
 
-    await prisma.$transaction([
-      prisma.otpCode.update({
-        where: { id: otpRecord.id },
-        data: { isUsed: true, usedAt: new Date() },
-      }),
-      prisma.user.update({
-        where: { id: user.id },
-        data: { password: hashedPassword, refreshToken: null },
-      }),
-    ]);
+    const resetApplied = await prisma.$transaction(async (tx) => { // Claim the code and change credentials within one rollback boundary.
+      const now = new Date(); // Recheck expiry after password hashing and any concurrent request.
+      const claimed = await tx.otpCode.updateMany({ // A conditional write allows only one concurrent consumer to win.
+        where: { id: otpRecord.id, isUsed: false, expiresAt: { gt: now } }, // Reject consumed or newly expired codes.
+        data: { isUsed: true, usedAt: now }, // Record the successful claim.
+      }); // Finish atomic code consumption.
+      if (claimed.count !== 1) return false; // Do not change the password after a lost claim.
+      const changed = await tx.user.updateMany({ // Recheck account deletion at the time of the password write.
+        where: { id: user.id, deletedAt: null }, // Do not revive or modify deleted accounts.
+        data: { password: hashedPassword, refreshToken: null }, // Revoke refresh credentials with the password change.
+      }); // Finish the account update.
+      if (changed.count !== 1) throw Object.assign(new Error("Invalid or expired reset code"), { statusCode: 400 }); // Roll back consumption if the account disappeared.
+      return true; // Mark the reset as committed only when both writes succeeded.
+    }); // End the reset transaction.
+    if (!resetApplied) return res.status(400).json({ message: "Invalid or expired reset code" }); // Reject racing replays consistently.
 
     return res.status(200).json({ message: "Password reset successfully. You can now sign in." });
   } catch (error) {
@@ -432,18 +434,22 @@ exports.verifyOtp = async (req, res, next) => {
       return res.status(400).json({ message: "Invalid or expired OTP code" });
     }
 
-    await prisma.otpCode.update({
-      where: { id: otpRecord.id },
-      data: { isUsed: true, usedAt: new Date() },
-    });
-
     const user = await findUserByTarget(otpTarget);
-    if (user && (user.role === "PARENT" || user.role === "ADMIN")) {
-      await prisma.user.update({
-        where: { id: user.id },
-        data: { isApproved: true },
-      });
-    }
+    if (!user || user.deletedAt) return res.status(400).json({ message: "Invalid or expired OTP code" }); // Do not consume codes for deleted accounts.
+    const verified = await prisma.$transaction(async (tx) => { // Couple single-use verification to any account approval.
+      const now = new Date(); // Recheck expiration at claim time.
+      const claimed = await tx.otpCode.updateMany({ // Prevent parallel requests from verifying the same code twice.
+        where: { id: otpRecord.id, isUsed: false, expiresAt: { gt: now } }, // Guard the atomic claim.
+        data: { isUsed: true, usedAt: now }, // Record the winning verification.
+      }); // Complete the claim.
+      if (claimed.count !== 1) return false; // Reject replays without modifying account approval.
+      if (user.role === "PARENT" || user.role === "ADMIN") { // Therapist approval remains an administrator's responsibility.
+        const changed = await tx.user.updateMany({ where: { id: user.id, deletedAt: null }, data: { isApproved: true } }); // Approve only an existing account.
+        if (changed.count !== 1) throw Object.assign(new Error("Invalid or expired OTP code"), { statusCode: 400 }); // Roll back the claim if approval cannot complete.
+      } // End role-specific approval.
+      return true; // Report a successful verification claim.
+    }); // End verification transaction.
+    if (!verified) return res.status(400).json({ message: "Invalid or expired OTP code" }); // Surface an invalid-code response to a racing client.
 
     return res.status(200).json({
       message: "OTP verified successfully. Account confirmed.",

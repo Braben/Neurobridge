@@ -31,6 +31,7 @@ const paymentRoutes = require("./src/routes/payment.route");
 const subscriptionRoutes = require("./src/routes/subscription.route");
 // Phase 3: Reports
 const reportRoutes = require("./src/routes/report.route");
+const contactRoutes = require("./src/routes/contact.route"); // Public inquiries are persisted independently of conversations.
 
 const app = express();
 
@@ -76,6 +77,7 @@ app.use("/api/v1/payments", paymentRoutes);
 app.use("/api/v1/subscriptions", subscriptionRoutes);
 // Phase 3: Reports
 app.use("/api/v1/reports", reportRoutes);
+app.use("/api/v1/contact", contactRoutes); // Allow the public contact form without an account.
 
 // --- 404 Catch-All ---
 app.use((req, res, next) => {

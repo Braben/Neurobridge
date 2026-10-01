@@ -429,12 +429,13 @@ test("password reset supports email and phone/SMS handoff", async ({ page }) => 
   await page.getByLabel("Email / Phone Number").fill("+233501111111");
   await page.getByRole("button", { name: "Get Password Reset Code" }).click();
 
-  await expect(page.getByText("Create New Password")).toBeVisible();
+  await expect(page.getByText("Enter Your Reset Code")).toBeVisible(); // Collect the recovery code before displaying the source password form.
   await expect(page.getByLabel("Account Email / Phone Number")).toHaveValue("+233501111111");
 
-  await page.getByLabel("Reset Code").fill("123456");
-  await page.getByRole("textbox", { name: "New Password *", exact: true }).fill("ResetPass123!");
-  await page.getByRole("textbox", { name: "Confirm New Password *", exact: true }).fill("ResetPass123!");
+  await page.getByLabel("Verification digit 1 of 6").fill("123456"); // Exercise accessible OTP paste support.
+  await page.getByRole("button", { name: "Continue", exact: true }).click(); // Advance locally without claiming the code is already verified.
+  await page.getByLabel("New Password", { exact: true }).fill("ResetPass123!"); // Use the source label without a decorative required marker.
+  await page.getByLabel("Confirm New Password", { exact: true }).fill("ResetPass123!"); // Confirm the replacement password through its accessible name.
   await page.getByRole("button", { name: "Submit" }).click();
 
   await expect(page.getByRole("status")).toHaveText("Password reset successfully. You can now sign in."); // Assert the API success message that the recovery screen displays.

@@ -1,6 +1,8 @@
 @layer theme, base, components, utilities; /* Keep Next's stylesheet ordering from changing layout precedence. */
 @layer components { /* Allow explicit screen utilities to remain the final layout override. */
   .side { position: relative; display: none; min-height: 100svh; overflow: hidden; } /* Hide the decorative desktop panel when the form needs the full mobile width. */
+  .contactPhoto { position: absolute; height: 100%; width: 317.97%; max-width: none; left: -167.35%; top: -0.04%; object-fit: fill; } /* Apply the contact node's original image-fill transform. */
+  .content[data-contact="true"] { padding-bottom: 64px; } /* Balance the top inset when no footer is present. */
   .sideContent { position: relative; min-height: 100%; padding: 64px 40px; color: var(--nba-white); } /* Match the back control at x40/y64. */
   .welcome { position: absolute; top: max(128px, calc(50% - 231px)); left: 40px; width: 414px; max-width: calc(100% - 69px); display: flex; flex-direction: column; gap: 40px; } /* Reference welcome origin: 40,281 on a 483x1024 panel. */
   .logoSlot { position: relative; width: 100%; aspect-ratio: 414 / 216; overflow: hidden; } /* Preserve the source logo node's dimensions and clipping window. */

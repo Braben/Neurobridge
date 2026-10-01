@@ -537,6 +537,26 @@ model UserSubscription {
   @@index([status])
 }
 
+enum InquiryStatus { // Workflow states for public contact submissions.
+  NEW // Newly received and not yet triaged.
+  IN_PROGRESS // An administrator is handling the inquiry.
+  RESOLVED // The inquiry has been addressed.
+} // End inquiry states.
+
+model ContactInquiry { // Durable submissions, independent of account ownership and messaging.
+  id        String        @id @default(uuid()) // Server-generated reference returned to the sender.
+  fullName  String // Sender's submitted name, not a verified identity.
+  email     String // Normalized reply address, not account linkage.
+  phone     String? // Optional callback number.
+  subject   String? // Optional subject when supplied by the client.
+  message   String // Validated message body.
+  status    InquiryStatus @default(NEW) // Workflow state writable only by administrators.
+  createdAt DateTime      @default(now()) // Submission timestamp.
+  updatedAt DateTime      @updatedAt // Last workflow change.
+  @@index([status, createdAt]) // Support filtered admin pagination.
+  @@index([createdAt]) // Support the all-status inbox.
+} // End durable inquiry model.
+
 model AppSetting {
   key         String   @id
   value       String

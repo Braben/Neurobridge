@@ -15,7 +15,7 @@ The node IDs, names, and dimensions are read from Figma. Route and dependency as
 
 - Parent signup has two extra frames (`1049:8419`, `1049:8655`); login also has an extra default frame. Keep these visible in the inventory; do not silently choose a redesign.
 - Several parent workflows are modals in Figma but standalone routes in the app. Preserve existing links while deciding modal routing per flow.
-- Contact Administrator has six states but no dedicated application route identified. Landing Submit currently only prevents submission; it is not a completed contact workflow.
+- Contact Administrator now maps to `/contact`, backed by persisted inquiries and an admin inbox. The default frame is measured; state-specific visual comparisons remain pending. Landing Submit now uses the same endpoint. Deployment requires the ContactInquiry migration.
 - School support is labelled Coming Soon on the landing page; no school dashboard section was found on MAIN DESIGN.
 - Some therapist tables are designed at 1981px or 2160px; some administrator tables reach 2258px. Test at those reference widths and define horizontal scrolling for smaller viewports.
 - The existing landing page uses substitute photographs and has not passed an image-overlay comparison. Its previous completion claim is not visual sign-off.
@@ -123,12 +123,12 @@ The node IDs, names, and dimensions are read from Figma. Route and dependency as
 
 | Frame | Dimensions | Role | Route / Surface |
 | --- | --- | --- | --- |
-| [CONTACT ADMINISTRATOR - MAIN - DEFAULT](https://www.figma.com/design/FdXaHn8UCA6N8I9yLqZ5fE/NEURO-BRIDGE?node-id=111-770) | 1440 x 1024 | PUBLIC | `UNMAPPED: dedicated contact route` |
-| [CONTACT ADMINISTRATOR - FILLED](https://www.figma.com/design/FdXaHn8UCA6N8I9yLqZ5fE/NEURO-BRIDGE?node-id=111-889) | 1440 x 1024 | PUBLIC | `UNMAPPED: dedicated contact route` |
-| [CONTACT ADMINISTRATOR - FILLED [LOADING]](https://www.figma.com/design/FdXaHn8UCA6N8I9yLqZ5fE/NEURO-BRIDGE?node-id=113-977) | 1440 x 1024 | PUBLIC | `UNMAPPED: dedicated contact route` |
-| [CONTACT ADMINISTRATOR - FILLED [LOADING]](https://www.figma.com/design/FdXaHn8UCA6N8I9yLqZ5fE/NEURO-BRIDGE?node-id=113-1017) | 1440 x 1024 | PUBLIC | `UNMAPPED: dedicated contact route` |
-| [CONTACT ADMINISTRATOR - FILLED - SUBMITTED](https://www.figma.com/design/FdXaHn8UCA6N8I9yLqZ5fE/NEURO-BRIDGE?node-id=114-1056) | 1440 x 1024 | PUBLIC | `UNMAPPED: dedicated contact route` |
-| [CONTACT ADMINISTRATOR - FILLED - SOMETHING WENT WRONG](https://www.figma.com/design/FdXaHn8UCA6N8I9yLqZ5fE/NEURO-BRIDGE?node-id=114-1204) | 1440 x 1024 | PUBLIC | `UNMAPPED: dedicated contact route` |
+| [CONTACT ADMINISTRATOR - MAIN - DEFAULT](https://www.figma.com/design/FdXaHn8UCA6N8I9yLqZ5fE/NEURO-BRIDGE?node-id=111-770) | 1440 x 1024 | PUBLIC | `/contact` |
+| [CONTACT ADMINISTRATOR - FILLED](https://www.figma.com/design/FdXaHn8UCA6N8I9yLqZ5fE/NEURO-BRIDGE?node-id=111-889) | 1440 x 1024 | PUBLIC | `/contact` |
+| [CONTACT ADMINISTRATOR - FILLED [LOADING]](https://www.figma.com/design/FdXaHn8UCA6N8I9yLqZ5fE/NEURO-BRIDGE?node-id=113-977) | 1440 x 1024 | PUBLIC | `/contact` |
+| [CONTACT ADMINISTRATOR - FILLED [LOADING]](https://www.figma.com/design/FdXaHn8UCA6N8I9yLqZ5fE/NEURO-BRIDGE?node-id=113-1017) | 1440 x 1024 | PUBLIC | `/contact` |
+| [CONTACT ADMINISTRATOR - FILLED - SUBMITTED](https://www.figma.com/design/FdXaHn8UCA6N8I9yLqZ5fE/NEURO-BRIDGE?node-id=114-1056) | 1440 x 1024 | PUBLIC | `/contact` |
+| [CONTACT ADMINISTRATOR - FILLED - SOMETHING WENT WRONG](https://www.figma.com/design/FdXaHn8UCA6N8I9yLqZ5fE/NEURO-BRIDGE?node-id=114-1204) | 1440 x 1024 | PUBLIC | `/contact` |
 
 ## PARENT DASHBOARD - EMPTY + CHILD PROFILE ADDON + WAITING TO BE ASSIGNED A THERAPIST
 
@@ -177,9 +177,9 @@ The node IDs, names, and dimensions are read from Figma. Route and dependency as
 | [THERAPIST DASHBOARD - ASSIGNED CHILDREN - BOOKING HISTORY](https://www.figma.com/design/FdXaHn8UCA6N8I9yLqZ5fE/NEURO-BRIDGE?node-id=660-4038) | 1981 x 1191 | THERAPIST | `/children` |
 | [THERAPIST DASHBOARD - ASSIGNED CHILDREN - VIEW FULL PROFILE](https://www.figma.com/design/FdXaHn8UCA6N8I9yLqZ5fE/NEURO-BRIDGE?node-id=660-4414) | 1981 x 1191 | THERAPIST | `/children` |
 | [THERAPIST DASHBOARD - BOOKINGS TABLE](https://www.figma.com/design/FdXaHn8UCA6N8I9yLqZ5fE/NEURO-BRIDGE?node-id=628-5076) | 1440 x 1024 | THERAPIST | `/bookings` |
-| [THERAPIST DASHBOARD - SESSION NOTES - FULL TABLE](https://www.figma.com/design/FdXaHn8UCA6N8I9yLqZ5fE/NEURO-BRIDGE?node-id=673-6094) | 2160 x 1024 | THERAPIST | `/children/[id]/sessions (cross-child list gap)` |
-| [THERAPIST DASHBOARD - SESSION NOTES - CLIPPED CONTENT](https://www.figma.com/design/FdXaHn8UCA6N8I9yLqZ5fE/NEURO-BRIDGE?node-id=673-6411) | 1440 x 1024 | THERAPIST | `/children/[id]/sessions (cross-child list gap)` |
-| [THERAPIST DASHBOARD - SESSION NOTES - CLIPPED CONTENT - EXPANDED VIEW](https://www.figma.com/design/FdXaHn8UCA6N8I9yLqZ5fE/NEURO-BRIDGE?node-id=673-6640) | 1440 x 1024 | THERAPIST | `/children/[id]/sessions (cross-child list gap)` |
+| [THERAPIST DASHBOARD - SESSION NOTES - FULL TABLE](https://www.figma.com/design/FdXaHn8UCA6N8I9yLqZ5fE/NEURO-BRIDGE?node-id=673-6094) | 2160 x 1024 | THERAPIST | `/sessions` (wide-frame comparison pending) |
+| [THERAPIST DASHBOARD - SESSION NOTES - CLIPPED CONTENT](https://www.figma.com/design/FdXaHn8UCA6N8I9yLqZ5fE/NEURO-BRIDGE?node-id=673-6411) | 1440 x 1024 | THERAPIST | `/sessions` |
+| [THERAPIST DASHBOARD - SESSION NOTES - CLIPPED CONTENT - EXPANDED VIEW](https://www.figma.com/design/FdXaHn8UCA6N8I9yLqZ5fE/NEURO-BRIDGE?node-id=673-6640) | 1440 x 1024 | THERAPIST | `/sessions` (expanded field) |
 
 ## ADMIN DASHBOARD
 
@@ -234,5 +234,3 @@ The node IDs, names, and dimensions are read from Figma. Route and dependency as
 | Frame | Dimensions | Role | Route / Surface |
 | --- | --- | --- | --- |
 | [SIGN UP - PARENT - DEFAULT - REDESIGNED](https://www.figma.com/design/FdXaHn8UCA6N8I9yLqZ5fE/NEURO-BRIDGE?node-id=1049-8655) | 1440 x 1024 | PARENT | `/register?role=PARENT` |
-
-

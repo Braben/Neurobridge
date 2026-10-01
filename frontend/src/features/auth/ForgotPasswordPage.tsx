@@ -2,6 +2,8 @@
 
 // Import React state so the form can track submission and validation feedback.
 import { useState } from "react";
+import Image from "next/image"; // Reuse the original warning and pending icons.
+import styles from "./RecoveryPage.module.css"; // Match the measured recovery composition.
 // Import Link so secondary auth navigation stays client-side.
 import Link from "next/link";
 // Import the router so a successful request can move to the reset route.
@@ -13,7 +15,6 @@ import AuthFrame from "@/components/layouts/AuthFrame";
 // Import the shared field component so input sizing follows the existing Figma-matched controls.
 import { FormField } from "@/components/ui/FormField";
 // Import the global message component for backend and validation errors.
-import GlobalMessage from "@/app/components/ui/GlobalMessage";
 // Import the API client configured with the deployment base URL.
 import { api } from "@/app/services/api";
 // Import the API error helper so backend messages are shown instead of generic Axios text.
@@ -64,6 +65,7 @@ export default function ForgotPasswordPage() {
   const handleSubmit = async (event: React.FormEvent) => {
     // Prevent the browser from reloading the route.
     event.preventDefault();
+    if (isSubmitting) return; // Do not overlap reset-code requests.
 
     // Clear stale errors before validating the latest input.
     setError("");
@@ -113,32 +115,33 @@ export default function ForgotPasswordPage() {
 
   // Render the code request form in the shared auth frame.
   return (
-    <AuthFrame footerMinimal>
+    <AuthFrame footerMinimal contentAlignment="rail"> {/* Match the source x603 alignment. */}
       {/* Show errors above the form so the layout does not jump inside the field. */}
-      {error && <GlobalMessage variant="error">{error}</GlobalMessage>}
 
       {/* Keep the form width aligned with the existing auth page design. */}
       {/* Keep the recovery form at the Figma large-control width of 361px. */}
-      <div className="mx-auto w-full max-w-[361px]">
+      <div className={styles.content}> {/* Let the heading use the wider source rail. */}
+        {error && <div role="alert" className={styles.feedback}><Image src="/design-assets/icons/auth-warning.svg" alt="" width={24} height={24} />{error}</div>} {/* Reserve real space for backend failure feedback. */}
         {/* Keep the heading and description visually consistent with the Figma auth board. */}
         <div className="mb-10 text-left">
-          <h1 className="text-[32px] font-medium leading-[38px] text-[#111111]">Forgot Password</h1>
-          <p className="mt-7 text-base font-medium leading-6 text-[#111111]">
+          <h1 className={styles.recoveryTitle}>Forgot Password</h1> {/* Match source 24px semibold typography. */}
+          <p className={styles.description}> {/* Preserve the source 16px heading gap and 18px body text. */}
             Enter your email or phone number to get a code to reset your password
           </p>
         </div>
 
         {/* Submit the account identifier to request a reset code. */}
-        <form className="space-y-6" onSubmit={handleSubmit}>
+        <form className={styles.form} onSubmit={handleSubmit} aria-busy={isSubmitting}> {/* Keep controls at 361px independently of the wider heading. */}
           {/* Capture either email or phone because the backend accepts one identifier field. */}
           <FormField
             label="Email / Phone Number"
             name="identifier"
             required
             value={identifier}
-            onChange={(event) => setIdentifier(event.target.value)}
+            onChange={(event) => { setIdentifier(event.target.value); setError(""); }} // Clear stale feedback during correction.
+            disabled={isSubmitting} // Preserve the submitted target while the API responds.
+            autoComplete="username" // Allow the browser to suggest the user's saved identifier.
             placeholder="Your registered email / phone number"
-            error={error || undefined}
             className={controlClassName}
           />
 
@@ -149,22 +152,18 @@ export default function ForgotPasswordPage() {
             size="lg"
             className={buttonClassName}
             disabled={!canSubmit}
+            loading={isSubmitting} // Announce pending state and block duplicate activation.
+            leftIcon={isSubmitting ? <Image className={styles.spinner} src="/design-assets/icons/auth-loading.svg" alt="" width={24} height={24} /> : undefined} // Use the original pending asset.
           >
             {isSubmitting ? "Sending" : "Get Password Reset Code"}
           </AppButton>
         </form>
 
         {/* Keep account-recovery support links from the previous design. */}
-        <div className="mt-7 space-y-8 text-center text-sm font-semibold leading-5">
-          <Link href="/privacy#contact" className="text-[#008080] underline underline-offset-2">
+        <div className={styles.support}> {/* Match the source 16px link gap and left alignment. */}
+          <Link href="/contact?subject=Account%20recovery" className="text-[#008080] underline underline-offset-2"> {/* Route lost-access requests to the real administrator contact workflow. */}
             Lost access to your email and phone number?
           </Link>
-          <p className="text-[#111111]">
-            <Link href="/privacy#contact" className="text-[#008080] underline underline-offset-2">
-              Contact Admin
-            </Link>{" "}
-            for Your Account Problems
-          </p>
         </div>
       </div>
     </AuthFrame>

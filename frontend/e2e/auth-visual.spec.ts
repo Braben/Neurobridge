@@ -8,7 +8,7 @@ async function enterKnownAccount(page: Page) { // Reproduce the populated OTP st
   }); // Finish API isolation.
   await page.route("**/socket.io/**", (route) => route.abort()); // Prevent unrelated realtime connections.
   await page.goto("/login"); // Enter through the user-visible signin workflow.
-  await expect(page.getByRole("button", { name: "Login", exact: true })).toBeEnabled(); // Wait for session hydration before filling controlled inputs.
+  await expect(page.getByLabel("Email / Phone Number")).toBeEnabled(); // Wait for editable controls; Figma keeps the empty login action disabled.
   await page.getByLabel("Email / Phone Number").fill(user.email); // Use the design sample account as a local fixture.
   await page.getByLabel("Your Password").fill("VisualTest123!"); // Supply a mock password rather than a real credential.
   await page.getByRole("button", { name: "Login", exact: true }).click(); // Let signin populate the OTP handoff naturally.

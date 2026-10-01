@@ -9,9 +9,10 @@ type OtpInputProps = { // Keep validation and submission ownership with the feat
   onChange: (digits: string[]) => void; // Return all six positions to the parent.
   error?: string; // Associate the server or local error with every digit.
   disabled?: boolean; // Lock editing while verification is pending.
+  label?: string; // Distinguish account verification from password recovery for assistive technology.
 }; // Complete the shared control contract.
 
-export default function OtpInput({ value, onChange, error, disabled = false }: OtpInputProps) { // Render one accessible code group.
+export default function OtpInput({ value, onChange, error, disabled = false, label = "Verification code" }: OtpInputProps) { // Render one accessible code group with a feature-specific name.
   const hydrated = useHydrated(); // Enable the six controlled digits only when input can be retained.
   const id = useId(); // Avoid ID collisions between separate OTP forms.
   const inputs = useRef<Array<HTMLInputElement | null>>([]); // Hold only this group's native inputs.
@@ -47,7 +48,7 @@ export default function OtpInput({ value, onChange, error, disabled = false }: O
   } // Finish keyboard handling.
   return ( // Use a fieldset to expose the six inputs as one logical code.
     <fieldset className={styles.group} disabled={!hydrated || disabled} data-invalid={Boolean(error)}> {/* Keep reference dimensions while protecting input during hydration and requests. */}
-      <legend className={styles.visuallyHidden}>Verification code</legend> {/* Name the group without adding text absent from Figma. */}
+      <legend className={styles.visuallyHidden}>{label}</legend> {/* Name the group without adding text absent from Figma. */}
       <div className={styles.row}> {/* Shrink equal tracks only when the viewport cannot fit six reference cells. */}
         {digits.map((digit, index) => ( // Keep keys stable across edits and validation states.
           <input // Render a native text input so mobile one-time-code autofill remains available.

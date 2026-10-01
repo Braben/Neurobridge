@@ -1,0 +1,80 @@
+@layer theme, base, components, utilities; /* Keep component rules above the Tailwind base reset. */
+@layer components { /* Scope the source geometry without changing other role screens. */
+  .page { min-height: 100vh; display: flex; flex-direction: column; color: var(--nba-black); background: var(--nba-white); letter-spacing: 0; } /* Match the Figma neutral canvas. */
+  .header { display: flex; align-items: center; justify-content: space-between; gap: 32px; padding: 40px; } /* Place the menu at x40/y40. */
+  .logoSlot { position: relative; display: block; flex-shrink: 0; width: 328px; height: 87px; overflow: hidden; } /* Preserve the original logo clipping window. */
+  .logo { position: absolute; width: 159.4%; height: 600.94%; max-width: none; left: -31.88%; top: -260.09%; } /* Apply the exact source bitmap transform. */
+  .header nav, .footer nav { display: flex; align-items: center; gap: 48px; font-size: 18px; line-height: 28px; font-weight: 500; } /* Match the source navigation rhythm. */
+  .main { flex: 1; min-width: 0; min-height: 719px; padding: 0 40px 48px; } /* Place the default footer at y886 on the 1024px source canvas. */
+  .titleBar { min-height: 48px; display: grid; grid-template-columns: 140px minmax(0, 1fr) 140px; align-items: center; gap: 16px; } /* Keep the title independently centered. */
+  .titleBar h1 { margin: 0; text-align: center; font-size: 40px; line-height: 48px; font-weight: 700; } /* Match the source heading without negative tracking. */
+  .back { display: flex; align-items: center; gap: 8px; font-size: 16px; line-height: 24px; } /* Preserve the back arrow and label spacing. */
+  .back img { transform: scaleY(-1); } /* Match the source arrow instance orientation. */
+  .toolbar { display: flex; justify-content: flex-end; align-items: center; gap: 23px; min-height: 80px; margin-top: 60px; padding-block: 16px; } /* Position the first table header at y355. */
+  .search { display: flex; align-items: center; width: 361px; height: 48px; padding: 8px 12px; border: 1.5px solid var(--nba-blue-disabled); border-radius: 12px; gap: 8px; } /* Reuse the measured table-search component dimensions. */
+  .search input { min-width: 0; width: 100%; font: inherit; font-size: 16px; line-height: 22px; background: transparent; outline: none; } /* Keep long queries inside the fixed input. */
+  .search input::placeholder { color: var(--nba-neutral); } /* Match the source placeholder token. */
+  .search:focus-within { outline: 2px solid var(--nba-focus-ring); border-color: var(--nba-blue-focused); } /* Expose keyboard focus without shifting geometry. */
+  .search img { flex-shrink: 0; } /* Preserve the source icon's intrinsic dimensions. */
+  .sort { position: relative; flex-shrink: 0; } /* Anchor the optional sorting popup to its control. */
+  .sort summary { display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 20px; line-height: 24px; font-weight: 500; list-style: none; } /* Match the source closed control. */
+  .sort summary::-webkit-details-marker { display: none; } /* Avoid adding an extra browser arrow to the original icon. */
+  .sort fieldset { position: absolute; z-index: 2; right: 0; top: 40px; width: 205px; padding: 12px; border: 1px solid var(--nba-blue-disabled); border-radius: 8px; background: var(--nba-white); box-shadow: 0 4px 16px #11111115; } /* Make sorting usable without adding permanent toolbar text. */
+  .sort legend { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); } /* Supply an accessible group label without changing the menu layout. */
+  .sort label { display: flex; align-items: center; gap: 8px; padding: 8px 0; font-size: 14px; cursor: pointer; } /* Keep radio options easy to select. */
+  .scroller { width: 100%; overflow-x: auto; padding-bottom: 28px; } /* Replace the source mock scroll line with real horizontal scrolling. */
+  .scroller::-webkit-scrollbar { height: 4px; } /* Keep Chromium's working scrollbar visible in the source's 4px track. */
+  .scroller::-webkit-scrollbar-track { background: var(--nba-blue-disabled); border-radius: 2px; } /* Match the light-blue scroll track. */
+  .scroller::-webkit-scrollbar-thumb { background: var(--nba-blue-primary); border-radius: 2px; } /* Match the primary-blue thumb while retaining native drag behavior. */
+  @supports not selector(::-webkit-scrollbar) { .scroller { scrollbar-color: var(--nba-blue-primary) var(--nba-blue-disabled); scrollbar-width: thin; } } /* Preserve a comparable native scrollbar in Firefox. */
+  .table { width: 2080px; table-layout: fixed; border-collapse: separate; border-spacing: 0; text-align: left; } /* Preserve the six original column widths across narrow viewports. */
+  .table th, .table td { border-top: 1px solid var(--nba-blue-disabled); border-left: 1px solid var(--nba-blue-disabled); padding: 0 16px; vertical-align: middle; } /* Match the source cell rules without doubling borders. */
+  .table th:last-child, .table td:last-child { border-right: 1px solid var(--nba-blue-disabled); } /* Close the full table's right edge. */
+  .table tbody tr:last-child td { border-bottom: 1px solid var(--nba-blue-disabled); } /* Close the final row. */
+  .table th { height: 58px; font-size: 16px; line-height: 22px; font-weight: 700; } /* Match the 18px vertical padding around the source header. */
+  .table td { height: 56px; font-size: 14px; line-height: 20px; font-weight: 500; } /* Keep rows stable regardless of note length. */
+  .truncated { display: block; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; } /* Retain fixed row sizes while full note text remains available. */
+  .child { display: flex; align-items: center; gap: 12px; font-weight: 400; } /* Match the source avatar/name composition. */
+  .child > div { min-width: 0; } /* Prevent long child names from expanding the column. */
+  .child a { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; } /* Keep the child profile link within its cell. */
+  .child small { display: block; font-size: 12px; line-height: 16px; color: var(--nba-neutral); } /* Match the secondary age label. */
+  .avatar, .initials { flex-shrink: 0; width: 40px; height: 40px; border-radius: 50%; object-fit: cover; } /* Preserve the source circular avatar slot for real data. */
+  .initials { display: grid; place-items: center; background: var(--nba-blue-focused); color: var(--nba-white); font-size: 14px; } /* Use the Figma initials variant when there is no uploaded image. */
+  .noteCell { position: relative; display: flex; align-items: center; gap: 8px; } /* Keep expansion controls separate from clipped note text. */
+  .noteCell > span { flex: 1; } /* Let text use only the space remaining beside the icon. */
+  .expand, .goalExpand { flex-shrink: 0; width: 24px; height: 24px; cursor: pointer; } /* Render the original expansion icon at its source size. */
+  .goalExpand { position: absolute; right: 0; opacity: 0; background: var(--nba-white); } /* Preserve the text-only default without changing layout on hover. */
+  .noteCell:hover .goalExpand, .goalExpand:focus-visible { opacity: 1; } /* Allow keyboard and pointer users to read long goals in full. */
+  .state { min-height: 450px; padding: 60px 16px; text-align: center; font-size: 18px; line-height: 28px; } /* Reserve table space while data is unavailable. */
+  .state button { margin-top: 16px; color: var(--nba-blue-focused); text-decoration: underline; cursor: pointer; } /* Provide a real recovery action after an API error. */
+  .footer { display: flex; align-items: center; justify-content: space-between; gap: 32px; padding: 40px; background: var(--nba-blue-primary); color: var(--nba-white); } /* Match the full-width 138px footer band. */
+  .footer strong { font-size: 48px; line-height: 58px; font-weight: 700; } /* Preserve the source brand heading size. */
+  .footer a:first-child { font-weight: 700; text-decoration: underline; text-underline-offset: 3px; } /* Match the emphasized privacy link. */
+  .dialog { width: 626px; max-width: calc(100vw - 32px); max-height: calc(100dvh - 32px); margin: auto; border: 0; border-radius: 24px; padding: 40px 60px; background: var(--nba-white); color: var(--nba-black); overflow-y: auto; } /* Match node 673:6870 while allowing small-screen and long-note scrolling. */
+  .dialog::backdrop { background: rgb(21 44 71 / 40%); backdrop-filter: blur(2px); } /* Preserve the source modal backdrop. */
+  .dialogHeader { display: flex; justify-content: space-between; align-items: center; gap: 16px; padding-bottom: 24px; border-bottom: 1px solid var(--nba-blue-disabled); } /* Recreate the semantic source separator as a border. */
+  .dialogHeader h2 { font-size: 24px; line-height: 30px; font-weight: 600; } /* Match the expanded note heading. */
+  .dialogHeader button { display: grid; place-items: center; flex-shrink: 0; width: 40px; height: 40px; border: 1.5px solid #e57373; border-radius: 12px; cursor: pointer; } /* Preserve the source close-button variant. */
+  .noteBody { margin-top: 24px; font-size: 18px; line-height: 28px; white-space: pre-wrap; overflow-wrap: anywhere; } /* Display the complete note in the source's 506px content rail. */
+  .page a:focus-visible, .page button:focus-visible, .sort summary:focus-visible, .scroller:focus-visible { outline: 2px solid var(--nba-blue-focused); outline-offset: 3px; } /* Keep all custom controls visibly keyboard navigable. */
+  @media (max-width: 1100px) { /* Adapt only where the source desktop composition no longer fits. */
+    .titleBar { grid-template-columns: 110px minmax(0, 1fr); } /* Give the heading room without overlaying the back link. */
+    .titleBar h1 { font-size: 32px; line-height: 40px; } /* Use a fixed compact heading size, not viewport-scaled type. */
+    .footer { flex-wrap: wrap; } /* Let footer links move below the brand when needed. */
+    .footer strong { font-size: 36px; line-height: 44px; } /* Keep the brand legible at tablet widths. */
+  } /* End the tablet adaptation. */
+  @media (max-width: 600px) { /* Keep the desktop table horizontally scrollable on phones. */
+    .header { padding: 20px 16px; flex-wrap: wrap; gap: 16px; } /* Prevent the logo and navigation from overlapping. */
+    .logoSlot { width: 246px; height: 65.25px; } /* Scale the bitmap slot proportionally to fit a 320px screen. */
+    .header nav { gap: 24px; font-size: 16px; line-height: 24px; } /* Retain both top-menu destinations. */
+    .main { padding: 16px 16px 32px; min-height: 620px; } /* Keep the page within the phone viewport. */
+    .titleBar { display: flex; flex-direction: column; align-items: flex-start; gap: 24px; } /* Place the back link above the heading on phones. */
+    .titleBar h1 { font-size: 28px; line-height: 36px; text-align: left; } /* Avoid large-screen type dominating the phone layout. */
+    .toolbar { margin-top: 32px; flex-wrap: wrap; gap: 16px; } /* Allow the sort control to wrap below search. */
+    .search { width: 100%; } /* Fit the measured input to the smaller available width. */
+    .footer { padding: 32px 16px; gap: 24px; } /* Preserve a full-width footer without overflowing. */
+    .footer strong { font-size: 28px; line-height: 36px; } /* Fit the brand on the narrowest supported phone. */
+    .footer nav { flex-wrap: wrap; gap: 20px; font-size: 16px; line-height: 24px; } /* Let the copyright wrap independently of links. */
+    .dialog { padding: 24px; } /* Keep the note readable without losing room to desktop insets. */
+  } /* End the mobile adaptation. */
+} /* End scoped component rules. */

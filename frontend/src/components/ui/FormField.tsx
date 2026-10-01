@@ -53,7 +53,7 @@ export function FormField({ error, helpText, label, name, id, rightIcon, onRight
     <FieldChrome name={name} label={label} controlId={controlId} error={error} helpText={helpText} required={required} status={effectiveStatus}> {/* Reuse the label and feedback structure. */}
       <div className={styles.controlWrap}> {/* Anchor a right-hand icon inside the control height. */}
         <input {...props} disabled={disabled} id={controlId} name={name} required={required} aria-invalid={effectiveStatus === "error" || props["aria-invalid"] || undefined} aria-describedby={descriptionIds(props["aria-describedby"], controlId, Boolean(error || helpText))} className={[styles.control, rightIcon ? styles.withIcon : "", className].filter(Boolean).join(" ")} /> {/* Forward refs and native events while enforcing readiness and label/error relationships. */}
-        {rightIcon && (onRightIconClick ? <button type="button" disabled={disabled} aria-label={rightIconLabel ?? `${label} options`} onClick={onRightIconClick} className={styles.iconAction}>{rightIcon}</button> : <span className={styles.icon} aria-hidden="true">{rightIcon}</span>)} {/* Keep icon actions out of submission and honor the field's readiness and disabled state. */}
+        {rightIcon && (onRightIconClick ? <button type="button" disabled={disabled} aria-label={rightIconLabel ?? `${label} options`} title={rightIconLabel ?? `${label} options`} onClick={onRightIconClick} className={styles.iconAction}>{rightIcon}</button> : <span className={styles.icon} aria-hidden="true">{rightIcon}</span>)} {/* Name icon actions on hover as well as for assistive technology, and honor field locks. */}
       </div>
     </FieldChrome>
   );

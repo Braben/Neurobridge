@@ -33,7 +33,7 @@ function formatSessionDate(value?: string | null) {
 }
 
 function childAge(child?: ChildDetail | Session["child"] | null) {
-  if (!child || !("dateOfBirth" in child)) return "Age unavailable";
+  if (!child || !("dateOfBirth" in child) || !child.dateOfBirth) return "Age unavailable"; // Accept older session responses that omit the optional birth date.
   const dob = new Date(child.dateOfBirth);
   const today = new Date();
   let age = today.getFullYear() - dob.getFullYear();

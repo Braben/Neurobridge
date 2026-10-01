@@ -1,4 +1,5 @@
-const DEFAULT_FRONTEND_URL = "http://localhost:3000";
+const DEFAULT_FRONTEND_URL =
+  process.env.FRONTEND_URL || "http://localhost:3000";
 
 const parseAllowedOrigins = () => {
   const configuredOrigins = [process.env.FRONTEND_URL, process.env.CORS_ORIGINS]

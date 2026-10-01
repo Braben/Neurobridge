@@ -1,0 +1,20 @@
+@layer theme, base, components, utilities; /* Preserve shared component precedence in production. */
+@layer components { /* Isolate signup rules from other authentication screens. */
+  .content { width: 100%; max-width: 746px; min-width: 0; color: var(--nba-black); } /* Match the source two-column form width. */
+  .title { font-size: 32px; line-height: 38px; font-weight: 500; overflow-wrap: anywhere; } /* Keep the measured heading size with natural wrapping. */
+  .form, .fields { display: flex; flex-direction: column; gap: 24px; min-width: 0; } /* Match the source vertical field rhythm. */
+  .fields { border: 0; padding: 0; margin: 0; } /* Remove native fieldset chrome without losing its disabled behavior. */
+  .fields input, .fields select { text-overflow: ellipsis; } /* Keep long placeholders within each control. */
+  .fields input:not(:placeholder-shown):not([type="date"]):not(:disabled) { border-color: var(--nba-blue-primary); background: transparent; } /* Preserve the filled-state outline after blur. */
+  .dateField { position: relative; min-width: 0; } /* Anchor native-date decoration inside the shared field. */
+  .dateField::after { content: ""; position: absolute; right: 16px; top: 54px; width: 24px; height: 24px; background: url('/design-assets/icons/auth-calendar.svg') center / 24px 24px no-repeat; pointer-events: none; } /* Use the original Figma calendar at its native size. */
+  .dateField[data-empty="true"]::before { content: "Select your date of birth"; position: absolute; z-index: 1; left: 16px; top: 54px; max-width: calc(100% - 64px); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: #757575; font-size: 16px; line-height: 24px; pointer-events: none; } /* Supply the source placeholder missing from native date controls. */
+  .dateField[data-empty="true"] input:not(:focus)::-webkit-datetime-edit { color: transparent; } /* Hide the browser format only when the source placeholder is visible. */
+  .dateField:focus-within::before { display: none; } /* Reveal native date segments for keyboard entry. */
+  .dateField input::-webkit-calendar-picker-indicator { opacity: 0; width: 24px; height: 24px; cursor: pointer; } /* Keep the native picker clickable beneath the exact icon. */
+  .spinner { animation: signup-spin 1s linear infinite; } /* Indicate pending registration without shifting the button. */
+  .feedback { display: flex; align-items: flex-start; gap: 8px; margin-bottom: 24px; padding: 16px; border-radius: 12px; background: var(--nba-danger); color: var(--nba-white); overflow-wrap: anywhere; } /* Reserve space for actionable request feedback. */
+  .feedback img { flex-shrink: 0; } /* Preserve the warning icon's native dimensions. */
+  @keyframes signup-spin { to { transform: rotate(360deg); } } /* Complete the loading loop. */
+  @media (prefers-reduced-motion: reduce) { .spinner { animation: none; } } /* Respect reduced-motion preferences. */
+} /* Finish registration presentation. */

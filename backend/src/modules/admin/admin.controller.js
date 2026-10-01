@@ -39,7 +39,7 @@ const getAge = (dateOfBirth) => {
 };
 
 const formatUser = (user) => ({
-  ...user,
+  ...Object.fromEntries(Object.keys(userSelect).map((key) => [key, user[key]])), // Never serialize password hashes, refresh tokens, or unselected nested relations.
   fullName: `${user.firstName} ${user.lastName}`,
   age: getAge(user.dateOfBirth),
 });

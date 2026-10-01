@@ -4,6 +4,8 @@ import { useEffect } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { useAppSelector } from "../hooks/useRedux";
 import Sidebar from "./Sidebar";
+// Permit only the local component-review route to render outside authentication chrome.
+import { isDesignSystemPreview } from "@/lib/design-system-preview";
 
 type UserRole = "ADMIN" | "PARENT" | "THERAPIST";
 
@@ -12,6 +14,7 @@ const roleRoutes: { prefix: string; roles: UserRole[] }[] = [
   { prefix: "/bookings/new", roles: ["PARENT"] },
   { prefix: "/bookings", roles: ["PARENT", "THERAPIST"] },
   { prefix: "/availability", roles: ["THERAPIST"] },
+  { prefix: "/sessions", roles: ["THERAPIST"] }, // Reserve the cross-child notes view for the owning therapist.
   { prefix: "/children/add", roles: ["PARENT"] },
   { prefix: "/children", roles: ["PARENT", "THERAPIST"] },
   { prefix: "/messages", roles: ["PARENT", "THERAPIST"] },
@@ -37,15 +40,22 @@ function fallbackRouteForDeniedAccess(role: UserRole, pathname: string) {
 export default function DashboardShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
-  const { accessToken, isAuthenticated, isLoading, user } = useAppSelector((s) => s.auth);
+  const { accessToken, isAuthenticated, isLoading, requiresOtp, user } = useAppSelector((s) => s.auth);
 
-  const publicPages = ["/", "/about", "/privacy", "/login", "/register", "/register/admin", "/verify-otp", "/forgot-password"];
-  const isPublicPage = publicPages.includes(pathname);
+  const publicPages = ["/", "/about", "/privacy", "/contact", "/login", "/register", "/register/admin", "/verify-otp", "/forgot-password", "/reset-password"]; // Keep account-recovery contact reachable without an authenticated session.
+  // Production still uses the existing public route list without a preview exemption.
+  const isPublicPage = publicPages.includes(pathname) || isDesignSystemPreview(pathname);
   const isProtectedPage = !isPublicPage;
   const routeRule = roleRoutes.find((route) => pathname === route.prefix || pathname.startsWith(`${route.prefix}/`));
   const hasRouteAccess = !routeRule || Boolean(user && routeRule.roles.includes(user.role));
 
   useEffect(() => {
+    // Keep OTP-pending users out of protected dashboards while leaving recovery routes available.
+    if (requiresOtp && isProtectedPage && pathname !== "/verify-otp") {
+      router.replace("/verify-otp");
+      return;
+    }
+
     if (isProtectedPage && !isAuthenticated && !accessToken && !isLoading) {
       router.replace("/login");
       return;
@@ -54,7 +64,7 @@ export default function DashboardShell({ children }: { children: React.ReactNode
     if (isAuthenticated && user && !hasRouteAccess) {
       router.replace(fallbackRouteForDeniedAccess(user.role, pathname));
     }
-  }, [accessToken, hasRouteAccess, isAuthenticated, isLoading, isProtectedPage, pathname, router, user]);
+  }, [accessToken, hasRouteAccess, isAuthenticated, isLoading, isProtectedPage, pathname, requiresOtp, router, user]);
 
   if (isPublicPage) {
     return <>{children}</>;
@@ -86,10 +96,17 @@ export default function DashboardShell({ children }: { children: React.ReactNode
     return null;
   }
 
+  if (pathname === "/sessions" && user?.role === "THERAPIST") return requiresOtp ? null : <>{children}</>; // Keep pending verification out of the standalone table as well as its API request.
+
+  // Keep therapist content offset from the 408px Figma side menu by 36px.
+  const contentClassName = user?.role === "THERAPIST"
+    ? "flex-1 overflow-y-auto px-9 py-14"
+    : "flex-1 overflow-y-auto p-4 sm:p-7";
+
   return (
     <div className="flex min-h-[calc(100vh-77px)] bg-[#f8fbfd]">
       <Sidebar />
-      <main className="flex-1 overflow-y-auto p-4 sm:p-7">{children}</main>
+      <main className={contentClassName}>{children}</main>
     </div>
   );
 }

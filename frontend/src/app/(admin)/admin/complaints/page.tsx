@@ -15,6 +15,7 @@ import GlobalMessage from "../../../components/ui/GlobalMessage";
 import { MessageCircleIcon } from "../../../components/ui/Icons";
 import { useAppSelector } from "../../../hooks/useRedux";
 import { Conversation, messagesApi } from "../../../services/messages";
+import InquiryInbox from "@/features/contact/InquiryInbox"; // Keep public support inquiries separate from authenticated conversations.
 
 type ComplaintRow = {
   id: string;
@@ -47,7 +48,7 @@ function conversationToComplaint(conversation: Conversation, currentUserId?: str
   };
 }
 
-export default function AdminComplaintsPage() {
+function AccountConversations() { // Preserve the existing platform-conversation surface under its own tab.
   const { user } = useAppSelector((state) => state.auth);
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [search, setSearch] = useState("");
@@ -185,3 +186,8 @@ export default function AdminComplaintsPage() {
     </div>
   );
 }
+
+export default function AdminComplaintsPage() { // Add the durable contact inbox without relabeling private messages as public requests.
+  const [view, setView] = useState<"inquiries" | "conversations">("inquiries"); // Open the administrator contact queue first.
+  return <div className="space-y-8"><div role="tablist" aria-label="Support source" className="flex gap-6 border-b border-[#b5d3ee]"><button type="button" role="tab" id="inquiries-tab" aria-controls="support-panel" aria-selected={view === "inquiries"} onClick={() => setView("inquiries")} className="px-1 py-3 text-[#0a3d62] aria-selected:border-b-2 aria-selected:border-[#008080]">Contact inquiries</button><button type="button" role="tab" id="conversations-tab" aria-controls="support-panel" aria-selected={view === "conversations"} onClick={() => setView("conversations")} className="px-1 py-3 text-[#0a3d62] aria-selected:border-b-2 aria-selected:border-[#008080]">Platform conversations</button></div><div id="support-panel" role="tabpanel" aria-labelledby={view === "inquiries" ? "inquiries-tab" : "conversations-tab"}>{view === "inquiries" ? <InquiryInbox /> : <AccountConversations />}</div></div>; // Preserve source ownership and show only the selected support channel.
+} // Finish the support route.

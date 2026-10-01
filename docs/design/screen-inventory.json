@@ -610,13 +610,13 @@
       "name": "CONTACT ADMINISTRATOR - MAIN - DEFAULT",
       "section": "CONTACT ADMINISTRATOR",
       "role": "PUBLIC",
-      "route": "UNMAPPED: dedicated contact route",
+      "route": "/contact",
       "feature": "contact",
-      "dependencies": "Endpoint audit pending",
+      "dependencies": "POST /api/v1/contact; ContactInquiry migration required",
       "width": 1440,
       "height": 1024,
       "figmaUrl": "https://www.figma.com/design/FdXaHn8UCA6N8I9yLqZ5fE/NEURO-BRIDGE?node-id=111-770",
-      "status": "inventoried; visual and behavior verification pending",
+      "status": "default geometry and local assets verified; mocked submission/retry covered",
       "variantDecision": "Section reference; inspect context before implementation"
     },
     {
@@ -624,13 +624,13 @@
       "name": "CONTACT ADMINISTRATOR - FILLED",
       "section": "CONTACT ADMINISTRATOR",
       "role": "PUBLIC",
-      "route": "UNMAPPED: dedicated contact route",
+      "route": "/contact",
       "feature": "contact",
-      "dependencies": "Endpoint audit pending",
+      "dependencies": "POST /api/v1/contact; ContactInquiry migration required",
       "width": 1440,
       "height": 1024,
       "figmaUrl": "https://www.figma.com/design/FdXaHn8UCA6N8I9yLqZ5fE/NEURO-BRIDGE?node-id=111-889",
-      "status": "inventoried; visual and behavior verification pending",
+      "status": "route and request state implemented; state-specific visual comparison pending",
       "variantDecision": "Section reference; inspect context before implementation"
     },
     {
@@ -638,13 +638,13 @@
       "name": "CONTACT ADMINISTRATOR - FILLED [LOADING]",
       "section": "CONTACT ADMINISTRATOR",
       "role": "PUBLIC",
-      "route": "UNMAPPED: dedicated contact route",
+      "route": "/contact",
       "feature": "contact",
-      "dependencies": "Endpoint audit pending",
+      "dependencies": "POST /api/v1/contact; ContactInquiry migration required",
       "width": 1440,
       "height": 1024,
       "figmaUrl": "https://www.figma.com/design/FdXaHn8UCA6N8I9yLqZ5fE/NEURO-BRIDGE?node-id=113-977",
-      "status": "inventoried; visual and behavior verification pending",
+      "status": "route and request state implemented; state-specific visual comparison pending",
       "variantDecision": "Section reference; inspect context before implementation"
     },
     {
@@ -652,13 +652,13 @@
       "name": "CONTACT ADMINISTRATOR - FILLED [LOADING]",
       "section": "CONTACT ADMINISTRATOR",
       "role": "PUBLIC",
-      "route": "UNMAPPED: dedicated contact route",
+      "route": "/contact",
       "feature": "contact",
-      "dependencies": "Endpoint audit pending",
+      "dependencies": "POST /api/v1/contact; ContactInquiry migration required",
       "width": 1440,
       "height": 1024,
       "figmaUrl": "https://www.figma.com/design/FdXaHn8UCA6N8I9yLqZ5fE/NEURO-BRIDGE?node-id=113-1017",
-      "status": "inventoried; visual and behavior verification pending",
+      "status": "route and request state implemented; state-specific visual comparison pending",
       "variantDecision": "Section reference; inspect context before implementation"
     },
     {
@@ -666,13 +666,13 @@
       "name": "CONTACT ADMINISTRATOR - FILLED - SUBMITTED",
       "section": "CONTACT ADMINISTRATOR",
       "role": "PUBLIC",
-      "route": "UNMAPPED: dedicated contact route",
+      "route": "/contact",
       "feature": "contact",
-      "dependencies": "Endpoint audit pending",
+      "dependencies": "POST /api/v1/contact; ContactInquiry migration required",
       "width": 1440,
       "height": 1024,
       "figmaUrl": "https://www.figma.com/design/FdXaHn8UCA6N8I9yLqZ5fE/NEURO-BRIDGE?node-id=114-1056",
-      "status": "inventoried; visual and behavior verification pending",
+      "status": "route and request state implemented; state-specific visual comparison pending",
       "variantDecision": "Section reference; inspect context before implementation"
     },
     {
@@ -680,13 +680,13 @@
       "name": "CONTACT ADMINISTRATOR - FILLED - SOMETHING WENT WRONG",
       "section": "CONTACT ADMINISTRATOR",
       "role": "PUBLIC",
-      "route": "UNMAPPED: dedicated contact route",
+      "route": "/contact",
       "feature": "contact",
-      "dependencies": "Endpoint audit pending",
+      "dependencies": "POST /api/v1/contact; ContactInquiry migration required",
       "width": 1440,
       "height": 1024,
       "figmaUrl": "https://www.figma.com/design/FdXaHn8UCA6N8I9yLqZ5fE/NEURO-BRIDGE?node-id=114-1204",
-      "status": "inventoried; visual and behavior verification pending",
+      "status": "route and request state implemented; state-specific visual comparison pending",
       "variantDecision": "Section reference; inspect context before implementation"
     },
     {
@@ -1156,8 +1156,8 @@
       "name": "THERAPIST DASHBOARD - SESSION NOTES - FULL TABLE",
       "section": "THERAPIST DASHBOARD",
       "role": "THERAPIST",
-      "route": "/children/[id]/sessions (cross-child list gap)",
-      "feature": "dashboards/therapist",
+      "route": "/sessions",
+      "feature": "sessions",
       "dependencies": "Children, sessions, bookings",
       "width": 2160,
       "height": 1024,
@@ -1170,28 +1170,28 @@
       "name": "THERAPIST DASHBOARD - SESSION NOTES - CLIPPED CONTENT",
       "section": "THERAPIST DASHBOARD",
       "role": "THERAPIST",
-      "route": "/children/[id]/sessions (cross-child list gap)",
-      "feature": "dashboards/therapist",
+      "route": "/sessions",
+      "feature": "sessions",
       "dependencies": "Children, sessions, bookings",
       "width": 1440,
       "height": 1024,
       "figmaUrl": "https://www.figma.com/design/FdXaHn8UCA6N8I9yLqZ5fE/NEURO-BRIDGE?node-id=673-6411",
-      "status": "inventoried; visual and behavior verification pending",
-      "variantDecision": "Section reference; inspect context before implementation"
+      "status": "implemented; desktop geometry and mocked browser behaviors verified",
+      "variantDecision": "Primary full-table route; see therapist-session-notes-reference.md for responsive adaptations"
     },
     {
       "nodeId": "673:6640",
       "name": "THERAPIST DASHBOARD - SESSION NOTES - CLIPPED CONTENT - EXPANDED VIEW",
       "section": "THERAPIST DASHBOARD",
       "role": "THERAPIST",
-      "route": "/children/[id]/sessions (cross-child list gap)",
-      "feature": "dashboards/therapist",
+      "route": "/sessions",
+      "feature": "sessions",
       "dependencies": "Children, sessions, bookings",
       "width": 1440,
       "height": 1024,
       "figmaUrl": "https://www.figma.com/design/FdXaHn8UCA6N8I9yLqZ5fE/NEURO-BRIDGE?node-id=673-6640",
-      "status": "inventoried; visual and behavior verification pending",
-      "variantDecision": "Section reference; inspect context before implementation"
+      "status": "implemented; modal width, full text, Escape, focus restoration, and mobile fit verified",
+      "variantDecision": "Expanded note field within /sessions"
     },
     {
       "nodeId": "734:5060",
@@ -1671,4 +1671,3 @@
     }
   ]
 }
-

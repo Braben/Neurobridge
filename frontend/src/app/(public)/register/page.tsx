@@ -13,5 +13,5 @@ export default async function Register({
     ? (params?.role as RegisterRole)
     : "PARENT";
 
-  return <RegisterPage initialRole={initialRole} />;
+  return <RegisterPage key={initialRole} initialRole={initialRole} />; // Reset audience-specific fields when the role query changes.
 }

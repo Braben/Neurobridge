@@ -8,6 +8,7 @@ import type { ChangeEvent, FormEvent, ReactNode } from "react";
 import AppButton from "../ui/AppButton";
 import { EmptyState, StatusBadge } from "../ui/DashboardCards";
 import { BellIcon, MessageCircleIcon, PlusIcon, XIcon } from "../ui/Icons";
+import Sidebar from "../Sidebar";
 import { useAppDispatch } from "../../hooks/useRedux";
 import type { Booking, BookingStatus } from "../../services/bookings";
 import type { Child } from "../../services/children";
@@ -684,13 +685,14 @@ function childProfileText(child: Child, key: keyof Pick<Child, "diagnosis" | "co
 }
 
 function TherapistDashboardTopbar() {
+  // Match the Figma top menu's 24px bold Home label and 40px notification control.
   return (
-    <div className="flex flex-wrap items-center justify-end gap-6 text-sm font-medium text-[#0a3d62] sm:gap-8">
-      <Link href="/" className="font-bold hover:text-[#0071d7]">
+    <div className="flex flex-wrap items-center justify-end gap-12 text-[24px] font-bold leading-[30px] text-[#0a3d62]">
+      <Link href="/" className="hover:text-[#0071d7]">
         Home
       </Link>
       <Link href="/notifications" aria-label="Open notifications" className="flex h-10 w-10 items-center justify-center rounded-full border border-transparent hover:border-[#b5d3ee]">
-        <BellIcon className="h-5 w-5" />
+        <BellIcon className="h-10 w-10" />
       </Link>
     </div>
   );
@@ -1118,10 +1120,7 @@ function TherapistNoteModal({
 }
 
 function TherapistDashboard({ bookings, childProfiles, sessions, user }: RoleDashboardProps) {
-  const router = useRouter();
-  const dispatch = useAppDispatch();
   const [localSessions, setLocalSessions] = useState(sessions);
-  const [isLoggingOut, setIsLoggingOut] = useState(false);
   const [showNoteModal, setShowNoteModal] = useState(false);
   const [activeChild, setActiveChild] = useState<Child | null>(null);
   const [activeChildIndex, setActiveChildIndex] = useState(0);
@@ -1142,7 +1141,7 @@ function TherapistDashboard({ bookings, childProfiles, sessions, user }: RoleDas
     [assignedChildIds, localSessions],
   );
   const recentChild = childProfiles[activeChildIndex] || childProfiles[0];
-  const notesTableHref = recentChild ? `/children/${recentChild.id}/sessions` : "/children";
+  const notesTableHref = "/sessions"; // Show notes across all of the therapist's sessions, independent of the child carousel.
 
   function showNextChild() {
     setActiveChildIndex((current) => (childProfiles.length ? (current + 1) % childProfiles.length : 0));
@@ -1152,12 +1151,6 @@ function TherapistDashboard({ bookings, childProfiles, sessions, user }: RoleDas
     setActiveChildIndex((current) => (childProfiles.length ? (current - 1 + childProfiles.length) % childProfiles.length : 0));
   }
 
-  async function handleLogout() {
-    setIsLoggingOut(true);
-    await dispatch(logoutUser());
-    router.push("/login");
-  }
-
   function handleSaved(session: Session) {
     setLocalSessions((prev) => [session, ...prev]);
     setSavedMessage("Session note saved and sent to the parent.");
@@ -1165,15 +1158,11 @@ function TherapistDashboard({ bookings, childProfiles, sessions, user }: RoleDas
 
   return (
     <div className="flex min-h-screen bg-[#fafafa]">
-      <SidebarProfile
-        isLoggingOut={isLoggingOut}
-        onLogout={handleLogout}
-        user={user}
-        roleLabel="Therapist"
-      />
-      <main className="min-w-0 flex-1 px-5 py-8 sm:px-8 lg:px-14 lg:py-14">
+      {/* Reuse the board-matched therapist side menu on the main dashboard. */}
+      <Sidebar />
+      <main className="min-w-0 flex-1 px-5 py-8 sm:px-8 lg:px-9 lg:py-24">
         <TherapistDashboardTopbar />
-        <div className="mx-auto mt-10 max-w-[955px] space-y-12">
+        <div className="mx-auto mt-14 max-w-[955px] space-y-12">
           <section id="welcome" className="space-y-4">
             <h1 className="max-w-4xl text-[32px] font-medium leading-tight tracking-normal text-[#111] md:text-5xl">
               Welcome to Neuro Bridge Africa, <span className="text-[#0a3d62]">&quot;{user.firstName}&quot;</span>

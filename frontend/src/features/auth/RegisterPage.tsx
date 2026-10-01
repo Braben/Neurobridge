@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react"; // Guard repeat submissions while retaining form state.
+import Image from "next/image"; // Render original Figma assets unchanged.
 import { useRouter } from "next/navigation";
 import { useAppDispatch, useAppSelector } from "@/app/hooks/useRedux";
 import { registerUser, clearError } from "@/app/store/slices/authSlice";
@@ -8,8 +9,8 @@ import Link from "next/link";
 import AppButton from "@/components/ui/AppButton";
 import AuthFrame from "@/components/layouts/AuthFrame";
 import { FormField, SelectField } from "@/components/ui/FormField";
-import GlobalMessage from "@/app/components/ui/GlobalMessage";
-import { passwordError, passwordRuleMessage, validateAdultDateOfBirth } from "@/app/utils/validation";
+import { passwordError, validateAdultDateOfBirth } from "@/app/utils/validation"; // Reuse backend-equivalent validation.
+import styles from "./RegisterPage.module.css"; // Keep signup geometry scoped to this feature.
 
 type RegisterRole = "PARENT" | "THERAPIST";
 
@@ -28,21 +29,9 @@ const expertiseOptions = [
   "Developmental Therapy",
 ];
 
-function EyeIcon({ hidden }: { hidden: boolean }) {
-  // Keep the visibility glyph at the Figma 24px icon size.
-  return hidden ? (
-    <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
-      <path strokeLinecap="round" strokeLinejoin="round" d="m3 3 18 18" />
-      <path strokeLinecap="round" strokeLinejoin="round" d="M10.6 10.6a2 2 0 0 0 2.8 2.8" />
-      <path strokeLinecap="round" strokeLinejoin="round" d="M9.2 5.4A9.7 9.7 0 0 1 12 5c6 0 9.75 7 9.75 7a17 17 0 0 1-2.5 3.3M6.5 6.9C3.8 8.6 2.25 12 2.25 12s3.75 7 9.75 7c1.5 0 2.9-.4 4.1-1" />
-    </svg>
-  ) : (
-    <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
-      <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 12s3.75-6.75 9.75-6.75S21.75 12 21.75 12s-3.75 6.75-9.75 6.75S2.25 12 2.25 12Z" />
-      <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
-    </svg>
-  );
-}
+function EyeIcon({ hidden, filled }: { hidden: boolean; filled: boolean }) { // Select the matching empty, filled, or visible Figma state.
+  return <Image src={`/design-assets/icons/password-${!hidden ? "visible" : filled ? "hidden" : "hidden-empty"}.svg`} alt="" width={24} height={24} />; // Keep the original glyph at its native size.
+} // Finish the password asset selector.
 
 function splitFullName(fullName: string) {
   const parts = fullName.trim().split(/\s+/);
@@ -76,6 +65,9 @@ export default function RegisterPage({
   const [validationError, setValidationError] = useState<string | null>(null);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [submitting, setSubmitting] = useState(false); // Preserve the request lock through successful navigation.
+  const submitLock = useRef(false); // Prevent duplicate submissions before React repaints.
+  const busy = isLoading || submitting; // Combine store and local request state.
 
   const selectedRole = formData.role;
   const passwordMatches = Boolean(formData.confirmPassword) && formData.password === formData.confirmPassword;
@@ -83,11 +75,15 @@ export default function RegisterPage({
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
   ) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+    const { name, value } = e.target; // Capture event data before the state callback runs.
+    setFormData((current) => ({ ...current, [name]: value })); // Preserve other edits without a stale closure.
+    setValidationError(null); // Clear stale validation when the user corrects a value.
+    if (error) dispatch(clearError()); // Clear an earlier API rejection on correction.
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (submitLock.current || busy) return; // Ignore repeated activation during an outstanding request.
     dispatch(clearError());
     setValidationError(null);
 
@@ -149,29 +145,30 @@ export default function RegisterPage({
       }),
     };
 
-    const result = await dispatch(registerUser(payload));
+    submitLock.current = true; // Acquire the synchronous submission lock.
+    setSubmitting(true); // Lock fields while the account is being created.
+    const result = await dispatch(registerUser(payload)); // Retain the existing registration and OTP persistence contract.
     if (registerUser.fulfilled.match(result)) {
       router.push(result.payload.requiresOtp ? "/verify-otp" : "/dashboard");
+    } else { // Leave successful requests locked until navigation finishes.
+      submitLock.current = false; // Permit an intentional retry after rejection.
+      setSubmitting(false); // Re-enable the fields without discarding values.
     }
   };
 
   return (
-    <AuthFrame footerMinimal>
-      {(validationError || error) && (
-        <GlobalMessage variant="error">
-          {validationError || error || "Please ensure that all fields are filled correctly"}
-        </GlobalMessage>
-      )}
-
-      <div className="mx-auto w-full max-w-[746px]">
-        <div className="mb-8 lg:mb-10">
-          <h1 className="text-[clamp(28px,4vw,32px)] font-medium leading-[38px] text-[#111111]">
+    <AuthFrame footerMinimal contentAlignment="rail"> {/* Match the source x603 form origin. */}
+      <div className={styles.content}> {/* Preserve the 746px reference width. */}
+        {(validationError || error) && <div role="alert" className={styles.feedback}><Image src="/design-assets/icons/auth-warning.svg" alt="" width={24} height={24} />{validationError || error}</div>} {/* Show actual failures without covering narrow-screen fields. */}
+        <div className="mb-10"> {/* Keep the source 40px heading gap. */}
+          <h1 className={styles.title}> {/* Use fixed typography with responsive wrapping. */}
             Sign Up as a {roleLabels[selectedRole]} to{" "}
             <span className="text-[#008080]">Neuro Bridge Africa</span>
           </h1>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-6">
+        <form onSubmit={handleSubmit} className={styles.form} aria-busy={busy}> {/* Expose request state to assistive technology. */}
+          <fieldset disabled={busy} className={styles.fields}> {/* Freeze every field and visibility control while submitting. */}
           {selectedRole === "THERAPIST" ? (
             <div className="grid gap-6 sm:grid-cols-2">
               <FormField
@@ -183,6 +180,7 @@ export default function RegisterPage({
                 onChange={handleChange}
                 placeholder="Enter your full name"
               />
+              <div className={styles.dateField} data-empty={!formData.dateOfBirth}> {/* Decorate the native date input with the source calendar and placeholder. */}
               <FormField
                 label="Date of Birth"
                 name="dateOfBirth"
@@ -191,6 +189,7 @@ export default function RegisterPage({
                 value={formData.dateOfBirth}
                 onChange={handleChange}
               />
+              </div> {/* Keep the native picker and label together. */}
             </div>
           ) : (
             <div className="grid gap-6 sm:grid-cols-2">
@@ -216,6 +215,7 @@ export default function RegisterPage({
           )}
 
           <div className="grid gap-6 sm:grid-cols-2">
+            <div className={selectedRole === "PARENT" ? styles.dateField : undefined} data-empty={!formData.dateOfBirth}> {/* Apply date decoration only to the parent's birth-date slot. */}
             <FormField
               label={selectedRole === "THERAPIST" ? "Email or Phone Number" : "Date of Birth"}
               name={selectedRole === "THERAPIST" ? "identifier" : "dateOfBirth"}
@@ -225,6 +225,7 @@ export default function RegisterPage({
               onChange={handleChange}
               placeholder={selectedRole === "THERAPIST" ? "Enter your email or phone number" : undefined}
             />
+            </div> {/* Preserve the field's grid cell across role variants. */}
             {selectedRole === "THERAPIST" ? (
               <SelectField
                 label="Area of Expertise"
@@ -262,7 +263,7 @@ export default function RegisterPage({
               value={formData.password}
               onChange={handleChange}
               placeholder="Enter password"
-              rightIcon={<EyeIcon hidden={!showPassword} />}
+              rightIcon={<EyeIcon hidden={!showPassword} filled={Boolean(formData.password)} />} // Use the original Figma visibility state.
               rightIconLabel={showPassword ? "Hide password" : "Show password"}
               onRightIconClick={() => setShowPassword((visible) => !visible)}
               error={
@@ -270,7 +271,6 @@ export default function RegisterPage({
                   ? validationError
                   : undefined
               }
-              helpText={passwordRuleMessage}
             />
             <FormField
               label="Confirm Your Password"
@@ -279,7 +279,7 @@ export default function RegisterPage({
               required
               value={formData.confirmPassword}
               onChange={handleChange}
-              placeholder="Confirm password"
+              placeholder="Confirm your new password" // Preserve the source placeholder copy.
               status={
                 passwordMatches
                   ? "success"
@@ -297,28 +297,30 @@ export default function RegisterPage({
                   ? "Password matches"
                   : undefined
               }
-              rightIcon={<EyeIcon hidden={!showConfirmPassword} />}
-              rightIconLabel={showConfirmPassword ? "Hide password" : "Show password"}
+              rightIcon={<EyeIcon hidden={!showConfirmPassword} filled={Boolean(formData.confirmPassword)} />} // Preserve independent confirmation visibility.
+              rightIconLabel={showConfirmPassword ? "Hide confirmation password" : "Show confirmation password"} // Give the second visibility action a distinct accessible name.
               onRightIconClick={() => setShowConfirmPassword((visible) => !visible)}
             />
           </div>
 
-          <div className="flex w-full justify-center pt-1">
+          </fieldset> {/* End the request-locked input group. */}
+          <div className="flex w-full justify-center"> {/* Keep the source 24px field-to-button gap. */}
             <AppButton
               type="submit"
-              disabled={isLoading}
+              loading={busy} // Prevent repeat submissions through the shared button.
+              leftIcon={busy ? <Image className={styles.spinner} src="/design-assets/icons/auth-loading.svg" alt="" width={24} height={24} /> : undefined} // Use the exported loading glyph.
               className="mx-auto w-full max-w-[361px] cursor-pointer"
               variant="primary"
               size="lg"
             >
-              {isLoading ? "Loading" : "Sign Up"}
+              {busy ? "Loading" : "Sign Up"} {/* Preserve the pending label during navigation. */}
             </AppButton>
           </div>
         </form>
 
-        <p className="mt-5 text-center text-base font-medium leading-6 text-[#111111]">
+        <p className="mt-4 text-center text-base font-medium leading-6 text-[#111111]"> {/* Match the source 16px action-to-link gap. */}
           Already have an account?{" "}
-          <Link href="/login" className="text-[#008080] underline">
+          <Link href={`/login?role=${selectedRole}`} className="text-[#008080] underline"> {/* Keep the selected audience across auth routes. */}
             Login
           </Link>
         </p>
